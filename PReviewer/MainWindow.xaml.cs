@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Octokit;
+using PReviewer.Model;
 
 namespace GitReviewer
 {
@@ -28,26 +29,7 @@ namespace GitReviewer
 
         private async void OnBtnTestClicked(object sender, RoutedEventArgs e)
         {
-            var github = new GitHubClient(new ProductHeaderValue("PReviewer"));
-
-            var userName = "test";
-            var pwd = "test";
-
-            var credential = new Credentials(userName, pwd);
-            var newAuthorization = new NewAuthorization
-            {
-                Scopes = new List<string> { "user", "repo" },
-                Note = "PReviewer"
-            };
-
-            github.Credentials = credential;
-
-            var authorization = await github.Authorization.GetOrCreateApplicationAuthentication(
-                 "bf1e8f76de041537f93e",
-                "bfe6a01cebe6b96455dedc5572aefcfe7033c9bb",
-                newAuthorization);
-
-            github.Connection.Credentials = new Credentials(authorization.Token);
+            var github = await GitHubClientFactory.GetClient("EbenZhangEmbed", "Kaspersky");
 
             var commitsClient = github.Repository.Commits;
             var diff = await commitsClient.Compare("EmbedCard", "ECS7", 
