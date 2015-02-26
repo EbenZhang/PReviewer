@@ -31,9 +31,9 @@
         </TextBox>
         
         <TextBlock Grid.Row="2" Grid.Column="0">Password:</TextBlock>
-        <PasswordBox Grid.Row="2" Grid.Column="2" utils:PasswordBoxHelper.Attach="True">
+        <PasswordBox x:Name="passwordBox" Grid.Row="2" Grid.Column="2" utils:PasswordBoxHelper.Attach="True">
             <utils:PasswordBoxHelper.Password>
-                <Binding Path="Password">
+                <Binding Path="Password" Mode="TwoWay">
                     <Binding.ValidationRules>
                         <validations:MinLengthValidator MinLength="1"/>
                     </Binding.ValidationRules>
