@@ -27,6 +27,7 @@ namespace PReviewer.VM
         private string _UserName;
 
         private string _Password;
+        private bool _IsProcessing;
 
         public string UserName
         {
@@ -44,6 +45,16 @@ namespace PReviewer.VM
             set
             {
                 _Password = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool IsProcessing
+        {
+            get { return _IsProcessing; }
+            set
+            {
+                _IsProcessing = value;
                 RaisePropertyChanged();
             }
         }
@@ -76,7 +87,7 @@ namespace PReviewer.VM
                     };
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 try
                 {
@@ -105,9 +116,18 @@ namespace PReviewer.VM
 
         public async Task<IGitHubClient> Login()
         {
-            var client = await GitHubClientFactory.GetClient(this.UserName, this.Password);
-            this.SaveToFile();
-            return client;
+            IsProcessing = true;
+            try
+            {
+                var client = await GitHubClientFactory.GetClient(this.UserName, this.Password);
+                this.SaveToFile();
+                return client;
+            }
+            catch
+            {
+                IsProcessing = false;
+                throw;
+            }
         }
     }
 }

@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:validations="clr-namespace:WpfCommon.Validations;assembly=WpfCommon"
         xmlns:utils="clr-namespace:WpfCommon.Utils;assembly=WpfCommon"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:wpfcommon="clr-namespace:WpfCommon;assembly=WpfCommon"
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWnd"
         Title="LoginWnd" SizeToContent="WidthAndHeight" MinWidth="220">
@@ -10,6 +12,13 @@
     <Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding LoginCmd, ElementName=ThisWnd}" />
     </Window.InputBindings>
+    <Window.IsEnabled>
+        <Binding Path="IsProcessing">
+            <Binding.Converter>
+                <wpfcommon:InverseBooleanConverter/>
+            </Binding.Converter>
+        </Binding>
+    </Window.IsEnabled>
     <Grid Margin="6,2,6,2">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -44,11 +53,20 @@
                 </Binding>
             </utils:PasswordBoxHelper.Password>
         </PasswordBox>
-        
-        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
-                HorizontalAlignment="Center"
-                Command="{Binding LoginCmd, ElementName=ThisWnd}">
+
+
+        <Button 
+            Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+            HorizontalAlignment="Center"
+            Command="{Binding LoginCmd, ElementName=ThisWnd}">
             Login
         </Button>
+
+        <xctk:BusyIndicator 
+            Grid.Column="0" Grid.Row="0" 
+            Grid.ColumnSpan="3"
+            Grid.RowSpan="5"
+            IsBusy="{Binding IsProcessing}" BusyContent="Loging...">
+        </xctk:BusyIndicator>
     </Grid>
 </Window>
