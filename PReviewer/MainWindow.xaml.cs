@@ -27,14 +27,8 @@ namespace GitReviewer
             InitializeComponent();
         }
 
-        private async void OnBtnTestClicked(object sender, RoutedEventArgs e)
+        private void OnBtnTestClicked(object sender, RoutedEventArgs e)
         {
-            var github = await GitHubClientFactory.GetClient("EbenZhangEmbed", "Kaspersky");
-
-            var commitsClient = github.Repository.Commits;
-            var diff = await commitsClient.Compare("EmbedCard", "ECS7", 
-                "be16c51eca417c7c306949e2f9db27c2bada0a91",
-                "9352125b64db53e3ba15083215a8abf7983215a5");
         }
     }
 }
