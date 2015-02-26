@@ -62,11 +62,12 @@ namespace PReviewer
                 if (client == null) return;
 
                 ViewModelLocator.RegisterInstance<IGitHubClient, IGitHubClient>(client);
-                Close();
 
                 var main = new MainWindow();
                 App.Current.MainWindow = main;
-                main.ShowDialog();
+                main.Show();
+
+                Close();
             }
             catch (Exception ex)
             {
