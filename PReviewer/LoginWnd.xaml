@@ -4,7 +4,7 @@
         xmlns:validations="clr-namespace:WpfCommon.Validations;assembly=WpfCommon"
         xmlns:utils="clr-namespace:WpfCommon.Utils;assembly=WpfCommon"
         x:Name="ThisWnd"
-        Title="LoginWnd" Height="300" Width="300">
+        Title="LoginWnd" SizeToContent="WidthAndHeight" MinWidth="220">
     <Grid Margin="6,2,2,6">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -40,7 +40,9 @@
             </utils:PasswordBoxHelper.Password>
         </PasswordBox>
         
-        <Button Grid.Row="4" Command="{Binding LoginCmd, ElementName=ThisWnd}">
+        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                HorizontalAlignment="Center"
+                Command="{Binding LoginCmd, ElementName=ThisWnd}">
             Login
         </Button>
     </Grid>
