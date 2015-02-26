@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using GalaSoft.MvvmLight.Command;
 using GitReviewer;
 using Octokit;
@@ -37,10 +38,13 @@ namespace PReviewer
 
         void LoginWnd_Loaded(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(_viewModel.UserName))
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
-                Login();
-            }
+                if (!string.IsNullOrWhiteSpace(_viewModel.UserName))
+                {
+                    Login();
+                }
+            }));
         }
 
         public ICommand LoginCmd
