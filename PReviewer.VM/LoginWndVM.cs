@@ -14,11 +14,18 @@ using PReviewer.Model;
 
 namespace PReviewer.VM
 {
-    [Serializable]
     public class LoginWndVm : ViewModelBase
     {
+        [Serializable]
+        private struct LoginCredential
+        {
+            public string UserName;
+            public string Password;
+        }
         private static readonly string LoginCredentialFile = Path.Combine(PathHelper.ProcessAppDir, "LoginCredential.bin");
+     
         private string _UserName;
+
         private string _Password;
 
         public string UserName
@@ -41,31 +48,65 @@ namespace PReviewer.VM
             }
         }
 
+        private LoginCredential GetCredential()
+        {
+            return new LoginCredential()
+            {
+                UserName = this.UserName,
+                Password = this.Password
+            };
+        }
+
         public static LoginWndVm LoadFromFile()
         {
             if (!File.Exists(LoginCredentialFile))
             {
                 return new LoginWndVm();
             }
-            using (var stream = File.OpenRead(LoginCredentialFile))
+            try
             {
-                var fmt = new BinaryFormatter();
-                return fmt.Deserialize(stream) as LoginWndVm;
+                using (var stream = File.OpenRead(LoginCredentialFile))
+                {
+                    var fmt = new BinaryFormatter();
+                    var credential = (LoginCredential) fmt.Deserialize(stream);
+                    return new LoginWndVm()
+                    {
+                        UserName = credential.UserName,
+                        Password = credential.Password,
+                    };
+                }
             }
+            catch (Exception ex)
+            {
+                try
+                {
+                    File.Delete(LoginCredentialFile);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+            return new LoginWndVm();
         }
 
         public void SaveToFile()
         {
+            if (string.IsNullOrWhiteSpace(UserName))
+            {
+                return;
+            }
             var formatter = new BinaryFormatter();
             using (var stream = File.OpenWrite(LoginCredentialFile))
             {
-                formatter.Serialize(stream, this);
+                formatter.Serialize(stream, GetCredential());
             }
         }
 
         public async Task<IGitHubClient> Login()
         {
             var client = await GitHubClientFactory.GetClient(this.UserName, this.Password);
+            this.SaveToFile();
             return client;
         }
     }
