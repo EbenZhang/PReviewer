@@ -6,7 +6,11 @@
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWnd"
         Title="LoginWnd" SizeToContent="WidthAndHeight" MinWidth="220">
-    <Grid Margin="6,2,2,6">
+    
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding LoginCmd, ElementName=ThisWnd}" />
+    </Window.InputBindings>
+    <Grid Margin="6,2,6,2">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="10"/>
