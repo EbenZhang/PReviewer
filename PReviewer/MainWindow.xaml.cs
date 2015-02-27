@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using Octokit;
 using PReviewer.Model;
 
-namespace GitReviewer
+namespace PReviewer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

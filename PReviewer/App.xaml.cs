@@ -6,9 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ExtendedCL;
-using PReviewer;
 
-namespace GitReviewer
+namespace PReviewer
 {
     /// <summary>
     /// Interaction logic for App.xaml
