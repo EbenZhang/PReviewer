@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Command;
-using GitReviewer;
+using PReviewer;
 using Octokit;
 using PReviewer.Domain;
 using WpfCommon;
@@ -32,7 +32,7 @@ namespace PReviewer
         {
             InitializeComponent();
             _viewModel = DataContext as LoginWndVm;
-            _viewModel.LoadFromFile();
+            _viewModel.LoadCredential();
             this.Loaded += LoginWnd_Loaded;
         }
 

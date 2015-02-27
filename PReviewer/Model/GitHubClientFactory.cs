@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Octokit;
+using PReviewer.Domain;
 
 namespace PReviewer.Model
 {
-    public interface IGitHubClientFactory
-    {
-        Task<IGitHubClient> GetClient(string userName, string password);
-    }
     public class GitHubClientFactory : IGitHubClientFactory
     {
         public async Task<IGitHubClient> GetClient(string userName, string password)

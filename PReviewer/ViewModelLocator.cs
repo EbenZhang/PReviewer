@@ -33,6 +33,7 @@ namespace PReviewer
             // via its interface:
             _builder.RegisterType<LoginWndVm>().AsSelf();
             _builder.RegisterInstance(new GitHubClientFactory()).As<IGitHubClientFactory>();
+            _builder.RegisterInstance(new CredentialPersisit()).As<ICredentialPersisit>();
             _container = _builder.Build();
         }
 
