@@ -90,10 +90,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ViewModelLocator.cs" />
-    <Page Include="Fixes.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="LoginWnd.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

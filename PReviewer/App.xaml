@@ -9,7 +9,7 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Fixes.xaml" />
+        <ResourceDictionary Source="/WpfCommon;Component/Xaml/Fixes.xaml" />
       </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:PReviewer" />
     </ResourceDictionary>
