@@ -89,7 +89,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="Domain\LoginWndVm.cs" />
     <Page Include="LoginWnd.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -142,14 +144,6 @@
     <ProjectReference Include="..\ExtendedCL\ExtendedCL\ExtendedCL.csproj">
       <Project>{e4142c9c-2afd-4579-97e2-767f3196ac4e}</Project>
       <Name>ExtendedCL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PReviewer.Model\PReviewer.Model.csproj">
-      <Project>{05efe56c-5a81-469e-a337-a28b0d26dd32}</Project>
-      <Name>PReviewer.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PReviewer.VM\PReviewer.VM.csproj">
-      <Project>{572B521E-3DFF-4ABC-93C6-BB10715ED1FE}</Project>
-      <Name>PReviewer.VM</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfCommon\WpfCommon.csproj">
       <Project>{c66b81d7-c73e-41bf-8494-5cec64b21efe}</Project>

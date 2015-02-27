@@ -16,7 +16,7 @@ using System.Windows.Threading;
 using GalaSoft.MvvmLight.Command;
 using GitReviewer;
 using Octokit;
-using PReviewer.VM;
+using PReviewer.Domain;
 using WpfCommon;
 using WpfCommon.Utils;
 

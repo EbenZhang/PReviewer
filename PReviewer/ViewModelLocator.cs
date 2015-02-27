@@ -13,7 +13,7 @@
 */
 
 using Autofac;
-using PReviewer.VM;
+using PReviewer.Domain;
 
 namespace PReviewer
 {

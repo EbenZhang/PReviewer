@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Server;
 using Octokit;
 using PReviewer.Model;
 
-namespace PReviewer.VM
+namespace PReviewer.Domain
 {
     public class LoginWndVm : ViewModelBase
     {
