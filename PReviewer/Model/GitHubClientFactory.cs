@@ -7,9 +7,13 @@ using Octokit;
 
 namespace PReviewer.Model
 {
-    public static class GitHubClientFactory
+    public interface IGitHubClientFactory
     {
-        public static async Task<IGitHubClient> GetClient(string userName, string password)
+        Task<IGitHubClient> GetClient(string userName, string password);
+    }
+    public class GitHubClientFactory : IGitHubClientFactory
+    {
+        public async Task<IGitHubClient> GetClient(string userName, string password)
         {
             var github = new GitHubClient(new ProductHeaderValue("PReviewer"));
 

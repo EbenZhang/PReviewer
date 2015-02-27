@@ -31,8 +31,8 @@ namespace PReviewer
         public LoginWnd()
         {
             InitializeComponent();
-            _viewModel = LoginWndVm.LoadFromFile();
-            DataContext = _viewModel;
+            _viewModel = DataContext as LoginWndVm;
+            _viewModel.LoadFromFile();
             this.Loaded += LoginWnd_Loaded;
         }
 

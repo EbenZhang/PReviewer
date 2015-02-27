@@ -14,6 +14,7 @@
 
 using Autofac;
 using PReviewer.Domain;
+using PReviewer.Model;
 
 namespace PReviewer
 {
@@ -31,6 +32,7 @@ namespace PReviewer
             // Usually you're only interested in exposing the type
             // via its interface:
             _builder.RegisterType<LoginWndVm>().AsSelf();
+            _builder.RegisterInstance(new GitHubClientFactory()).As<IGitHubClientFactory>();
             _container = _builder.Build();
         }
 

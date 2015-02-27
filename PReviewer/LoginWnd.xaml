@@ -8,7 +8,11 @@
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWnd"
         Title="LoginWnd" SizeToContent="WidthAndHeight" MinWidth="220">
-    
+
+    <Window.DataContext>
+        <Binding Path="LoginWndVm" Source="{StaticResource ViewModelLocator}"/>
+    </Window.DataContext>
+
     <Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding LoginCmd, ElementName=ThisWnd}" />
     </Window.InputBindings>

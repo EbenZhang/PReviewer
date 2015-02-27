@@ -11,7 +11,7 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/WpfCommon;Component/Xaml/Fixes.xaml" />
       </ResourceDictionary.MergedDictionaries>
-            <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:PReviewer" />
+            <vm:ViewModelLocator x:Key="ViewModelLocator" d:IsDataSource="True" xmlns:vm="clr-namespace:PReviewer" />
     </ResourceDictionary>
   </Application.Resources>
 </Application>

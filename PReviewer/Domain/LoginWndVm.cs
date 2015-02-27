@@ -16,6 +16,13 @@ namespace PReviewer.Domain
 {
     public class LoginWndVm : ViewModelBase
     {
+        private readonly IGitHubClientFactory _gitHubClientFactory;
+
+        public LoginWndVm(IGitHubClientFactory gitHubClientFactory)
+        {
+            _gitHubClientFactory = gitHubClientFactory;
+        }
+
         [Serializable]
         private struct LoginCredential
         {
@@ -68,11 +75,11 @@ namespace PReviewer.Domain
             };
         }
 
-        public static LoginWndVm LoadFromFile()
+        public void LoadFromFile()
         {
             if (!File.Exists(LoginCredentialFile))
             {
-                return new LoginWndVm();
+                return;
             }
             try
             {
@@ -80,11 +87,9 @@ namespace PReviewer.Domain
                 {
                     var fmt = new BinaryFormatter();
                     var credential = (LoginCredential) fmt.Deserialize(stream);
-                    return new LoginWndVm()
-                    {
-                        UserName = credential.UserName,
-                        Password = credential.Password,
-                    };
+
+                    UserName = credential.UserName;
+                    Password = credential.Password;
                 }
             }
             catch
@@ -98,7 +103,6 @@ namespace PReviewer.Domain
                     // ignored
                 }
             }
-            return new LoginWndVm();
         }
 
         public void SaveToFile()
@@ -119,7 +123,7 @@ namespace PReviewer.Domain
             IsProcessing = true;
             try
             {
-                var client = await GitHubClientFactory.GetClient(this.UserName, this.Password);
+                var client = await _gitHubClientFactory.GetClient(this.UserName, this.Password);
                 this.SaveToFile();
                 return client;
             }
