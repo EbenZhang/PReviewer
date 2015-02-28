@@ -93,13 +93,13 @@
     <Compile Include="Domain\IGitHubClientFactory.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
-    <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
-    <Page Include="LoginWnd.xaml">
+    <Page Include="UI\LoginWnd.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="UI\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -107,10 +107,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LoginWnd.xaml.cs">
+    <Compile Include="UI\LoginWnd.xaml.cs">
       <DependentUpon>LoginWnd.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="UI\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

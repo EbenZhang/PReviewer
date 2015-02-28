@@ -13,10 +13,9 @@
 */
 
 using Autofac;
-using PReviewer.Domain;
 using PReviewer.Model;
 
-namespace PReviewer
+namespace PReviewer.Domain
 {
     /// <summary>
     /// This class contains static references to all the view models in the
