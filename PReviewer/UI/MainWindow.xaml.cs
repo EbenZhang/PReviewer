@@ -26,7 +26,7 @@ namespace PReviewer.UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowVm _viewModel;
+        private readonly MainWindowVm _viewModel;
         public MainWindow()
         {
             InitializeComponent();
@@ -62,14 +62,14 @@ namespace PReviewer.UI
             {
                 await _viewModel.RetrieveDiffs();
             }
-            catch (NotFoundException ex)
+            catch (NotFoundException)
             {
                 MessageBoxHelper.ShowError(this, "Unable to find the pull request.");
             }
 
             catch (Exception ex)
             {
-                MessageBoxHelper.ShowError(this, "Unable to get changes.\r\n" + ex.ToString());
+                MessageBoxHelper.ShowError(this, "Unable to get changes.\r\n" + ex);
             }
         }
     }

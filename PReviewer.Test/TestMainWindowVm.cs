@@ -43,13 +43,16 @@ namespace PReviewer.Test
 
             _mainWindowVm = new MainWindowVm(_gitHubClient)
             {
-                Repository = "repo",
-                Owner = "owner",
-                PullRequestNumber = new Random().Next(),
+                PullRequestLocator = new PReviewer.Domain.PullRequestLocator()
+                {
+                    Repository = "repo",
+                    Owner = "owner",
+                    PullRequestNumber = new Random().Next()
+                }
             };
 
             _pullRequest = new MockPullRequest();
-            _prClient.Get(_mainWindowVm.Owner, _mainWindowVm.Repository, _mainWindowVm.PullRequestNumber).Returns(Task.FromResult((PullRequest)_pullRequest));
+            _prClient.Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository, _mainWindowVm.PullRequestLocator.PullRequestNumber).Returns(Task.FromResult((PullRequest)_pullRequest));
         }
 
         [Test]
@@ -58,8 +61,8 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
 
 #pragma warning disable 4014
-            _prClient.Received(1).Get(_mainWindowVm.Owner, _mainWindowVm.Repository, _mainWindowVm.PullRequestNumber);
-            _commitsClient.Received(1).Compare(_mainWindowVm.Owner, _mainWindowVm.Repository, _pullRequest.Base.Sha, _pullRequest.Head.Sha);
+            _prClient.Received(1).Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository, _mainWindowVm.PullRequestLocator.PullRequestNumber);
+            _commitsClient.Received(1).Compare(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository, _pullRequest.Base.Sha, _pullRequest.Head.Sha);
 #pragma warning restore 4014
             Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File1));
             Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File2));

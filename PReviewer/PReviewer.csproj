@@ -102,6 +102,7 @@
     <Compile Include="Domain\ICredentialPersisit.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
+    <Compile Include="Domain\PullRequestLocator.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />

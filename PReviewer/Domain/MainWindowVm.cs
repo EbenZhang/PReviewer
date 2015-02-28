@@ -13,46 +13,14 @@ namespace PReviewer.Domain
     public class MainWindowVm : ViewModelBase
     {
         private readonly IGitHubClient _client;
-        private string _Repository;
-        private string _Owner;
-        private int _PullRequestNumber;
         private bool _IsProcessing;
         private string _PullRequestUrl;
+        private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
 
         public MainWindowVm(IGitHubClient client)
         {
             Diffs = new ObservableCollection<GitHubCommitFile>();
             _client = client;
-        }
-
-        public string Repository
-        {
-            get { return _Repository; }
-            set
-            {
-                _Repository = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public string Owner
-        {
-            get { return _Owner; }
-            set
-            {
-                _Owner = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public int PullRequestNumber
-        {
-            get { return _PullRequestNumber; }
-            set
-            {
-                _PullRequestNumber = value; 
-                RaisePropertyChanged();
-            }
         }
 
         public ObservableCollection<GitHubCommitFile> Diffs { get; set; }
@@ -77,15 +45,28 @@ namespace PReviewer.Domain
             }
         }
 
+        public PullRequestLocator PullRequestLocator
+        {
+            get
+            {
+                return _PullRequestLocator;
+            }
+            set
+            {
+                _PullRequestLocator = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public async Task RetrieveDiffs()
         {
             IsProcessing = true;
             try
             {
                 var repo = _client.Repository;
-                var pr = await repo.PullRequest.Get(Owner, Repository, PullRequestNumber);
+                var pr = await repo.PullRequest.Get(PullRequestLocator.Owner, PullRequestLocator.Repository, PullRequestLocator.PullRequestNumber);
                 var commitsClient = repo.Commits;
-                var compareResult = await commitsClient.Compare(Owner, Repository, pr.Base.Sha, pr.Head.Sha);
+                var compareResult = await commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha, pr.Head.Sha);
                 Diffs.Assign(compareResult.Files);
             }
             finally
