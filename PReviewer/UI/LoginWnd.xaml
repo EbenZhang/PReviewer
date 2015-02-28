@@ -5,6 +5,7 @@
         xmlns:utils="clr-namespace:WpfCommon.Utils;assembly=WpfCommon"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:wpfcommon="clr-namespace:WpfCommon;assembly=WpfCommon"
+        xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWnd"
         Title="LoginWnd" SizeToContent="WidthAndHeight" MinWidth="220">
@@ -19,7 +20,7 @@
     <Window.IsEnabled>
         <Binding Path="IsProcessing">
             <Binding.Converter>
-                <wpfcommon:InverseBooleanConverter/>
+                <converter:InverseBooleanConverter/>
             </Binding.Converter>
         </Binding>
     </Window.IsEnabled>
