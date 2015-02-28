@@ -13,6 +13,7 @@
 */
 
 using Autofac;
+using Autofac.Core;
 using PReviewer.Model;
 
 namespace PReviewer.Domain
@@ -31,6 +32,7 @@ namespace PReviewer.Domain
             // Usually you're only interested in exposing the type
             // via its interface:
             _builder.RegisterType<LoginWndVm>().AsSelf();
+            _builder.RegisterType<MainWindowVm>().AsSelf();
             _builder.RegisterInstance(new GitHubClientFactory()).As<IGitHubClientFactory>();
             _builder.RegisterInstance(new CredentialPersisit()).As<ICredentialPersisit>();
             _container = _builder.Build();
@@ -61,6 +63,15 @@ namespace PReviewer.Domain
         public LoginWndVm LoginWndVm
         {
             get { return _container.Resolve<LoginWndVm>(); }
+        }
+
+        public MainWindowVm MainWindowVm
+        {
+            get
+            {
+                var client = _container.Resolve<IGitHubClientFactory>().GetClient(null, null).Result;
+                return _container.Resolve<MainWindowVm>(TypedParameter.From(client));
+            }
         }
         
         public static void Cleanup()

@@ -17,6 +17,7 @@ namespace PReviewer.Domain
         private string _Owner;
         private int _PullRequestNumber;
         private bool _IsProcessing;
+        private string _PullRequestUrl;
 
         public MainWindowVm(IGitHubClient client)
         {
@@ -62,6 +63,16 @@ namespace PReviewer.Domain
             set
             {
                 _IsProcessing = value; 
+                RaisePropertyChanged();
+            }
+        }
+
+        public string PullRequestUrl
+        {
+            get { return _PullRequestUrl; }
+            set
+            {
+                _PullRequestUrl = value;
                 RaisePropertyChanged();
             }
         }

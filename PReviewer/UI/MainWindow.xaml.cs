@@ -12,8 +12,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GalaSoft.MvvmLight.CommandWpf;
 using Octokit;
+using PReviewer.Domain;
 using PReviewer.Model;
+using PReviewer.UI;
+using WpfCommon.Utils;
 
 namespace PReviewer
 {
@@ -22,13 +26,33 @@ namespace PReviewer
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowVm _viewModel;
         public MainWindow()
         {
+            _viewModel = DataContext as MainWindowVm;
             InitializeComponent();
         }
 
-        private void OnBtnTestClicked(object sender, RoutedEventArgs e)
+        public ICommand ShowChangesCmd
         {
+            get
+            {
+                return new RelayCommand(ShowChanges);
+            }
+        }
+
+        private void ShowChanges()
+        {
+            if (!this.ValidateAutoCompleteBoxes())
+            {
+                return;
+            }
+            if (!this.ValidateTextBoxes())
+            {
+                return;
+            }
+
+            _viewModel.RetrieveDiffs();
         }
     }
 }
