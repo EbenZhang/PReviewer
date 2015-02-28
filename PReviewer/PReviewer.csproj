@@ -91,6 +91,7 @@
     </ApplicationDefinition>
     <Compile Include="Domain\ICredentialPersisit.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
+    <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />

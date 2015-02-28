@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="TestLoginVm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestMainWindowVm.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
