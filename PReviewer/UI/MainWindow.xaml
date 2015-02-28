@@ -18,6 +18,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Header="Pull Request / Branch">
+            <GroupBox.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding ShowChangesCmd, ElementName=ThisWnd}"></KeyBinding>
+            </GroupBox.InputBindings>
             <Grid Margin="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
