@@ -8,7 +8,7 @@
         xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWnd"
-        Title="LoginWnd" SizeToContent="WidthAndHeight" MinWidth="220">
+        Title="Login" SizeToContent="WidthAndHeight" MinWidth="220">
 
     <Window.DataContext>
         <Binding Path="LoginWndVm" Source="{StaticResource ViewModelLocator}"/>
@@ -25,6 +25,15 @@
         </Binding>
     </Window.IsEnabled>
     <Grid Margin="6,2,6,2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical">
+            <TextBlock>Login to your GitHub account</TextBlock>
+            <Separator Height="2"></Separator>
+        </StackPanel>
+        <Grid Grid.Row="1" Margin="4,0,4,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="10"/>
@@ -73,5 +82,6 @@
             Grid.RowSpan="5"
             IsBusy="{Binding IsProcessing}" BusyContent="Loging...">
         </xctk:BusyIndicator>
+    </Grid>
     </Grid>
 </Window>
