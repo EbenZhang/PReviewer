@@ -64,7 +64,7 @@ namespace PReviewer.UI
             }
             catch (NotFoundException)
             {
-                MessageBoxHelper.ShowError(this, "Unable to find the pull request.");
+                MessageBoxHelper.ShowError(this, "Unable to find the pull request.\r\nEither the information you provided is incorrect or you don't have permission to view the pull request.");
             }
 
             catch (Exception ex)

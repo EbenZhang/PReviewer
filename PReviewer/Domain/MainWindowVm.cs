@@ -16,6 +16,7 @@ namespace PReviewer.Domain
         private bool _IsProcessing;
         private string _PullRequestUrl;
         private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
+        private bool _IsUrlMode = true;
 
         public MainWindowVm(IGitHubClient client)
         {
@@ -58,11 +59,39 @@ namespace PReviewer.Domain
             }
         }
 
+        /// <summary>
+        /// Indicates if pull request Url selected.
+        /// In this mode, we need to parse the Url to get the
+        ///  - Owner
+        ///  - Repo
+        ///  - PR number.
+        /// </summary>
+        public bool IsUrlMode
+        {
+            get { return _IsUrlMode; }
+            set
+            {
+                _IsUrlMode = value; 
+                RaisePropertyChanged();
+            }
+        }
+
         public async Task RetrieveDiffs()
         {
             IsProcessing = true;
             try
             {
+                if (IsUrlMode)
+                {
+                    try
+                    {
+                        PullRequestLocator.UpdateWith(PullRequestUrl);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new UriFormatException(ex.ToString());
+                    }
+                }
                 var repo = _client.Repository;
                 var pr = await repo.PullRequest.Get(PullRequestLocator.Owner, PullRequestLocator.Repository, PullRequestLocator.PullRequestNumber);
                 var commitsClient = repo.Commits;

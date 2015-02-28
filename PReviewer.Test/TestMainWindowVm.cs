@@ -23,6 +23,13 @@ namespace PReviewer.Test
         private MainWindowVm _mainWindowVm;
         private MockPullRequest _pullRequest;
 
+        private PullRequestLocator _pullRequestLocator = new PReviewer.Domain.PullRequestLocator()
+        {
+            Repository = "repo",
+            Owner = "owner",
+            PullRequestNumber = new Random().Next()
+        };
+
         [SetUp]
         public void SetUp()
         {
@@ -43,12 +50,8 @@ namespace PReviewer.Test
 
             _mainWindowVm = new MainWindowVm(_gitHubClient)
             {
-                PullRequestLocator = new PReviewer.Domain.PullRequestLocator()
-                {
-                    Repository = "repo",
-                    Owner = "owner",
-                    PullRequestNumber = new Random().Next()
-                }
+                PullRequestLocator = _pullRequestLocator,
+                IsUrlMode = false
             };
 
             _pullRequest = new MockPullRequest();
@@ -99,6 +102,43 @@ namespace PReviewer.Test
             Assert.Throws<Exception>(async () => await _mainWindowVm.RetrieveDiffs());
 
             Assert.False(_mainWindowVm.IsProcessing);
+        }
+
+        [Test]
+        public void ShouldBeInUrlModeByDefault()
+        {
+            Assert.True(new MainWindowVm(_gitHubClient).IsUrlMode);
+        }
+
+        [Test]
+        public async void ShouldUpdatePRLocator_WhenRetrieveChangesInUrlMode()
+        {
+            _mainWindowVm.IsUrlMode = true;
+            _mainWindowVm.PullRequestUrl = string.Format(@"https://github.com/{0}/{1}/pull/{2}",
+                _pullRequestLocator.Owner,
+                _pullRequestLocator.Repository,
+                _pullRequestLocator.PullRequestNumber);
+            _mainWindowVm.PullRequestLocator.Owner = "AnotherOwner";
+            _mainWindowVm.PullRequestLocator.Repository = "AnotherRepo";
+            _mainWindowVm.PullRequestLocator.PullRequestNumber = _pullRequestLocator.PullRequestNumber + 11;
+
+            await _mainWindowVm.RetrieveDiffs();
+            Assert.That(_mainWindowVm.PullRequestLocator.Owner, Is.EqualTo(_pullRequestLocator.Owner));
+            Assert.That(_mainWindowVm.PullRequestLocator.Repository, Is.EqualTo(_pullRequestLocator.Repository));
+            Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber, Is.EqualTo(_pullRequestLocator.PullRequestNumber));
+        }
+
+        [Test]
+#pragma warning disable 1998
+        public async void GivenAnInvalidUrl_ShouldThrowAnException()
+#pragma warning restore 1998
+        {
+            _mainWindowVm.IsUrlMode = true;
+            _mainWindowVm.PullRequestUrl = "";
+            Assert.Throws<UriFormatException>(async () => await _mainWindowVm.RetrieveDiffs());
+
+            _mainWindowVm.PullRequestUrl = "asl;dfkjasldf";
+            Assert.Throws<UriFormatException>(async () => await _mainWindowVm.RetrieveDiffs());
         }
     }
 

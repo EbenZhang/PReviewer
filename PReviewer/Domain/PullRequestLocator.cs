@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using GalaSoft.MvvmLight;
 
 namespace PReviewer.Domain
@@ -36,6 +37,27 @@ namespace PReviewer.Domain
                 _PullRequestNumber = value;
                 RaisePropertyChanged();
             }
+        }
+
+        public static PullRequestLocator FromUrl(string url)
+        {
+            var ret = new PullRequestLocator();
+            FromUrl(ret, url);
+            return ret;
+        }
+
+        public void UpdateWith(string url)
+        {
+            FromUrl(this, url);
+        }
+
+        private static void FromUrl(PullRequestLocator locator, string url)
+        {
+            url = Regex.Replace(url, @"HTTPS://|http://", "", RegexOptions.IgnoreCase);
+            var splited = url.Split(new char[] { '/' });
+            locator.Owner = splited[1];
+            locator.Repository = splited[2];
+            locator.PullRequestNumber = int.Parse(splited[4]);
         }
     }
 }
