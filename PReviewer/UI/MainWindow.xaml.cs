@@ -29,8 +29,8 @@ namespace PReviewer.UI
         private MainWindowVm _viewModel;
         public MainWindow()
         {
-            _viewModel = DataContext as MainWindowVm;
             InitializeComponent();
+            _viewModel = DataContext as MainWindowVm;
         }
 
         public ICommand ShowChangesCmd
