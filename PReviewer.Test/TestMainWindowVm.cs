@@ -45,7 +45,7 @@ namespace PReviewer.Test
             {
                 Repository = "repo",
                 Owner = "owner",
-                PullRequestNumber = 11,
+                PullRequestNumber = new Random().Next(),
             };
 
             _pullRequest = new MockPullRequest();
@@ -53,18 +53,20 @@ namespace PReviewer.Test
         }
 
         [Test]
-        public void ShouldBeAbleToGetDiffsForPullRequest()
+        public async void ShouldBeAbleToGetDiffsForPullRequest()
         {
-            _mainWindowVm.RetrieveDiffs();
+            await _mainWindowVm.RetrieveDiffs();
 
+#pragma warning disable 4014
             _prClient.Received(1).Get(_mainWindowVm.Owner, _mainWindowVm.Repository, _mainWindowVm.PullRequestNumber);
             _commitsClient.Received(1).Compare(_mainWindowVm.Owner, _mainWindowVm.Repository, _pullRequest.Base.Sha, _pullRequest.Head.Sha);
+#pragma warning restore 4014
             Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File1));
             Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File2));
         }
 
         [Test]
-        public void ShouldUpdateBusyStatusProperly()
+        public async void ShouldUpdateBusyStatusProperly()
         {
             var updateCount = 0;
             _mainWindowVm.PropertyChanged += (sender, args) =>
@@ -74,7 +76,7 @@ namespace PReviewer.Test
                     updateCount++;
                 }
             };
-            _mainWindowVm.RetrieveDiffs();
+            await _mainWindowVm.RetrieveDiffs();
 
             Assert.That(updateCount, Is.EqualTo(2));
             Assert.False(_mainWindowVm.IsProcessing);
@@ -91,9 +93,7 @@ namespace PReviewer.Test
                     throw new Exception();
                 });
             
-#pragma warning disable 1998
-            Assert.Throws<Exception>(async () => _mainWindowVm.RetrieveDiffs());
-#pragma warning restore 1998
+            Assert.Throws<Exception>(async () => await _mainWindowVm.RetrieveDiffs());
 
             Assert.False(_mainWindowVm.IsProcessing);
         }

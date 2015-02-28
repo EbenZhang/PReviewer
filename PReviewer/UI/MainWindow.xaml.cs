@@ -47,7 +47,7 @@ namespace PReviewer.UI
             }
         }
 
-        private void ShowChanges()
+        private async void ShowChanges()
         {
             if (!this.ValidateAutoCompleteBoxes())
             {
@@ -58,7 +58,19 @@ namespace PReviewer.UI
                 return;
             }
 
-            _viewModel.RetrieveDiffs();
+            try
+            {
+                await _viewModel.RetrieveDiffs();
+            }
+            catch (NotFoundException ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to find the pull request.");
+            }
+
+            catch (Exception ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to get changes.\r\n" + ex.ToString());
+            }
         }
     }
 }

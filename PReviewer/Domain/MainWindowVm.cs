@@ -77,13 +77,13 @@ namespace PReviewer.Domain
             }
         }
 
-        public async void RetrieveDiffs()
+        public async Task RetrieveDiffs()
         {
             IsProcessing = true;
             try
             {
                 var repo = _client.Repository;
-                var pr = await repo.PullRequest.Get(Owner, Repository, 11);
+                var pr = await repo.PullRequest.Get(Owner, Repository, PullRequestNumber);
                 var commitsClient = repo.Commits;
                 var compareResult = await commitsClient.Compare(Owner, Repository, pr.Base.Sha, pr.Head.Sha);
                 Diffs.Assign(compareResult.Files);
