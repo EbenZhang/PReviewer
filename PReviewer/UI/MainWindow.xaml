@@ -5,7 +5,9 @@
         x:Name="ThisWnd"
         WindowState="Maximized"
         xmlns:validation="clr-namespace:WpfCommon.Validations;assembly=WpfCommon"
-        xmlns:controls="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit">
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:attachBehaviour="clr-namespace:WpfCommon.AttachBehaviour;assembly=WpfCommon"
+        xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
@@ -38,64 +40,69 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <RadioButton
+                        attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtPullRequest}"
                         IsChecked="True"
                         x:Name="RdUrl"
                         Grid.Row="0"
                         Grid.Column="0"
-                        ToolTip="The URL of the pull request">PR URL(?)</RadioButton>
-                    <controls:AutoCompleteBox
+                        ToolTip="The URL of the pull request">PR URL(?):</RadioButton>
+                    <controls:AutoCompleteBoxEx
+                        x:Name="TxtPullRequest"
                         Grid.Row="0"
                         Grid.Column="1" 
                         Grid.ColumnSpan="5"
                         IsEnabled="{Binding IsChecked, ElementName=RdUrl}"
                         Margin="2,0,0,0">
-                        <controls:AutoCompleteBox.Text>
+                        <controls:AutoCompleteBoxEx.Text>
                             <Binding Path="PullRequestUrl" Mode="TwoWay">
                                 <Binding.ValidationRules>
                                     <validation:MinLengthValidator MinLength="1"/>
                                 </Binding.ValidationRules>
                             </Binding>
-                        </controls:AutoCompleteBox.Text>
+                        </controls:AutoCompleteBoxEx.Text>
                 
-                    </controls:AutoCompleteBox>
+                    </controls:AutoCompleteBoxEx>
                     <RadioButton 
+                        attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtOwner}"
                         Grid.Row="2"
                         Grid.Column="0"
                         ToolTip="The person/organization who owns the repository">Owner(?):</RadioButton>
-                    <controls:AutoCompleteBox
+                    <controls:AutoCompleteBoxEx
+                        x:Name="TxtOwner"
                         Grid.Row="2"
                         Grid.Column="1" 
                         IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
                         Margin="2,0,0,0">
-                        <controls:AutoCompleteBox.Text>
+                        <controls:AutoCompleteBoxEx.Text>
                             <Binding Path="Owner" Mode="TwoWay">
                                 <Binding.ValidationRules>
                                     <validation:MinLengthValidator MinLength="1"/>
                                 </Binding.ValidationRules>
                             </Binding>
-                        </controls:AutoCompleteBox.Text>
-                    </controls:AutoCompleteBox>
+                        </controls:AutoCompleteBoxEx.Text>
+                    </controls:AutoCompleteBoxEx>
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="2" Margin="8,0,0,0" ToolTip="The name of the repository">Repo(?):</TextBlock>
-                    <controls:AutoCompleteBox
+                    <controls:AutoCompleteBoxEx
                         IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
                         Grid.Row="2"
                         Grid.Column="3" 
                         Margin="2,0,0,0">
-                        <controls:AutoCompleteBox.Text>
+                        <controls:AutoCompleteBoxEx.Text>
                             <Binding Path="Repository" Mode="TwoWay">
                                 <Binding.ValidationRules>
                                     <validation:MinLengthValidator MinLength="1"/>
                                 </Binding.ValidationRules>
                             </Binding>
-                        </controls:AutoCompleteBox.Text>
-                    </controls:AutoCompleteBox>
+                        </controls:AutoCompleteBoxEx.Text>
+                    </controls:AutoCompleteBoxEx>
             
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="4" Margin="8,0,0,0" ToolTip="The pull request number">PR Num(?):</TextBlock>
-                    <TextBox
+                    <xctk:AutoSelectTextBox
+                        AutoSelectBehavior="OnFocus"
                         IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
                         Grid.Row="2"
                         Grid.Column="5" Margin="2,0,0,0">
@@ -106,7 +113,7 @@
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
-                    </TextBox>
+                    </xctk:AutoSelectTextBox>
                 </Grid>
                 <Button
                     Margin="4,0,4,0"

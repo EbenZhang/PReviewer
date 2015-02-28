@@ -31,6 +31,12 @@ namespace PReviewer.UI
         {
             InitializeComponent();
             _viewModel = DataContext as MainWindowVm;
+            this.Loaded += OnLoaded;
+        }
+
+        void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            this.TxtPullRequest.Focus();
         }
 
         public ICommand ShowChangesCmd
