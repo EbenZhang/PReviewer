@@ -19,7 +19,7 @@ using PReviewer.Model;
 using PReviewer.UI;
 using WpfCommon.Utils;
 
-namespace PReviewer
+namespace PReviewer.UI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

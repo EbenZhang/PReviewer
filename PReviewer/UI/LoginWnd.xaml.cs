@@ -17,6 +17,7 @@ using GalaSoft.MvvmLight.Command;
 using PReviewer;
 using Octokit;
 using PReviewer.Domain;
+using PReviewer.UI;
 using WpfCommon;
 using WpfCommon.Utils;
 
