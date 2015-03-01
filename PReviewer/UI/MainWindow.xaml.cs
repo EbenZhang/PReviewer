@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GalaSoft.MvvmLight.CommandWpf;
+using Mantin.Controls.Wpf.Notification;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
@@ -86,6 +87,19 @@ namespace PReviewer.UI
 
         private async void OnFileDoubleClicked(object sender, MouseButtonEventArgs e)
         {
+            if (_viewModel.SelectedDiffFile == null)
+            {
+                return;
+            }
+            if (_viewModel.SelectedDiffFile.Status == GitFileStatus.Removed)
+            {
+                var ballon = new Balloon(sender as Control, "This file has been deleted in the pull request.", BalloonType.Information)
+                {
+                    ShowCloseButton = true
+                };
+                ballon.Show();
+                return;
+            }
             await _viewModel.PrepareDiffContent();
         }
     }
