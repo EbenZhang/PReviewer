@@ -91,6 +91,18 @@ namespace PReviewer.UI
             {
                 return;
             }
+            if (_viewModel.SelectedDiffFile.Status == GitFileStatus.Renamed
+                && _viewModel.SelectedDiffFile.Changes == 0
+                && _viewModel.SelectedDiffFile.Additions == 0
+                && _viewModel.SelectedDiffFile.Deletions == 0)
+            {
+                var ballon = new Balloon(sender as Control, "No changes found. It's just renamed", BalloonType.Information)
+                {
+                    ShowCloseButton = true
+                };
+                ballon.Show();
+                return;
+            }
             if (_viewModel.SelectedDiffFile.Status == GitFileStatus.Removed)
             {
                 var ballon = new Balloon(sender as Control, "This file has been deleted in the pull request.", BalloonType.Information)

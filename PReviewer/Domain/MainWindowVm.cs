@@ -16,17 +16,22 @@ namespace PReviewer.Domain
         private readonly IGitHubClient _client;
         private readonly IFileContentPersist _fileContentPersist;
         private readonly IDiffToolLauncher _diffTool;
+        private readonly IPatchService _patchService;
         private bool _IsProcessing;
         private string _PullRequestUrl;
         private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
         private bool _IsUrlMode = true;
 
-        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist, IDiffToolLauncher diffTool)
+        public MainWindowVm(IGitHubClient client, 
+            IFileContentPersist fileContentPersist,
+            IDiffToolLauncher diffTool,
+            IPatchService patchService)
         {
             Diffs = new ObservableCollection<GitHubCommitFile>();
             _client = client;
             _fileContentPersist = fileContentPersist;
             _diffTool = diffTool;
+            _patchService = patchService;
         }
 
         public ObservableCollection<GitHubCommitFile> Diffs { get; set; }
@@ -132,16 +137,17 @@ namespace PReviewer.Domain
                 IsProcessing = true;
                 var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.Filename);
                 var headPath = "";
+                string contentOfHead = null;
                 if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
                 {
-                    var contentOfHead =
+                    var collectionOfContentOfHead =
                         await
                             _client.Repository.Content.GetContents(PullRequestLocator.Owner,
                                 PullRequestLocator.Repository,
                                 _SelectedDiffFile.GetFilePath(HeadCommit));
 
-
-                    headPath = await SaveToFile(headFileName, contentOfHead.First().Content);
+                    contentOfHead = collectionOfContentOfHead.First().Content;
+                    headPath = await SaveToFile(headFileName, contentOfHead);
                 }
                 else
                 {
@@ -150,11 +156,26 @@ namespace PReviewer.Domain
                 
                 var baseFileName = BuildBaseFileName(BaseCommit, SelectedDiffFile.Filename);
                 var basePath = "";
-                if (SelectedDiffFile.Status == GitFileStatus.New)
+                if (_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
+                {
+                    basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
+                }
+                else if (SelectedDiffFile.Status == GitFileStatus.Renamed)
+                {
+                    if (contentOfHead == null)
+                    {
+                        contentOfHead = await _fileContentPersist.ReadContent(headPath);
+                    }
+
+                    basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
+
+                    await _patchService.RevertViaPatch(contentOfHead, SelectedDiffFile.Patch, basePath);
+                }
+                else if (SelectedDiffFile.Status == GitFileStatus.New)
                 {
                     basePath = await SaveToFile(baseFileName, "");
                 }
-                else if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
+                else
                 {
                     var contentOfBase =
                         await
@@ -163,10 +184,6 @@ namespace PReviewer.Domain
                                 _SelectedDiffFile.GetFilePath(BaseCommit));
                     
                     basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
-                }
-                else
-                {
-                    basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
                 }
 
                 _diffTool.Open(basePath, headPath);

@@ -30,6 +30,7 @@ namespace PReviewer.Test
         private IPullRequestsClient _prClient;
         private MockPullRequest _pullRequest;
         private IRepositoriesClient _repoClient;
+        private IPatchService _patchService;
         private string _baseFileName;
         private string _headFileName;
 
@@ -44,6 +45,7 @@ namespace PReviewer.Test
             _contentsClient = Substitute.For<IRepositoryContentsClient>();
             _fileContentPersist = Substitute.For<IFileContentPersist>();
             _diffTool = Substitute.For<IDiffToolLauncher>();
+            _patchService = Substitute.For<IPatchService>();
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
             _repoClient.PullRequest.Returns(_prClient);
@@ -55,7 +57,7 @@ namespace PReviewer.Test
                 Arg.Any<string>()
                 ).Returns(Task.FromResult((CompareResult) _compareResults));
 
-            _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool)
+            _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool, _patchService)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
@@ -117,7 +119,7 @@ namespace PReviewer.Test
         [Test]
         public void ShouldBeInUrlModeByDefault()
         {
-            Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool).IsUrlMode);
+            Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool, _patchService).IsUrlMode);
         }
 
         [Test]
@@ -318,6 +320,44 @@ namespace PReviewer.Test
             _diffTool.Received(1).Open(basePath, headPath);
         }
 
+        [Test]
+        public async void GivenARenamedFile_ShouldCallPatchToGetBaseFile()
+        {
+            _patchService.RevertViaPatch(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(Task.FromResult(""));
+
+            var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
+
+            const string basePath = "basePath";
+            _fileContentPersist.GetCachedFilePath(_pullRequestLocator, _baseFileName).Returns(basePath);
+
+            const string headPath = "headpath";
+            _fileContentPersist.SaveContent(Arg.Any<PullRequestLocator>(),
+                Arg.Any<string>(),
+                headContent.Content).Returns(Task.FromResult(headPath));
+
+            _fileContentPersist.ReadContent(headPath).Returns(Task.FromResult(headContent.Content));
+
+            _compareResults.File1.Status = GitFileStatus.Renamed;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+
+            await _mainWindowVm.RetrieveDiffs();
+
+            await _mainWindowVm.PrepareDiffContent();
+
+            _patchService.Received(1)
+                .RevertViaPatch(headContent.Content, _compareResults.File1.Patch, basePath)
+                .IgnoreAsyncWarning();
+
+            _fileContentPersist.DidNotReceive().SaveContent(Arg.Any<PullRequestLocator>(),
+                _baseFileName,
+                Arg.Any<string>()).IgnoreAsyncWarning();
+
+            _contentsClient.DidNotReceive().GetContents(_pullRequestLocator.Owner,
+                _pullRequestLocator.Repository, _baseFileName).IgnoreAsyncWarning();
+            _diffTool.Received(1).Open(basePath, headPath);
+        }
+
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
             var headContent = new MockRepositoryContent {EncodedContent = rawContent};
@@ -376,6 +416,12 @@ namespace PReviewer.Test
             get { return base.Status; }
             set { base.Status = value; }
         }
+
+        public new string Patch
+        {
+            get { return base.Patch; }
+            set { base.Patch = value; }
+        }
     }
 
     internal class MockCompareResult : CompareResult
@@ -383,7 +429,8 @@ namespace PReviewer.Test
         public MockGitHubCommitFile File1 = new MockGitHubCommitFile
         {
             Sha = "e74fe8d371a5e33c4877f662e6f8ed7c0949a8b0",
-            Filename = "test.xaml"
+            Filename = "test.xaml",
+            Patch = "Patch",
         };
 
         public MockGitHubCommitFile File2 = new MockGitHubCommitFile

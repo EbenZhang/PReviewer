@@ -48,6 +48,17 @@ namespace PReviewer.Model
             return filePath;
         }
 
+        public async Task<string> ReadContent(string headPath)
+        {
+            using (var stream = File.OpenRead(headPath))
+            {
+                using (var sr = new StreamReader(stream))
+                {
+                    return await sr.ReadToEndAsync();
+                }
+            }
+        }
+
         private static string GetFilePath(PullRequestLocator prInfo, string fileName, string rootDir)
         {
             var prDir = Path.Combine(prInfo.Owner, prInfo.Repository, "PR" + prInfo.PullRequestNumber);
