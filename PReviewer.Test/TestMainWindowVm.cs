@@ -30,6 +30,8 @@ namespace PReviewer.Test
         private IPullRequestsClient _prClient;
         private MockPullRequest _pullRequest;
         private IRepositoriesClient _repoClient;
+        private string _baseFileName;
+        private string _headFileName;
 
         [SetUp]
         public void SetUp()
@@ -62,6 +64,9 @@ namespace PReviewer.Test
             _pullRequest = new MockPullRequest();
             _prClient.Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
                 _mainWindowVm.PullRequestLocator.PullRequestNumber).Returns(Task.FromResult((PullRequest) _pullRequest));
+
+            _baseFileName = MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, _compareResults.File1.Filename);
+            _headFileName = MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, _compareResults.File1.Filename);
         }
 
         [Test]
@@ -69,16 +74,14 @@ namespace PReviewer.Test
         {
             await _mainWindowVm.RetrieveDiffs();
 
-#pragma warning disable 4014
             _prClient.Received(1)
                 .Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
-                    _mainWindowVm.PullRequestLocator.PullRequestNumber);
+                    _mainWindowVm.PullRequestLocator.PullRequestNumber).IgnoreAsyncWarning();
             _commitsClient.Received(1)
                 .Compare(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
-                    _pullRequest.Base.Sha, _pullRequest.Head.Sha);
-#pragma warning restore 4014
-            Assert.That(_mainWindowVm.Diffs, Contains.Item(MockCompareResult.File1));
-            Assert.That(_mainWindowVm.Diffs, Contains.Item(MockCompareResult.File2));
+                    _pullRequest.Base.Sha, _pullRequest.Head.Sha).IgnoreAsyncWarning();
+            Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File1));
+            Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File2));
         }
 
         [Test]
@@ -165,22 +168,20 @@ namespace PReviewer.Test
             MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
             MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
-            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
 
             await _mainWindowVm.RetrieveDiffs();
 
             await _mainWindowVm.PrepareDiffContent();
 
-            var basePath = MockCompareResult.File1.GetFilePath(_pullRequest.Base.Sha);
-            var headPath = MockCompareResult.File1.GetFilePath(_pullRequest.Head.Sha);
-
-#pragma warning disable 4014
-            _contentsClient.Received(1).GetContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
-                basePath);
+            var basePath = _compareResults.File1.GetFilePath(_pullRequest.Base.Sha);
+            var headPath = _compareResults.File1.GetFilePath(_pullRequest.Head.Sha);
 
             _contentsClient.Received(1).GetContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
-                headPath);
-#pragma warning restore 4014
+                basePath).IgnoreAsyncWarning();
+
+            _contentsClient.Received(1).GetContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
+                headPath).IgnoreAsyncWarning();
         }
 
         [Test]
@@ -189,7 +190,7 @@ namespace PReviewer.Test
             MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
             MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
-            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
             await _mainWindowVm.RetrieveDiffs();
 
             var updateCount = 0;
@@ -210,7 +211,7 @@ namespace PReviewer.Test
         [Test]
         public async void BusyStatusSetCorretly_WhenFailedToGetContent()
         {
-            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
             await _mainWindowVm.RetrieveDiffs();
 
             _contentsClient.When(x => x.GetContents(Arg.Any<string>(),
@@ -229,20 +230,18 @@ namespace PReviewer.Test
 
             var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
-            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
 
             await _mainWindowVm.RetrieveDiffs();
 
             await _mainWindowVm.PrepareDiffContent();
 
-#pragma warning disable 4014
             _fileContentPersist.Received(1).SaveContent(_pullRequestLocator,
-                MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, MockCompareResult.File1.Filename), 
-                headContent.Content);
+                _headFileName,
+                headContent.Content).IgnoreAsyncWarning();
             _fileContentPersist.Received(1).SaveContent(_pullRequestLocator,
-                MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, MockCompareResult.File1.Filename), 
-                baseContent.Content);
-#pragma warning restore 4014
+                _baseFileName,
+                baseContent.Content).IgnoreAsyncWarning();
         }
 
         [Test]
@@ -260,7 +259,7 @@ namespace PReviewer.Test
                 Arg.Any<string>(),
                 headContent.Content).Returns(Task.FromResult(headPath));
 
-            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -272,30 +271,51 @@ namespace PReviewer.Test
         [Test]
         public async void AbleToCachedFiles()
         {
-            var baseFileName = MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, MockCompareResult.File1.Filename);
-            var headFileName = MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, MockCompareResult.File1.Filename);
-
             _fileContentPersist.ExistsInCached(Arg.Any<PullRequestLocator>(),
-                baseFileName).Returns(true);
+                _baseFileName).Returns(true);
             _fileContentPersist.ExistsInCached(Arg.Any<PullRequestLocator>(),
-                headFileName).Returns(true);
-            var cachedPath = "DummyPath";
+                _headFileName).Returns(true);
+            const string cachedPath = "DummyPath";
             _fileContentPersist.GetCachedFilePath(Arg.Any<PullRequestLocator>(), Arg.Any<string>()).Returns(cachedPath);
 
-            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
 
             await _mainWindowVm.RetrieveDiffs();
 
             await _mainWindowVm.PrepareDiffContent();
 
-#pragma warning disable 4014
-            _contentsClient.DidNotReceiveWithAnyArgs().GetContents("", "", "");
-            _fileContentPersist.DidNotReceiveWithAnyArgs().SaveContent(null, "", "");
-            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, baseFileName);
-            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, headFileName);
+            _contentsClient.DidNotReceiveWithAnyArgs().GetContents("", "", "").IgnoreAsyncWarning();
+            _fileContentPersist.DidNotReceiveWithAnyArgs().SaveContent(null, "", "").IgnoreAsyncWarning();
+            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, _baseFileName);
+            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, _headFileName);
             _diffTool.Received(1).Open(cachedPath, cachedPath);
-#pragma warning restore 4014
+        }
 
+        [Test]
+        public async void GivenANewAddedFile_ShouldProvideAFakeBaseFile()
+        {
+            var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
+
+            const string basePath = "basepath";
+            _fileContentPersist.SaveContent(Arg.Any<PullRequestLocator>(),
+                Arg.Any<string>(),
+                "").Returns(Task.FromResult(basePath));
+
+            const string headPath = "headpath";
+            _fileContentPersist.SaveContent(Arg.Any<PullRequestLocator>(),
+                Arg.Any<string>(),
+                headContent.Content).Returns(Task.FromResult(headPath));
+
+            _compareResults.File1.Status = GitFileStatus.New;
+            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+
+            await _mainWindowVm.RetrieveDiffs();
+
+            await _mainWindowVm.PrepareDiffContent();
+            
+            _contentsClient.DidNotReceive().GetContents(_pullRequestLocator.Owner,
+                _pullRequestLocator.Repository, _baseFileName).IgnoreAsyncWarning();
+            _diffTool.Received(1).Open(basePath, headPath);
         }
 
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
@@ -305,7 +325,7 @@ namespace PReviewer.Test
                 new List<RepositoryContent> {headContent}.AsReadOnly();
             _contentsClient.GetContents(Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Is<string>(x => x == MockCompareResult.File1.GetFilePath(sha)))
+                Arg.Is<string>(x => x == _compareResults.File1.GetFilePath(sha)))
                 .Returns(Task.FromResult(headContentCollection));
             return headContent;
         }
@@ -350,17 +370,23 @@ namespace PReviewer.Test
             get { return base.Filename; }
             set { base.Filename = value; }
         }
+
+        public new string Status
+        {
+            get { return base.Status; }
+            set { base.Status = value; }
+        }
     }
 
     internal class MockCompareResult : CompareResult
     {
-        public static readonly GitHubCommitFile File1 = new MockGitHubCommitFile
+        public MockGitHubCommitFile File1 = new MockGitHubCommitFile
         {
             Sha = "e74fe8d371a5e33c4877f662e6f8ed7c0949a8b0",
             Filename = "test.xaml"
         };
 
-        public static readonly GitHubCommitFile File2 = new MockGitHubCommitFile
+        public MockGitHubCommitFile File2 = new MockGitHubCommitFile
         {
             Sha = "9dc7f01526e368a64c49714c51f1d851885793ba",
             Filename = "app.xaml.cs"

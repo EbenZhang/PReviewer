@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NSubstituteAsyncHelper.cs" />
     <Compile Include="TestCompareToolSettings.cs" />
     <Compile Include="TestCompareToolSettingsVm.cs" />
     <Compile Include="TestDiffToolParamBuilder.cs" />

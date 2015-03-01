@@ -67,9 +67,8 @@ namespace PReviewer.Test
         {
             var vm = new LoginWndVm(_clientFactory, _credentialPersist) { UserName = "11", Password = "22" };
             await vm.Login();
-#pragma warning disable 4014
-            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password);
-#pragma warning restore 4014
+
+            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password).IgnoreAsyncWarning();
         }
 
         [Test]
@@ -85,9 +84,8 @@ namespace PReviewer.Test
                 }
             };
             await vm.Login();
-#pragma warning disable 4014
-            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password);
-#pragma warning restore 4014
+
+            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password).IgnoreAsyncWarning();
 
             Assert.That(changeCount, Is.EqualTo(2), "IsProcessing should be changed twice, first it's changed to busy, and then back to false.");
             Assert.False(vm.IsProcessing, "Status should back to non-busy");
@@ -112,9 +110,8 @@ namespace PReviewer.Test
             {
                 await vm.Login();
             });
-#pragma warning disable 4014
-            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password);
-#pragma warning restore 4014
+
+            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password).IgnoreAsyncWarning();
 
             Assert.That(changeCount, Is.EqualTo(2), "IsProcessing should be changed twice, first it's changed to busy, and then back to false.");
             Assert.False(vm.IsProcessing, "Status should back to non-busy");

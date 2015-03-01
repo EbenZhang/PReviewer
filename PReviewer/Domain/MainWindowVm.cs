@@ -150,7 +150,11 @@ namespace PReviewer.Domain
                 
                 var baseFileName = BuildBaseFileName(BaseCommit, SelectedDiffFile.Filename);
                 var basePath = "";
-                if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
+                if (SelectedDiffFile.Status == GitFileStatus.New)
+                {
+                    basePath = await SaveToFile(baseFileName, "");
+                }
+                else if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
                 {
                     var contentOfBase =
                         await
