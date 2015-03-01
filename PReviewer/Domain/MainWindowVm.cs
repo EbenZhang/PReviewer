@@ -130,19 +130,40 @@ namespace PReviewer.Domain
             try
             {
                 IsProcessing = true;
-                var contentHead =
-                    await
-                        _client.Repository.Content.GetContents(PullRequestLocator.Owner, PullRequestLocator.Repository,
-                            _SelectedDiffFile.GetFilePath(HeadCommit));
+                var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.Filename);
+                var headPath = "";
+                if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
+                {
+                    var contentOfHead =
+                        await
+                            _client.Repository.Content.GetContents(PullRequestLocator.Owner,
+                                PullRequestLocator.Repository,
+                                _SelectedDiffFile.GetFilePath(HeadCommit));
 
-                var headPath = await SaveToFile(BuildHeadFileName(HeadCommit, SelectedDiffFile.Filename), contentHead.First().Content);
 
-                var contentBase =
-                    await
-                        _client.Repository.Content.GetContents(PullRequestLocator.Owner, PullRequestLocator.Repository,
-                            _SelectedDiffFile.GetFilePath(BaseCommit));
-
-                var basePath = await SaveToFile(BuildBaseFileName(BaseCommit, SelectedDiffFile.Filename), contentBase.First().Content);
+                    headPath = await SaveToFile(headFileName, contentOfHead.First().Content);
+                }
+                else
+                {
+                    headPath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, headFileName);
+                }
+                
+                var baseFileName = BuildBaseFileName(BaseCommit, SelectedDiffFile.Filename);
+                var basePath = "";
+                if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
+                {
+                    var contentOfBase =
+                        await
+                            _client.Repository.Content.GetContents(PullRequestLocator.Owner,
+                                PullRequestLocator.Repository,
+                                _SelectedDiffFile.GetFilePath(BaseCommit));
+                    
+                    basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
+                }
+                else
+                {
+                    basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
+                }
 
                 _diffTool.Open(basePath, headPath);
             }

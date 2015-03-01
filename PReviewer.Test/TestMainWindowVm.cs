@@ -269,6 +269,35 @@ namespace PReviewer.Test
             _diffTool.Received(1).Open(basePath, headPath);
         }
 
+        [Test]
+        public async void AbleToCachedFiles()
+        {
+            var baseFileName = MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, MockCompareResult.File1.Filename);
+            var headFileName = MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, MockCompareResult.File1.Filename);
+
+            _fileContentPersist.ExistsInCached(Arg.Any<PullRequestLocator>(),
+                baseFileName).Returns(true);
+            _fileContentPersist.ExistsInCached(Arg.Any<PullRequestLocator>(),
+                headFileName).Returns(true);
+            var cachedPath = "DummyPath";
+            _fileContentPersist.GetCachedFilePath(Arg.Any<PullRequestLocator>(), Arg.Any<string>()).Returns(cachedPath);
+
+            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+
+            await _mainWindowVm.RetrieveDiffs();
+
+            await _mainWindowVm.PrepareDiffContent();
+
+#pragma warning disable 4014
+            _contentsClient.DidNotReceiveWithAnyArgs().GetContents("", "", "");
+            _fileContentPersist.DidNotReceiveWithAnyArgs().SaveContent(null, "", "");
+            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, baseFileName);
+            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, headFileName);
+            _diffTool.Received(1).Open(cachedPath, cachedPath);
+#pragma warning restore 4014
+
+        }
+
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
             var headContent = new MockRepositoryContent {EncodedContent = rawContent};

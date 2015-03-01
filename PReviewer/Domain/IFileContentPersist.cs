@@ -9,5 +9,7 @@ namespace PReviewer.Domain
     public interface IFileContentPersist
     {
         Task<string> SaveContent(PullRequestLocator prInfo, string fileName, string content);
+        bool ExistsInCached(PullRequestLocator pullRequestLocator, string fileName);
+        string GetCachedFilePath(PullRequestLocator pullRequestLocator, string fileName);
     }
 }
