@@ -102,13 +102,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Domain\CompareToolSettingsVm.cs" />
     <Compile Include="Domain\ICredentialPersisit.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Domain\PullRequestLocator.cs" />
+    <Compile Include="Model\CompareToolSettings.cs" />
+    <Compile Include="Model\CompareToolSettingsContainer.cs" />
+    <Compile Include="Model\CompareToolSettingsPersist.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
+    <Page Include="UI\CompareToolSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\LoginWnd.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -120,6 +128,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Model\SerializableCompareToolSettings.cs" />
+    <Compile Include="UI\CompareToolSettings.xaml.cs">
+      <DependentUpon>CompareToolSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\LoginWnd.xaml.cs">
       <DependentUpon>LoginWnd.xaml</DependentUpon>
@@ -169,6 +181,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="PReviewer.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\plus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

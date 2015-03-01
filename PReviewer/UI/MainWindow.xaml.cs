@@ -47,6 +47,17 @@ namespace PReviewer.UI
             }
         }
 
+        public ICommand ShowSettingsCmd
+        {
+            get { return new RelayCommand(ShowSettings);}
+        }
+
+        private void ShowSettings()
+        {
+            var settings = new CompareToolSettings {Owner = this};
+            settings.ShowDialog();
+        }
+
         private async void ShowChanges()
         {
             if (!this.ValidateAutoCompleteBoxes())

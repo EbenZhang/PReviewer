@@ -11,131 +11,140 @@
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
-    <Grid Margin="20,10,20,10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="4"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <GroupBox Grid.Row="0" Header="Pull Request / Branch">
-            <GroupBox.InputBindings>
-                <KeyBinding Key="Enter" Command="{Binding ShowChangesCmd, ElementName=ThisWnd}"></KeyBinding>
-            </GroupBox.InputBindings>
-            <Grid Margin="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="4"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="4"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+    <Grid>
+        <Grid Margin="20,10,20,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="4"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0" Header="Pull Request / Branch">
+                <GroupBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding ShowChangesCmd, ElementName=ThisWnd}"></KeyBinding>
+                </GroupBox.InputBindings>
+                <Grid Margin="4">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <RadioButton
-                        attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtPullRequest}"
-                        IsChecked="True"
-                        x:Name="RdUrl"
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        ToolTip="The URL of the pull request">PR URL(?):</RadioButton>
-                    <controls:AutoCompleteBoxEx
-                        x:Name="TxtPullRequest"
-                        Grid.Row="0"
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton
+                            attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtPullRequest}"
+                            IsChecked="True"
+                            x:Name="RdUrl"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            ToolTip="The URL of the pull request">PR URL(?):</RadioButton>
+                        <controls:AutoCompleteBoxEx
+                            x:Name="TxtPullRequest"
+                            Grid.Row="0"
+                            Grid.Column="1" 
+                            Grid.ColumnSpan="5"
+                            IsEnabled="{Binding IsChecked, ElementName=RdUrl}"
+                            Margin="2,0,0,0">
+                            <controls:AutoCompleteBoxEx.Text>
+                                <Binding Path="PullRequestUrl" Mode="TwoWay">
+                                    <Binding.ValidationRules>
+                                        <validation:MinLengthValidator MinLength="1"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </controls:AutoCompleteBoxEx.Text>
+
+                        </controls:AutoCompleteBoxEx>
+                        <RadioButton 
+                            attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtOwner}"
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            ToolTip="The person/organization who owns the repository">Owner(?):</RadioButton>
+                        <controls:AutoCompleteBoxEx
+                            x:Name="TxtOwner"
+                            Grid.Row="2"
+                            Grid.Column="1" 
+                            IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
+                            Margin="2,0,0,0">
+                            <controls:AutoCompleteBoxEx.Text>
+                                <Binding Path="PullRequestLocator.Owner" Mode="TwoWay">
+                                    <Binding.ValidationRules>
+                                        <validation:MinLengthValidator MinLength="1"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </controls:AutoCompleteBoxEx.Text>
+                        </controls:AutoCompleteBoxEx>
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="2" Margin="8,0,0,0" ToolTip="The name of the repository">Repo(?):</TextBlock>
+                        <controls:AutoCompleteBoxEx
+                            IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
+                            Grid.Row="2"
+                            Grid.Column="3" 
+                            Margin="2,0,0,0">
+                            <controls:AutoCompleteBoxEx.Text>
+                                <Binding Path="PullRequestLocator.Repository" Mode="TwoWay">
+                                    <Binding.ValidationRules>
+                                        <validation:MinLengthValidator MinLength="1"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </controls:AutoCompleteBoxEx.Text>
+                        </controls:AutoCompleteBoxEx>
+
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="4" Margin="8,0,0,0" ToolTip="The pull request number">PR Num(?):</TextBlock>
+                        <xctk:AutoSelectTextBox
+                            AutoSelectBehavior="OnFocus"
+                            IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
+                            Grid.Row="2"
+                            Grid.Column="5" Margin="2,0,0,0">
+                            <TextBox.Text>
+                                <Binding Path="PullRequestLocator.PullRequestNumber">
+                                    <Binding.ValidationRules>
+                                        <validation:IntRangeValidator MinValue ="1"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </xctk:AutoSelectTextBox>
+                    </Grid>
+                    <Button
+                        Margin="4,0,4,0"
+                        VerticalAlignment="Center"
                         Grid.Column="1" 
-                        Grid.ColumnSpan="5"
-                        IsEnabled="{Binding IsChecked, ElementName=RdUrl}"
-                        Margin="2,0,0,0">
-                        <controls:AutoCompleteBoxEx.Text>
-                            <Binding Path="PullRequestUrl" Mode="TwoWay">
-                                <Binding.ValidationRules>
-                                    <validation:MinLengthValidator MinLength="1"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </controls:AutoCompleteBoxEx.Text>
-                
-                    </controls:AutoCompleteBoxEx>
-                    <RadioButton 
-                        attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtOwner}"
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        ToolTip="The person/organization who owns the repository">Owner(?):</RadioButton>
-                    <controls:AutoCompleteBoxEx
-                        x:Name="TxtOwner"
-                        Grid.Row="2"
-                        Grid.Column="1" 
-                        IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
-                        Margin="2,0,0,0">
-                        <controls:AutoCompleteBoxEx.Text>
-                            <Binding Path="PullRequestLocator.Owner" Mode="TwoWay">
-                                <Binding.ValidationRules>
-                                    <validation:MinLengthValidator MinLength="1"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </controls:AutoCompleteBoxEx.Text>
-                    </controls:AutoCompleteBoxEx>
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="2" Margin="8,0,0,0" ToolTip="The name of the repository">Repo(?):</TextBlock>
-                    <controls:AutoCompleteBoxEx
-                        IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
-                        Grid.Row="2"
-                        Grid.Column="3" 
-                        Margin="2,0,0,0">
-                        <controls:AutoCompleteBoxEx.Text>
-                            <Binding Path="PullRequestLocator.Repository" Mode="TwoWay">
-                                <Binding.ValidationRules>
-                                    <validation:MinLengthValidator MinLength="1"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </controls:AutoCompleteBoxEx.Text>
-                    </controls:AutoCompleteBoxEx>
-            
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="4" Margin="8,0,0,0" ToolTip="The pull request number">PR Num(?):</TextBlock>
-                    <xctk:AutoSelectTextBox
-                        AutoSelectBehavior="OnFocus"
-                        IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
-                        Grid.Row="2"
-                        Grid.Column="5" Margin="2,0,0,0">
-                        <TextBox.Text>
-                            <Binding Path="PullRequestLocator.PullRequestNumber">
-                                <Binding.ValidationRules>
-                                    <validation:IntRangeValidator MinValue ="1"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </xctk:AutoSelectTextBox>
+                        Command="{Binding ShowChangesCmd, ElementName=ThisWnd}">Show Changes</Button>
                 </Grid>
-                <Button
-                    Margin="4,0,4,0"
-                    VerticalAlignment="Center"
-                    Grid.Column="1" 
-                    Command="{Binding ShowChangesCmd, ElementName=ThisWnd}">Show Changes</Button>
-            </Grid>
-        </GroupBox>
-        <GroupBox Grid.Row="2" Header="Differences">
-            <ListView Margin="4" ItemsSource="{Binding Diffs}">
-                <ListView.View>
-                    <GridView>
-                        <GridView.Columns>
-                            <GridViewColumn Header="File" DisplayMemberBinding="{Binding Filename}"/>
-                            <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}"/>
-                        </GridView.Columns>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </GroupBox>
+            </GroupBox>
+            <GroupBox Grid.Row="2" Header="Differences">
+                <ListView Margin="4" ItemsSource="{Binding Diffs}">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Header="File" DisplayMemberBinding="{Binding Filename}"/>
+                                <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}"/>
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </GroupBox>
+        </Grid>
+        <Button 
+            Command="{Binding ShowSettingsCmd, ElementName=ThisWnd}"
+            Grid.Row="0" Margin="3" 
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top">
+            <Image Margin="4,2,4,2" Width="24" Height="18" Source="/Images/settings.png" />
+        </Button>
     </Grid>
 </Window>

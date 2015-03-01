@@ -33,8 +33,10 @@ namespace PReviewer.Domain
             // via its interface:
             _builder.RegisterType<LoginWndVm>().AsSelf();
             _builder.RegisterType<MainWindowVm>().AsSelf();
+            _builder.RegisterType<CompareToolSettingsVm>().AsSelf();
             _builder.RegisterInstance(new GitHubClientFactory()).As<IGitHubClientFactory>();
             _builder.RegisterInstance(new CredentialPersisit()).As<ICredentialPersisit>();
+            _builder.RegisterInstance(new CompareToolSettingsPersist()).As<ICompareToolSettingsPersist>();
             _container = _builder.Build();
         }
 
@@ -71,6 +73,14 @@ namespace PReviewer.Domain
             {
                 var client = _container.Resolve<IGitHubClientFactory>().GetClient(null, null).Result;
                 return _container.Resolve<MainWindowVm>(TypedParameter.From(client));
+            }
+        }
+
+        public CompareToolSettingsVm CompareToolSettingsVm
+        {
+            get
+            {
+                return _container.Resolve<CompareToolSettingsVm>();
             }
         }
         
