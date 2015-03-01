@@ -1,13 +1,6 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using ExtendedCL;
 using NSubstitute;
 using NUnit.Framework;
@@ -20,25 +13,25 @@ namespace PReviewer.Test
     public class TestCompareToolSettingsVm
     {
         private List<CompareToolSettings> _compareTools;
+        private CompareToolSettingsContainer _compareToolsContainer;
         private ICompareToolSettingsPersist _compareToolSettingsPersist;
         private CompareToolSettingsVm _viewModel;
-        private CompareToolSettingsContainer _compareToolsContainer;
 
         [SetUp]
         public void Setup()
         {
-            _compareTools = new List<CompareToolSettings>()
+            _compareTools = new List<CompareToolSettings>
             {
-                new CompareToolSettings()
+                new CompareToolSettings
                 {
                     Name = "Beyond Compare3",
                     ExePath = "dummyPath"
                 },
-                new CompareToolSettings()
+                new CompareToolSettings
                 {
                     Name = "KDiff3",
                     ExePath = "dummyPath"
-                },
+                }
             };
 
             _compareToolsContainer = new CompareToolSettingsContainer(_compareTools, -1);
@@ -47,7 +40,7 @@ namespace PReviewer.Test
             _compareToolSettingsPersist.Load().Returns(_compareToolsContainer);
             _viewModel = new CompareToolSettingsVm(_compareToolSettingsPersist);
         }
-        
+
         [Test]
         public async void BusyStatusChanges_WhenLoadCompareTools()
         {
@@ -71,10 +64,7 @@ namespace PReviewer.Test
         public async void GivenAFailureWhenLoad_BusyStatusShouldBeReset()
 #pragma warning restore 1998
         {
-            _compareToolSettingsPersist.When(x => x.Load()).Do(x =>
-            {
-              throw new Exception();
-            });
+            _compareToolSettingsPersist.When(x => x.Load()).Do(x => { throw new Exception(); });
             Assert.Throws<Exception>(async () => await _viewModel.Load());
             Assert.False(_viewModel.IsProcessing);
         }
@@ -127,10 +117,8 @@ namespace PReviewer.Test
         public async void GivenAFailureWhenSave_BusyStatusShouldReset()
         {
             await _viewModel.Load();
-            _compareToolSettingsPersist.When(x => x.Save(Arg.Any<CompareToolSettingsContainer>())).Do(x =>
-            {
-                throw new Exception();
-            });
+            _compareToolSettingsPersist.When(x => x.Save(Arg.Any<CompareToolSettingsContainer>()))
+                .Do(x => { throw new Exception(); });
             Assert.Throws<Exception>(async () => await _viewModel.Save());
             Assert.False(_viewModel.IsProcessing);
         }
@@ -153,15 +141,15 @@ namespace PReviewer.Test
 
             _compareToolSettingsPersist
                 .When(x => x.Save(Arg.Any<CompareToolSettingsContainer>())).Do(
-                x =>
-                {
-                    var expected = new List<CompareToolSettings>(_compareTools);
-                    expected.Insert(0, _viewModel.SelectedComapreToolSettings);
+                    x =>
+                    {
+                        var expected = new List<CompareToolSettings>(_compareTools);
+                        expected.Insert(0, _viewModel.SelectedComapreToolSettings);
 
-                    var actual = x.Args()[0] as CompareToolSettingsContainer;
-                    CollectionAssert.AreEqual(expected, actual.GetCompareTools());
-                    Assert.That(actual.CurrentActiveIndex, Is.EqualTo(0));
-                });
+                        var actual = x.Args()[0] as CompareToolSettingsContainer;
+                        CollectionAssert.AreEqual(expected, actual.GetCompareTools());
+                        Assert.That(actual.CurrentActiveIndex, Is.EqualTo(0));
+                    });
 
             await _viewModel.Save();
         }
@@ -186,24 +174,26 @@ namespace PReviewer.Test
 
             _compareToolSettingsPersist
                 .When(x => x.Save(Arg.Any<CompareToolSettingsContainer>())).Do(
-                x =>
-                {
-                    var actual = x.Args()[0] as CompareToolSettingsContainer;
-                    var newTools = actual.GetCompareTools();
-                    Assert.That(actual.CurrentActiveIndex, Is.Not.EqualTo(-1));
-                    Assert.That(newTools.Count(), Is.EqualTo(orgSize), "Should just update, so no new tool added.");
+                    x =>
+                    {
+                        var actual = x.Args()[0] as CompareToolSettingsContainer;
+                        var newTools = actual.GetCompareTools();
+                        Assert.That(actual.CurrentActiveIndex, Is.Not.EqualTo(-1));
+                        Assert.That(newTools.Count(), Is.EqualTo(orgSize), "Should just update, so no new tool added.");
 
-                    var updated = newTools.ElementAt(actual.CurrentActiveIndex);
-                    Assert.That(updated.ExePath, Is.EqualTo(newExePath));
-                    Assert.That(updated.Parameters, Is.EqualTo(newParam));
-                    Assert.That(updated.Name, Is.EqualTo(_compareTools.First().Name));
-                });
+                        var updated = newTools.ElementAt(actual.CurrentActiveIndex);
+                        Assert.That(updated.ExePath, Is.EqualTo(newExePath));
+                        Assert.That(updated.Parameters, Is.EqualTo(newParam));
+                        Assert.That(updated.Name, Is.EqualTo(_compareTools.First().Name));
+                    });
 
             await _viewModel.Save();
 
             Assert.That(_viewModel.CompareTools.Count, Is.EqualTo(orgSize), "No new setting should be added.");
-            Assert.That(_viewModel.SelectedComapreToolSettings.ExePath, Is.EqualTo(newExePath), "Should update to new exe path");
-            Assert.That(_viewModel.SelectedComapreToolSettings.Parameters, Is.EqualTo(newParam), "Should update to new parameters");
+            Assert.That(_viewModel.SelectedComapreToolSettings.ExePath, Is.EqualTo(newExePath),
+                "Should update to new exe path");
+            Assert.That(_viewModel.SelectedComapreToolSettings.Parameters, Is.EqualTo(newParam),
+                "Should update to new parameters");
         }
 
         [Test]
@@ -211,7 +201,8 @@ namespace PReviewer.Test
         {
             _compareToolsContainer.CurrentActiveIndex = 1;
             await _viewModel.Load();
-            Assert.That(_viewModel.SelectedComapreToolSettings, Is.EqualTo(_viewModel.CompareTools[_compareToolsContainer.CurrentActiveIndex]));
+            Assert.That(_viewModel.SelectedComapreToolSettings,
+                Is.EqualTo(_viewModel.CompareTools[_compareToolsContainer.CurrentActiveIndex]));
 
             _compareToolsContainer.CurrentActiveIndex = -1;
             await _viewModel.Load();
@@ -247,13 +238,15 @@ namespace PReviewer.Test
             {
                 var actual = x.Args()[0] as CompareToolSettingsContainer;
                 CollectionAssert.AreEqual(_compareTools, actual.GetCompareTools());
-                Assert.That(actual.CurrentActiveIndex, Is.EqualTo(orgActiveIndex), "should not change the active index if new entry is empty");
+                Assert.That(actual.CurrentActiveIndex, Is.EqualTo(orgActiveIndex),
+                    "should not change the active index if new entry is empty");
             });
 
             //// save
             await _viewModel.Save();
 
-            CollectionAssert.DoesNotContain(_viewModel.CompareTools, newEmptyEntry, "The new empty entry should be removed");
+            CollectionAssert.DoesNotContain(_viewModel.CompareTools, newEmptyEntry,
+                "The new empty entry should be removed");
             Assert.That(_viewModel.SelectedComapreToolSettings, Is.EqualTo(_compareTools.ElementAt(orgActiveIndex)));
         }
 
@@ -299,9 +292,9 @@ namespace PReviewer.Test
             await _viewModel.Save();
             _compareToolSettingsPersist.Received(1)
                 .Save(
-                Arg.Is<CompareToolSettingsContainer>(x =>
-                    x.GetCompareTools().SequenceEqual(_compareTools) && x.CurrentActiveIndex == _compareToolsContainer.CurrentActiveIndex));
-
+                    Arg.Is<CompareToolSettingsContainer>(x =>
+                        x.GetCompareTools().SequenceEqual(_compareTools) &&
+                        x.CurrentActiveIndex == _compareToolsContainer.CurrentActiveIndex));
         }
     }
 }
