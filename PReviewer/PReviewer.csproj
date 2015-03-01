@@ -104,6 +104,8 @@
     </ApplicationDefinition>
     <Compile Include="Domain\CompareToolSettingsVm.cs" />
     <Compile Include="Domain\ICredentialPersisit.cs" />
+    <Compile Include="Domain\IDiffToolParamBuilder.cs" />
+    <Compile Include="Domain\IDiffToolProvider.cs" />
     <Compile Include="Domain\IFileContentPersist.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
@@ -111,6 +113,8 @@
     <Compile Include="Model\CompareToolSettings.cs" />
     <Compile Include="Model\CompareToolSettingsContainer.cs" />
     <Compile Include="Model\CompareToolSettingsPersist.cs" />
+    <Compile Include="Model\DiffToolParamBuilder.cs" />
+    <Compile Include="Model\DiffToolProvider.cs" />
     <Compile Include="Model\FileContentPersist.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />

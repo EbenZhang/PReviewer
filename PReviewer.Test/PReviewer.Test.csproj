@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="TestCompareToolSettings.cs" />
     <Compile Include="TestCompareToolSettingsVm.cs" />
+    <Compile Include="TestDiffToolParamBuilder.cs" />
     <Compile Include="TestLoginVm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestMainWindowVm.cs" />

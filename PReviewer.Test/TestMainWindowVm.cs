@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using ExtendedCL;
 using NSubstitute;
-using NSubstitute.Core;
 using NUnit.Framework;
 using Octokit;
 using PReviewer.Domain;
@@ -17,22 +13,23 @@ namespace PReviewer.Test
     [TestFixture]
     public class TestMainWindowVm
     {
-        private IGitHubClient _gitHubClient;
-        private IRepositoriesClient _repoClient;
-        private IRepositoryCommitsClient _commitsClient;
-        private IPullRequestsClient _prClient;
-        private IRepositoryContentsClient _contentsClient;
-        private IFileContentPersist _fileContentPersist;
-        private MockCompareResult _compareResults;
-        private MainWindowVm _mainWindowVm;
-        private MockPullRequest _pullRequest;
-
-        private readonly PullRequestLocator _pullRequestLocator = new PullRequestLocator()
+        private readonly PullRequestLocator _pullRequestLocator = new PullRequestLocator
         {
             Repository = "repo",
             Owner = "owner",
             PullRequestNumber = new Random().Next()
         };
+
+        private IRepositoryCommitsClient _commitsClient;
+        private MockCompareResult _compareResults;
+        private IRepositoryContentsClient _contentsClient;
+        private IDiffToolProvider _diffTool;
+        private IFileContentPersist _fileContentPersist;
+        private IGitHubClient _gitHubClient;
+        private MainWindowVm _mainWindowVm;
+        private IPullRequestsClient _prClient;
+        private MockPullRequest _pullRequest;
+        private IRepositoriesClient _repoClient;
 
         [SetUp]
         public void SetUp()
@@ -44,6 +41,7 @@ namespace PReviewer.Test
             _prClient = Substitute.For<IPullRequestsClient>();
             _contentsClient = Substitute.For<IRepositoryContentsClient>();
             _fileContentPersist = Substitute.For<IFileContentPersist>();
+            _diffTool = Substitute.For<IDiffToolProvider>();
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
             _repoClient.PullRequest.Returns(_prClient);
@@ -53,16 +51,17 @@ namespace PReviewer.Test
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>()
-                ).Returns(Task.FromResult((CompareResult)_compareResults));
+                ).Returns(Task.FromResult((CompareResult) _compareResults));
 
-            _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist)
+            _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
             };
 
             _pullRequest = new MockPullRequest();
-            _prClient.Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository, _mainWindowVm.PullRequestLocator.PullRequestNumber).Returns(Task.FromResult((PullRequest)_pullRequest));
+            _prClient.Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
+                _mainWindowVm.PullRequestLocator.PullRequestNumber).Returns(Task.FromResult((PullRequest) _pullRequest));
         }
 
         [Test]
@@ -71,8 +70,12 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
 
 #pragma warning disable 4014
-            _prClient.Received(1).Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository, _mainWindowVm.PullRequestLocator.PullRequestNumber);
-            _commitsClient.Received(1).Compare(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository, _pullRequest.Base.Sha, _pullRequest.Head.Sha);
+            _prClient.Received(1)
+                .Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
+                    _mainWindowVm.PullRequestLocator.PullRequestNumber);
+            _commitsClient.Received(1)
+                .Compare(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
+                    _pullRequest.Base.Sha, _pullRequest.Head.Sha);
 #pragma warning restore 4014
             Assert.That(_mainWindowVm.Diffs, Contains.Item(MockCompareResult.File1));
             Assert.That(_mainWindowVm.Diffs, Contains.Item(MockCompareResult.File2));
@@ -101,11 +104,8 @@ namespace PReviewer.Test
             _prClient.When(x => x.Get(Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<int>()))
-                .Do(x =>
-                {
-                    throw new Exception();
-                });
-            
+                .Do(x => { throw new Exception(); });
+
             Assert.Throws<Exception>(async () => await _mainWindowVm.RetrieveDiffs());
 
             Assert.False(_mainWindowVm.IsProcessing);
@@ -114,7 +114,7 @@ namespace PReviewer.Test
         [Test]
         public void ShouldBeInUrlModeByDefault()
         {
-            Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist).IsUrlMode);
+            Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool).IsUrlMode);
         }
 
         [Test]
@@ -132,7 +132,8 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
             Assert.That(_mainWindowVm.PullRequestLocator.Owner, Is.EqualTo(_pullRequestLocator.Owner));
             Assert.That(_mainWindowVm.PullRequestLocator.Repository, Is.EqualTo(_pullRequestLocator.Repository));
-            Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber, Is.EqualTo(_pullRequestLocator.PullRequestNumber));
+            Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber,
+                Is.EqualTo(_pullRequestLocator.PullRequestNumber));
         }
 
         [Test]
@@ -238,10 +239,31 @@ namespace PReviewer.Test
             _fileContentPersist.Received(1).SaveContent(baseContent.Content);
         }
 
+        [Test]
+        public async void CanCallDiffTool()
+        {
+            var baseContent = MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
+            var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
+
+            const string basePath = "basepath";
+            _fileContentPersist.SaveContent(baseContent.Content).Returns(basePath);
+            const string headPath = "headpath";
+            _fileContentPersist.SaveContent(headContent.Content).Returns(headPath);
+
+            _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
+
+            await _mainWindowVm.RetrieveDiffs();
+
+            await _mainWindowVm.PrepareDiffContent();
+
+            _diffTool.Received(1).Open(basePath, headPath);
+        }
+
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
-            var headContent = new MockRepositoryContent() {EncodedContent = rawContent};
-            IReadOnlyList<RepositoryContent> headContentCollection = new List<RepositoryContent>() {headContent}.AsReadOnly();
+            var headContent = new MockRepositoryContent {EncodedContent = rawContent};
+            IReadOnlyList<RepositoryContent> headContentCollection =
+                new List<RepositoryContent> {headContent}.AsReadOnly();
             _contentsClient.GetContents(Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Is<string>(x => x == MockCompareResult.File1.GetFilePath(sha)))
@@ -250,17 +272,15 @@ namespace PReviewer.Test
         }
     }
 
-    class MockRepositoryContent : RepositoryContent
+    internal class MockRepositoryContent : RepositoryContent
     {
         public new string EncodedContent
         {
-            set { 
-                base.EncodedContent = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((value))); 
-            }
+            set { base.EncodedContent = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((value))); }
         }
     }
 
-    class MockPullRequest : PullRequest
+    internal class MockPullRequest : PullRequest
     {
         public MockPullRequest()
         {
@@ -269,7 +289,7 @@ namespace PReviewer.Test
         }
     }
 
-    class MockGitHubCommit : GitHubCommit
+    internal class MockGitHubCommit : GitHubCommit
     {
         public new string Sha
         {
@@ -278,7 +298,7 @@ namespace PReviewer.Test
         }
     }
 
-    class MockGitHubCommitFile : GitHubCommitFile
+    internal class MockGitHubCommitFile : GitHubCommitFile
     {
         public new string Sha
         {
@@ -293,22 +313,23 @@ namespace PReviewer.Test
         }
     }
 
-    class MockCompareResult : CompareResult
+    internal class MockCompareResult : CompareResult
     {
-        public static readonly GitHubCommitFile File1 = new MockGitHubCommitFile()
+        public static readonly GitHubCommitFile File1 = new MockGitHubCommitFile
         {
             Sha = "e74fe8d371a5e33c4877f662e6f8ed7c0949a8b0",
             Filename = "test.xaml"
         };
 
-        public static readonly GitHubCommitFile File2 = new MockGitHubCommitFile()
+        public static readonly GitHubCommitFile File2 = new MockGitHubCommitFile
         {
             Sha = "9dc7f01526e368a64c49714c51f1d851885793ba",
             Filename = "app.xaml.cs"
         };
+
         public MockCompareResult()
         {
-            Files = new List<GitHubCommitFile>()
+            Files = new List<GitHubCommitFile>
             {
                 File1,
                 File2

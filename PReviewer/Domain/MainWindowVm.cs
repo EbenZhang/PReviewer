@@ -15,16 +15,18 @@ namespace PReviewer.Domain
     {
         private readonly IGitHubClient _client;
         private readonly IFileContentPersist _fileContentPersist;
+        private readonly IDiffToolProvider _diffTool;
         private bool _IsProcessing;
         private string _PullRequestUrl;
         private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
         private bool _IsUrlMode = true;
 
-        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist)
+        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist, IDiffToolProvider diffTool)
         {
             Diffs = new ObservableCollection<GitHubCommitFile>();
             _client = client;
             _fileContentPersist = fileContentPersist;
+            _diffTool = diffTool;
         }
 
         public ObservableCollection<GitHubCommitFile> Diffs { get; set; }
@@ -141,6 +143,8 @@ namespace PReviewer.Domain
                             _SelectedDiffFile.GetFilePath(BaseCommit));
 
                 var basePath = await SaveToFile(contentBase.First().Content);
+
+                _diffTool.Open(basePath, headPath);
             }
             finally
             {
