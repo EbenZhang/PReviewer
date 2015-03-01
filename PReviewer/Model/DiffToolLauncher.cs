@@ -4,12 +4,12 @@ using PReviewer.Domain;
 
 namespace PReviewer.Model
 {
-    public class DiffToolProvider : IDiffToolProvider
+    public class DiffToolLauncher : IDiffToolLauncher
     {
         private readonly ICompareToolSettingsPersist _compareToolSettingsPersist;
         private readonly IDiffToolParamBuilder _diffToolParamBuilder;
 
-        public DiffToolProvider(ICompareToolSettingsPersist compareToolSettingsPersist,
+        public DiffToolLauncher(ICompareToolSettingsPersist compareToolSettingsPersist,
             IDiffToolParamBuilder diffToolParamBuilder)
         {
             _compareToolSettingsPersist = compareToolSettingsPersist;
@@ -22,8 +22,13 @@ namespace PReviewer.Model
             var tool = toolContainer.GetCompareTools().ElementAt(toolContainer.CurrentActiveIndex);
             var p = new Process
             {
-                StartInfo = new ProcessStartInfo {Arguments = _diffToolParamBuilder.Build(tool.Parameters, @base, head)}
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = tool.ExePath,
+                    Arguments = _diffToolParamBuilder.Build(tool.Parameters, @base, head)
+                }
             };
+            p.Start();
         }
     }
 }

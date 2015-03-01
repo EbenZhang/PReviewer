@@ -1,6 +1,6 @@
 ﻿namespace PReviewer.Domain
 {
-    public interface IDiffToolProvider
+    public interface IDiffToolLauncher
     {
         void Open(string @base, string head);
     }

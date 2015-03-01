@@ -23,7 +23,7 @@ namespace PReviewer.Test
         private IRepositoryCommitsClient _commitsClient;
         private MockCompareResult _compareResults;
         private IRepositoryContentsClient _contentsClient;
-        private IDiffToolProvider _diffTool;
+        private IDiffToolLauncher _diffTool;
         private IFileContentPersist _fileContentPersist;
         private IGitHubClient _gitHubClient;
         private MainWindowVm _mainWindowVm;
@@ -41,7 +41,7 @@ namespace PReviewer.Test
             _prClient = Substitute.For<IPullRequestsClient>();
             _contentsClient = Substitute.For<IRepositoryContentsClient>();
             _fileContentPersist = Substitute.For<IFileContentPersist>();
-            _diffTool = Substitute.For<IDiffToolProvider>();
+            _diffTool = Substitute.For<IDiffToolLauncher>();
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
             _repoClient.PullRequest.Returns(_prClient);
@@ -235,8 +235,14 @@ namespace PReviewer.Test
 
             await _mainWindowVm.PrepareDiffContent();
 
-            _fileContentPersist.Received(1).SaveContent(headContent.Content);
-            _fileContentPersist.Received(1).SaveContent(baseContent.Content);
+#pragma warning disable 4014
+            _fileContentPersist.Received(1).SaveContent(_pullRequestLocator,
+                MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, MockCompareResult.File1.Filename), 
+                headContent.Content);
+            _fileContentPersist.Received(1).SaveContent(_pullRequestLocator,
+                MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, MockCompareResult.File1.Filename), 
+                baseContent.Content);
+#pragma warning restore 4014
         }
 
         [Test]
@@ -246,9 +252,13 @@ namespace PReviewer.Test
             var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
             const string basePath = "basepath";
-            _fileContentPersist.SaveContent(baseContent.Content).Returns(basePath);
+            _fileContentPersist.SaveContent(Arg.Any<PullRequestLocator>(),
+                Arg.Any<string>(),
+                baseContent.Content).Returns(Task.FromResult(basePath));
             const string headPath = "headpath";
-            _fileContentPersist.SaveContent(headContent.Content).Returns(headPath);
+            _fileContentPersist.SaveContent(Arg.Any<PullRequestLocator>(),
+                Arg.Any<string>(),
+                headContent.Content).Returns(Task.FromResult(headPath));
 
             _mainWindowVm.SelectedDiffFile = MockCompareResult.File1;
 

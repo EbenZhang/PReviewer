@@ -57,8 +57,8 @@ namespace PReviewer.Domain
             var compareToolSettingsPersist = new CompareToolSettingsPersist();
             _builder.RegisterInstance(compareToolSettingsPersist).As<ICompareToolSettingsPersist>();
             _builder.RegisterInstance(new FileContentPersist()).As<IFileContentPersist>();
-            _builder.RegisterInstance(new DiffToolProvider(compareToolSettingsPersist, new DiffToolParamBuilder()))
-                .As<IDiffToolProvider>();
+            _builder.RegisterInstance(new DiffToolLauncher(compareToolSettingsPersist, new DiffToolParamBuilder()))
+                .As<IDiffToolLauncher>();
             _container = _builder.Build();
         }
 

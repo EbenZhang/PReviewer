@@ -15,13 +15,13 @@ namespace PReviewer.Domain
     {
         private readonly IGitHubClient _client;
         private readonly IFileContentPersist _fileContentPersist;
-        private readonly IDiffToolProvider _diffTool;
+        private readonly IDiffToolLauncher _diffTool;
         private bool _IsProcessing;
         private string _PullRequestUrl;
         private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
         private bool _IsUrlMode = true;
 
-        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist, IDiffToolProvider diffTool)
+        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist, IDiffToolLauncher diffTool)
         {
             Diffs = new ObservableCollection<GitHubCommitFile>();
             _client = client;
@@ -135,14 +135,14 @@ namespace PReviewer.Domain
                         _client.Repository.Content.GetContents(PullRequestLocator.Owner, PullRequestLocator.Repository,
                             _SelectedDiffFile.GetFilePath(HeadCommit));
 
-                var headPath = await SaveToFile(contentHead.First().Content);
+                var headPath = await SaveToFile(BuildHeadFileName(HeadCommit, SelectedDiffFile.Filename), contentHead.First().Content);
 
                 var contentBase =
                     await
                         _client.Repository.Content.GetContents(PullRequestLocator.Owner, PullRequestLocator.Repository,
                             _SelectedDiffFile.GetFilePath(BaseCommit));
 
-                var basePath = await SaveToFile(contentBase.First().Content);
+                var basePath = await SaveToFile(BuildBaseFileName(BaseCommit, SelectedDiffFile.Filename), contentBase.First().Content);
 
                 _diffTool.Open(basePath, headPath);
             }
@@ -152,9 +152,19 @@ namespace PReviewer.Domain
             }
         }
 
-        public async Task<string> SaveToFile(string content)
+        public static string BuildHeadFileName(string headCommit, string orgFileName)
         {
-            return await Task.Run(() => _fileContentPersist.SaveContent(content));
+            return headCommit + "/Head/" + orgFileName;
+        }
+
+        public static string BuildBaseFileName(string baseCommit, string orgFileName)
+        {
+            return baseCommit + "/Base/" + orgFileName;
+        }
+
+        public async Task<string> SaveToFile(string fileName, string content)
+        {
+            return await _fileContentPersist.SaveContent(PullRequestLocator, fileName, content);
         }
     }
 }

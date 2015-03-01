@@ -8,6 +8,6 @@ namespace PReviewer.Domain
 {
     public interface IFileContentPersist
     {
-        string SaveContent(string content);
+        Task<string> SaveContent(PullRequestLocator prInfo, string fileName, string content);
     }
 }
