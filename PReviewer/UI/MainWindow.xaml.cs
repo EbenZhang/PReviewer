@@ -83,5 +83,10 @@ namespace PReviewer.UI
                 MessageBoxHelper.ShowError(this, "Unable to get changes.\r\n" + ex);
             }
         }
+
+        private async void OnFileDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            await _viewModel.PrepareDiffContent();
+        }
     }
 }

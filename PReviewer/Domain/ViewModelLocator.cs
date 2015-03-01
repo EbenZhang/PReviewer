@@ -37,6 +37,7 @@ namespace PReviewer.Domain
             _builder.RegisterInstance(new GitHubClientFactory()).As<IGitHubClientFactory>();
             _builder.RegisterInstance(new CredentialPersisit()).As<ICredentialPersisit>();
             _builder.RegisterInstance(new CompareToolSettingsPersist()).As<ICompareToolSettingsPersist>();
+            _builder.RegisterInstance(new FileContentPersist()).As<IFileContentPersist>();
             _container = _builder.Build();
         }
 

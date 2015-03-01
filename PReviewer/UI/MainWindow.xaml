@@ -45,7 +45,7 @@
                         </Grid.ColumnDefinitions>
                         <RadioButton
                             attachBehaviour:EventFocusAttachment.ElementToFocus="{Binding ElementName=TxtPullRequest}"
-                            IsChecked="True"
+                            IsChecked="{Binding IsUrlMode}"
                             x:Name="RdUrl"
                             Grid.Row="0"
                             Grid.Column="0"
@@ -58,7 +58,7 @@
                             IsEnabled="{Binding IsChecked, ElementName=RdUrl}"
                             Margin="2,0,0,0">
                             <controls:AutoCompleteBoxEx.Text>
-                                <Binding Path="PullRequestUrl" Mode="TwoWay">
+                                <Binding Path="PullRequestUrl" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <validation:MinLengthValidator MinLength="1"/>
                                     </Binding.ValidationRules>
@@ -78,7 +78,7 @@
                             IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
                             Margin="2,0,0,0">
                             <controls:AutoCompleteBoxEx.Text>
-                                <Binding Path="PullRequestLocator.Owner" Mode="TwoWay">
+                                <Binding Path="PullRequestLocator.Owner" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <validation:MinLengthValidator MinLength="1"/>
                                     </Binding.ValidationRules>
@@ -94,7 +94,7 @@
                             Grid.Column="3" 
                             Margin="2,0,0,0">
                             <controls:AutoCompleteBoxEx.Text>
-                                <Binding Path="PullRequestLocator.Repository" Mode="TwoWay">
+                                <Binding Path="PullRequestLocator.Repository" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <validation:MinLengthValidator MinLength="1"/>
                                     </Binding.ValidationRules>
@@ -111,7 +111,7 @@
                             Grid.Row="2"
                             Grid.Column="5" Margin="2,0,0,0">
                             <TextBox.Text>
-                                <Binding Path="PullRequestLocator.PullRequestNumber">
+                                <Binding Path="PullRequestLocator.PullRequestNumber" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <validation:IntRangeValidator MinValue ="1"/>
                                     </Binding.ValidationRules>
@@ -127,7 +127,12 @@
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Row="2" Header="Differences">
-                <ListView Margin="4" ItemsSource="{Binding Diffs}">
+                <ListView Margin="4" ItemsSource="{Binding Diffs}" SelectedItem="{Binding SelectedDiffFile}">
+                    <ListView.Resources>
+                        <Style TargetType="ListViewItem">
+                            <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
+                        </Style>
+                    </ListView.Resources>
                     <ListView.View>
                         <GridView>
                             <GridView.Columns>

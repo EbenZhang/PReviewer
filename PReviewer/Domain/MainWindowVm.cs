@@ -7,21 +7,24 @@ using System.Threading.Tasks;
 using ExtendedCL;
 using GalaSoft.MvvmLight;
 using Octokit;
+using PReviewer.Model;
 
 namespace PReviewer.Domain
 {
     public class MainWindowVm : ViewModelBase
     {
         private readonly IGitHubClient _client;
+        private readonly IFileContentPersist _fileContentPersist;
         private bool _IsProcessing;
         private string _PullRequestUrl;
         private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
         private bool _IsUrlMode = true;
 
-        public MainWindowVm(IGitHubClient client)
+        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist)
         {
             Diffs = new ObservableCollection<GitHubCommitFile>();
             _client = client;
+            _fileContentPersist = fileContentPersist;
         }
 
         public ObservableCollection<GitHubCommitFile> Diffs { get; set; }
@@ -76,6 +79,16 @@ namespace PReviewer.Domain
             }
         }
 
+        public GitHubCommitFile SelectedDiffFile
+        {
+            get { return _SelectedDiffFile; }
+            set
+            {
+                _SelectedDiffFile = value; 
+                RaisePropertyChanged();
+            }
+        }
+
         public async Task RetrieveDiffs()
         {
             IsProcessing = true;
@@ -97,11 +110,47 @@ namespace PReviewer.Domain
                 var commitsClient = repo.Commits;
                 var compareResult = await commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha, pr.Head.Sha);
                 Diffs.Assign(compareResult.Files);
+                BaseCommit = pr.Base.Sha;
+                HeadCommit = pr.Head.Sha;
             }
             finally
             {
                 IsProcessing = false;
             }
+        }
+
+        public string BaseCommit = null;
+        public string HeadCommit = null;
+        private GitHubCommitFile _SelectedDiffFile;
+
+        public async Task PrepareDiffContent()
+        {
+            try
+            {
+                IsProcessing = true;
+                var contentHead =
+                    await
+                        _client.Repository.Content.GetContents(PullRequestLocator.Owner, PullRequestLocator.Repository,
+                            _SelectedDiffFile.GetFilePath(HeadCommit));
+
+                var headPath = await SaveToFile(contentHead.First().Content);
+
+                var contentBase =
+                    await
+                        _client.Repository.Content.GetContents(PullRequestLocator.Owner, PullRequestLocator.Repository,
+                            _SelectedDiffFile.GetFilePath(BaseCommit));
+
+                var basePath = await SaveToFile(contentBase.First().Content);
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
+        }
+
+        public async Task<string> SaveToFile(string content)
+        {
+            return await Task.Run(() => _fileContentPersist.SaveContent(content));
         }
     }
 }

@@ -104,12 +104,14 @@
     </ApplicationDefinition>
     <Compile Include="Domain\CompareToolSettingsVm.cs" />
     <Compile Include="Domain\ICredentialPersisit.cs" />
+    <Compile Include="Domain\IFileContentPersist.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Domain\PullRequestLocator.cs" />
     <Compile Include="Model\CompareToolSettings.cs" />
     <Compile Include="Model\CompareToolSettingsContainer.cs" />
     <Compile Include="Model\CompareToolSettingsPersist.cs" />
+    <Compile Include="Model\FileContentPersist.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
@@ -129,6 +131,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\GitHubCommitFileEx.cs" />
     <Compile Include="Model\SerializableCompareToolSettings.cs" />
     <Compile Include="UI\CompareToolSettings.xaml.cs">
       <DependentUpon>CompareToolSettings.xaml</DependentUpon>
