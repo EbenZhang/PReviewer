@@ -483,6 +483,14 @@ namespace PReviewer.Test
         }
 
         [Test]
+        public async void NoNeedToSave_IfNoPullRequestInfo()
+        {
+            _mainWindowVm.PullRequestLocator = PullRequestLocator.Empty;
+            await _mainWindowVm.SaveComments();
+            _commentsPersist.DidNotReceiveWithAnyArgs().Save(null, null, "").IgnoreAsyncWarning();
+        }
+
+        [Test]
         public async void CanLoadComments()
         {
             await _mainWindowVm.RetrieveDiffs();

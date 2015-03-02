@@ -284,6 +284,10 @@ namespace PReviewer.Domain
         {
             try
             {
+                if (PullRequestLocator == PullRequestLocator.Empty)
+                {
+                    return;
+                }
                 IsProcessing = true;
                 await _commentsPersist.Save(_PullRequestLocator, Diffs, GeneralComments);
             }
