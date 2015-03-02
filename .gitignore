@@ -181,6 +181,3 @@ Sharpcuz/fonts
 
 T4MVC\.cs
 Sharpcuz/attachments/*
-
-*.dll
-!dist/*

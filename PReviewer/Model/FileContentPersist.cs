@@ -6,20 +6,34 @@ using PReviewer.Domain;
 
 namespace PReviewer.Model
 {
+    public class FailedToSaveContent : Exception
+    {
+        public FailedToSaveContent(Exception ex) : base(ex.Message, ex)
+        {
+            
+        }
+    }
     public class FileContentPersist : IFileContentPersist
     {
         public async Task<string> SaveContent(PullRequestLocator prInfo, string fileName, string content)
         {
-            var filePath = GetFilePath(prInfo, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                using (var streamWriter = new StreamWriter(stream))
+                var filePath = GetFilePath(prInfo, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await streamWriter.WriteAsync(content);
+                    using (var streamWriter = new StreamWriter(stream))
+                    {
+                        await streamWriter.WriteAsync(content);
+                    }
                 }
+                return filePath;
             }
-            return filePath;
+            catch (Exception ex)
+            {
+                throw new FailedToSaveContent(ex);
+            }
         }
 
         private static string GetRootDir()
@@ -59,6 +73,11 @@ namespace PReviewer.Model
         {
             var prDir = GetPullRequestDir(prInfo);
             var filePath = Path.Combine(prDir, fileName);
+            var fileDir = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(fileDir))
+            {
+                Directory.CreateDirectory(fileDir);
+            }
             return filePath;
         }
 

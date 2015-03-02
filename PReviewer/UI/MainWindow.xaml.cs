@@ -204,6 +204,10 @@ namespace PReviewer.UI
                 MessageBoxHelper.ShowError(this, "Unable to launch the diff tool.\r\nPlease check your settings.");
                 ShowSettingsCmd.Execute(null);
             }
+            catch (FailedToSaveContent ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to save content.\r\n\r\n" + ex);
+            }
             catch (Exception ex)
             {
                 MessageBoxHelper.ShowError(this, "Unable to get diff content.\r\n\r\n" + ex);
