@@ -82,7 +82,7 @@
             Grid.Column="0" Grid.Row="0" 
             Grid.ColumnSpan="3"
             Grid.RowSpan="5"
-            IsBusy="{Binding IsProcessing}" BusyContent="Loging...">
+            IsBusy="{Binding IsProcessing}" BusyContent="Login to GitHub...">
         </xctk:BusyIndicator>
     </Grid>
     </Grid>

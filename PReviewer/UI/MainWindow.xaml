@@ -145,9 +145,18 @@
                         </Style>
                     </ListView.Resources>
                     <ListView.View>
-                        <GridView>
+                        <controls:AutoSizedGridView>
                             <GridView.Columns>
-                                <GridViewColumn Header="File" DisplayMemberBinding="{Binding GitHubCommitFile.Filename}"/>
+                                <GridViewColumn Header="File">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock 
+                                                TextTrimming="WordEllipsis"
+                                                ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="Status">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
@@ -167,7 +176,7 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                             </GridView.Columns>
-                        </GridView>
+                        </controls:AutoSizedGridView>
                     </ListView.View>
                 </ListView>
             </GroupBox>
