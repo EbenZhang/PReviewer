@@ -10,9 +10,7 @@ namespace PReviewer.Model
     {
         public async Task<string> SaveContent(PullRequestLocator prInfo, string fileName, string content)
         {
-            var rootDir = GetRootDir();
-
-            var filePath = GetFilePath(prInfo, fileName, rootDir);
+            var filePath = GetFilePath(prInfo, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -36,15 +34,13 @@ namespace PReviewer.Model
 
         public bool ExistsInCached(PullRequestLocator prInfo, string fileName)
         {
-            var rootDir = GetRootDir();
-            var filePath = GetFilePath(prInfo, fileName, rootDir);
+            var filePath = GetFilePath(prInfo, fileName);
             return File.Exists(filePath);
         }
 
         public string GetCachedFilePath(PullRequestLocator prInfo, string fileName)
         {
-            var rootDir = GetRootDir();
-            var filePath = GetFilePath(prInfo, fileName, rootDir);
+            var filePath = GetFilePath(prInfo, fileName);
             return filePath;
         }
 
@@ -59,16 +55,21 @@ namespace PReviewer.Model
             }
         }
 
-        private static string GetFilePath(PullRequestLocator prInfo, string fileName, string rootDir)
+        private static string GetFilePath(PullRequestLocator prInfo, string fileName)
         {
-            var prDir = Path.Combine(prInfo.Owner, prInfo.Repository, "PR" + prInfo.PullRequestNumber);
-            var filePath = Path.Combine(rootDir, prDir, fileName);
-            var dir = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            var prDir = GetPullRequestDir(prInfo);
+            var filePath = Path.Combine(prDir, fileName);
             return filePath;
+        }
+
+        public static string GetPullRequestDir(PullRequestLocator prInfo)
+        {
+            var prDir = Path.Combine(GetRootDir(), prInfo.Owner, prInfo.Repository, "PR" + prInfo.PullRequestNumber);
+            if (!Directory.Exists(prDir))
+            {
+                Directory.CreateDirectory(prDir);
+            }
+            return prDir;
         }
     }
 }

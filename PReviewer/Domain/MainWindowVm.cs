@@ -13,6 +13,7 @@ namespace PReviewer.Domain
     {
         private readonly IGitHubClient _client;
         private readonly ICommentsBuilder _commentsBuilder;
+        private readonly ICommentsPersist _commentsPersist;
         private readonly IDiffToolLauncher _diffTool;
         private readonly IFileContentPersist _fileContentPersist;
         private readonly IPatchService _patchService;
@@ -29,7 +30,8 @@ namespace PReviewer.Domain
         public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist,
             IDiffToolLauncher diffTool,
             IPatchService patchService,
-            ICommentsBuilder commentsBuilder)
+            ICommentsBuilder commentsBuilder,
+            ICommentsPersist commentsPersist)
         {
             Diffs = new ObservableCollection<CommitFileVm>();
             _client = client;
@@ -38,6 +40,7 @@ namespace PReviewer.Domain
             _patchService = patchService;
             _reviewClient = client.Issue.Comment;
             _commentsBuilder = commentsBuilder;
+            _commentsPersist = commentsPersist;
         }
 
         public ObservableCollection<CommitFileVm> Diffs { get; set; }
@@ -138,6 +141,18 @@ namespace PReviewer.Domain
                 Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
                 BaseCommit = pr.Base.Sha;
                 HeadCommit = pr.Head.Sha;
+
+                var comments = await _commentsPersist.Load(PullRequestLocator);
+                this.GeneralComments = comments.GeneralComments;
+
+                foreach (var fileComment in comments.FileComments)
+                {
+                    var file = Diffs.SingleOrDefault(r => r.GitHubCommitFile.Filename == fileComment.FileName);
+                    if (file != null)
+                    {
+                        file.Comments = fileComment.Comments;
+                    }
+                }
             }
             finally
             {
@@ -243,6 +258,19 @@ namespace PReviewer.Domain
                 await _reviewClient.Create(_PullRequestLocator.Owner,
                         _PullRequestLocator.Repository,
                         _PullRequestLocator.PullRequestNumber, comments);
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
+        }
+
+        public async Task SaveComments()
+        {
+            try
+            {
+                IsProcessing = true;
+                await _commentsPersist.Save(_PullRequestLocator, Diffs, GeneralComments);
             }
             finally
             {

@@ -147,6 +147,7 @@
     <Compile Include="Domain\CommitFileVm.cs" />
     <Compile Include="Domain\CompareToolSettingsVm.cs" />
     <Compile Include="Domain\ICommentsBuilder.cs" />
+    <Compile Include="Domain\ICommentsPersist.cs" />
     <Compile Include="Domain\ICredentialPersisit.cs" />
     <Compile Include="Domain\IDiffToolParamBuilder.cs" />
     <Compile Include="Domain\IDiffToolLauncher.cs" />
@@ -156,11 +157,14 @@
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Domain\PullRequestLocator.cs" />
     <Compile Include="Model\CommentsBuilder.cs" />
+    <Compile Include="Model\CommentsContainer.cs" />
+    <Compile Include="Model\CommentsPersist.cs" />
     <Compile Include="Model\CompareToolSettings.cs" />
     <Compile Include="Model\CompareToolSettingsContainer.cs" />
     <Compile Include="Model\CompareToolSettingsPersist.cs" />
     <Compile Include="Model\DiffToolParamBuilder.cs" />
     <Compile Include="Model\DiffToolLauncher.cs" />
+    <Compile Include="Model\FileComment.cs" />
     <Compile Include="Model\FileContentPersist.cs" />
     <Compile Include="Model\GitFileStatus.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />

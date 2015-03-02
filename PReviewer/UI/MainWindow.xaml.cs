@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
+using Microsoft.Win32;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
@@ -26,6 +27,13 @@ namespace PReviewer.UI
             InitializeComponent();
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
+            SetupWindowClosingActions();
+        }
+
+        private void SetupWindowClosingActions()
+        {
+            this.Closed += async (sender, arg) => await _viewModel.SaveComments();
+            SystemEvents.SessionEnding += async (sender, arg) => await _viewModel.SaveComments();
         }
 
         public ICommand ShowChangesCmd

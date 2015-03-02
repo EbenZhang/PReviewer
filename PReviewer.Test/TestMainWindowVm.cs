@@ -33,9 +33,13 @@ namespace PReviewer.Test
         private IRepositoriesClient _repoClient;
         private IPatchService _patchService;
         private IIssueCommentsClient _reviewClient;
+        private ICommentsBuilder _commentsBuilder;
+        private ICommentsPersist _commentsPersist;
+
         private string _baseFileName;
         private string _headFileName;
-        private ICommentsBuilder _commentsBuilder;
+        private CommentsContainer _commentsContainer;
+
         private const string Comment1 = "Comment1";
         private const string Comment2 = "Comment2";
         private const string GeneralComments = "general comment";
@@ -54,6 +58,7 @@ namespace PReviewer.Test
             _patchService = Substitute.For<IPatchService>();
             _reviewClient = Substitute.For<IIssueCommentsClient>();
             _commentsBuilder = Substitute.For<ICommentsBuilder>();
+            _commentsPersist = Substitute.For<ICommentsPersist>();
 
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
@@ -68,7 +73,8 @@ namespace PReviewer.Test
                 ).Returns(Task.FromResult((CompareResult) _compareResults));
 
             _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist,
-                _diffTool, _patchService, _commentsBuilder)
+                _diffTool, _patchService, _commentsBuilder,
+                _commentsPersist)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
@@ -80,6 +86,19 @@ namespace PReviewer.Test
 
             _baseFileName = MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, _compareResults.File1.Filename);
             _headFileName = MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, _compareResults.File1.Filename);
+
+            _commentsContainer = new CommentsContainer { GeneralComments = GeneralComments };
+            _commentsContainer.FileComments.Add(new FileComment
+            {
+                FileName = _compareResults.File1.Filename,
+                Comments = Comment1
+            });
+            _commentsContainer.FileComments.Add(new FileComment
+            {
+                FileName = _compareResults.File2.Filename,
+                Comments = Comment2
+            });
+            _commentsPersist.Load(_pullRequestLocator).Returns(Task.FromResult(_commentsContainer));
         }
 
         [Test]
@@ -132,7 +151,7 @@ namespace PReviewer.Test
         public void ShouldBeInUrlModeByDefault()
         {
             Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist,
-                _diffTool, _patchService, _commentsBuilder).IsUrlMode);
+                _diffTool, _patchService, _commentsBuilder, _commentsPersist).IsUrlMode);
         }
 
         [Test]
@@ -375,6 +394,14 @@ namespace PReviewer.Test
         public async void TestHasComments()
         {
             await _mainWindowVm.RetrieveDiffs();
+
+            // reset.
+            foreach (var diff in _mainWindowVm.Diffs)
+            {
+                diff.Comments = "";
+            }
+            _mainWindowVm.GeneralComments = "";
+
             Assert.False(_mainWindowVm.HasComments());
 
             _mainWindowVm.Diffs.First().Comments = "my comment on file";
@@ -446,6 +473,36 @@ namespace PReviewer.Test
             Assert.Throws<Exception>(async () => await _mainWindowVm.SubmitComments());
 
             Assert.False(_mainWindowVm.IsProcessing);
+        }
+
+        [Test]
+        public async void CanSaveComments()
+        {
+            await _mainWindowVm.SaveComments();
+            _commentsPersist.Received(1).Save(_pullRequestLocator, _mainWindowVm.Diffs, _mainWindowVm.GeneralComments).IgnoreAsyncWarning();
+        }
+
+        [Test]
+        public async void CanLoadComments()
+        {
+            await _mainWindowVm.RetrieveDiffs();
+            _commentsPersist.Received(1).Load(_pullRequestLocator).IgnoreAsyncWarning();
+            Assert.That(_mainWindowVm.GeneralComments, Is.EqualTo(GeneralComments));
+            Assert.That(_mainWindowVm.Diffs[0].Comments, Is.EqualTo(Comment1));
+            Assert.That(_mainWindowVm.Diffs[1].Comments, Is.EqualTo(Comment2));
+        }
+
+        [Test]
+#pragma warning disable 1998
+        public async void ShouldSkipIfFileNoLongerExistsInThePR()
+#pragma warning restore 1998
+        {
+            _commentsContainer.FileComments.Add(new FileComment
+            {
+                FileName = "DummyFile" + Guid.NewGuid(),
+                Comments = "Comment of DummyFile"
+            });
+            Assert.DoesNotThrow(async () => await _mainWindowVm.RetrieveDiffs());
         }
 
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)

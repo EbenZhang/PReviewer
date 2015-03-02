@@ -12,6 +12,13 @@
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
+    <Window.IsEnabled>
+        <Binding Path="IsProcessing">
+            <Binding.Converter>
+                <converter:InverseBooleanConverter/>
+            </Binding.Converter>
+        </Binding>
+    </Window.IsEnabled>
     <Grid>
         <Grid Margin="20,10,20,10">
             <Grid.RowDefinitions>

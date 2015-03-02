@@ -63,6 +63,8 @@ namespace PReviewer.Domain
             _builder.RegisterInstance(new CommentsBuilder()).As<ICommentsBuilder>();
 
             _builder.RegisterInstance(new PatchService()).As<IPatchService>();
+
+            _builder.RegisterInstance(new CommentsPersist()).As<ICommentsPersist>();
             _container = _builder.Build();
         }
 
