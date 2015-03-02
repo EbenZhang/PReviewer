@@ -77,6 +77,7 @@
     <Compile Include="TestMainWindowVm.cs" />
     <Compile Include="TestPullRequestUrlConverter.cs" />
     <Compile Include="TestCommitFileVm.cs" />
+    <Compile Include="TestRecentRepo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

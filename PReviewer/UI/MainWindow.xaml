@@ -85,6 +85,8 @@
                             x:Name="TxtOwner"
                             Grid.Row="2"
                             Grid.Column="1" 
+                            FilterMode="Contains"
+                            ItemsSource="{Binding RecentRepoes.Owners}"
                             IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
                             Margin="2,0,0,0">
                             <controls:AutoCompleteBoxEx.Text>
@@ -99,7 +101,9 @@
                             Grid.Row="2"
                             Grid.Column="2" Margin="8,0,0,0" ToolTip="The name of the repository">Repo(?):</TextBlock>
                         <controls:AutoCompleteBoxEx
+                            ItemsSource="{Binding RecentRepoes.Repositories}"
                             IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
+                            FilterMode="Contains"
                             Grid.Row="2"
                             Grid.Column="3" 
                             Margin="2,0,0,0">

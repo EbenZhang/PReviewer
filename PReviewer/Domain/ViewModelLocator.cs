@@ -70,6 +70,8 @@ namespace PReviewer.Domain
             _builder.RegisterInstance(new PatchService()).As<IPatchService>();
 
             _builder.RegisterInstance(new CommentsPersist()).As<ICommentsPersist>();
+
+            _builder.RegisterInstance(new RepoHistoryPersist()).As<IRepoHistoryPersist>();
             _container = _builder.Build();
         }
 

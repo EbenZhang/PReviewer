@@ -154,8 +154,10 @@
     <Compile Include="Domain\IFileContentPersist.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
     <Compile Include="Domain\IPatchService.cs" />
+    <Compile Include="Domain\IRepoHistoryPersist.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Domain\PullRequestLocator.cs" />
+    <Compile Include="Domain\RecentRepo.cs" />
     <Compile Include="Domain\ReviewStatus.cs" />
     <Compile Include="Model\CommentsBuilder.cs" />
     <Compile Include="Model\CommentsContainer.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
+    <Compile Include="Model\RepoHistoryPersist.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
     <Page Include="UI\CompareToolSettings.xaml">

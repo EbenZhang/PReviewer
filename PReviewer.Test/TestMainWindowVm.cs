@@ -14,6 +14,12 @@ namespace PReviewer.Test
     [TestFixture]
     public class TestMainWindowVm
     {
+        private const string Comment1 = "Comment1";
+        private const string Comment2 = "Comment2";
+        private const string GeneralComments = "general comment";
+        private const ReviewStatus ReviewStatus1 = ReviewStatus.Reviewed;
+        private const ReviewStatus ReviewStatus2 = ReviewStatus.HasntBeenReviewed;
+
         private readonly PullRequestLocator _pullRequestLocator = new PullRequestLocator
         {
             Repository = "repo",
@@ -21,30 +27,24 @@ namespace PReviewer.Test
             PullRequestNumber = new Random().Next()
         };
 
+        private string _baseFileName;
+        private ICommentsBuilder _commentsBuilder;
+        private CommentsContainer _commentsContainer;
+        private ICommentsPersist _commentsPersist;
         private IRepositoryCommitsClient _commitsClient;
         private MockCompareResult _compareResults;
         private IRepositoryContentsClient _contentsClient;
         private IDiffToolLauncher _diffTool;
         private IFileContentPersist _fileContentPersist;
         private IGitHubClient _gitHubClient;
+        private string _headFileName;
         private MainWindowVm _mainWindowVm;
+        private IPatchService _patchService;
         private IPullRequestsClient _prClient;
         private MockPullRequest _pullRequest;
         private IRepositoriesClient _repoClient;
-        private IPatchService _patchService;
+        private IRepoHistoryPersist _repoHistoryPersist;
         private IIssueCommentsClient _reviewClient;
-        private ICommentsBuilder _commentsBuilder;
-        private ICommentsPersist _commentsPersist;
-
-        private string _baseFileName;
-        private string _headFileName;
-        private CommentsContainer _commentsContainer;
-
-        private const string Comment1 = "Comment1";
-        private const string Comment2 = "Comment2";
-        private const string GeneralComments = "general comment";
-        private const ReviewStatus ReviewStatus1 = ReviewStatus.Reviewed;
-        private const ReviewStatus ReviewStatus2 = ReviewStatus.HasntBeenReviewed;
 
         [SetUp]
         public void SetUp()
@@ -61,6 +61,7 @@ namespace PReviewer.Test
             _reviewClient = Substitute.For<IIssueCommentsClient>();
             _commentsBuilder = Substitute.For<ICommentsBuilder>();
             _commentsPersist = Substitute.For<ICommentsPersist>();
+            _repoHistoryPersist = Substitute.For<IRepoHistoryPersist>();
 
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
@@ -76,7 +77,7 @@ namespace PReviewer.Test
 
             _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist,
                 _diffTool, _patchService, _commentsBuilder,
-                _commentsPersist)
+                _commentsPersist, _repoHistoryPersist)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
@@ -89,20 +90,21 @@ namespace PReviewer.Test
             _baseFileName = MainWindowVm.BuildBaseFileName(_pullRequest.Base.Sha, _compareResults.File1.Filename);
             _headFileName = MainWindowVm.BuildHeadFileName(_pullRequest.Head.Sha, _compareResults.File1.Filename);
 
-            _commentsContainer = new CommentsContainer { GeneralComments = GeneralComments };
+            _commentsContainer = new CommentsContainer {GeneralComments = GeneralComments};
             _commentsContainer.FileComments.Add(new FileComment
             {
                 FileName = _compareResults.File1.Filename,
                 Comments = Comment1,
-                ReviewStatus = ReviewStatus1,
+                ReviewStatus = ReviewStatus1
             });
             _commentsContainer.FileComments.Add(new FileComment
             {
                 FileName = _compareResults.File2.Filename,
                 Comments = Comment2,
-                ReviewStatus = ReviewStatus2,
+                ReviewStatus = ReviewStatus2
             });
-            _commentsPersist.Load(Arg.Is<PullRequestLocator>(x => x.Equals(_pullRequestLocator))).Returns(Task.FromResult(_commentsContainer));
+            _commentsPersist.Load(Arg.Is<PullRequestLocator>(x => x.Equals(_pullRequestLocator)))
+                .Returns(Task.FromResult(_commentsContainer));
         }
 
         [Test]
@@ -155,7 +157,8 @@ namespace PReviewer.Test
         public void ShouldBeInUrlModeByDefault()
         {
             Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist,
-                _diffTool, _patchService, _commentsBuilder, _commentsPersist).IsUrlMode);
+                _diffTool, _patchService, _commentsBuilder,
+                _commentsPersist, _repoHistoryPersist).IsUrlMode);
         }
 
         [Test]
@@ -365,7 +368,7 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
 
             await _mainWindowVm.PrepareDiffContent();
-            
+
             _contentsClient.DidNotReceive().GetContents(_pullRequestLocator.Owner,
                 _pullRequestLocator.Repository, _baseFileName).IgnoreAsyncWarning();
             _diffTool.Received(1).Open(basePath, headPath);
@@ -434,7 +437,7 @@ namespace PReviewer.Test
 
             _mainWindowVm.GeneralComments = "my general comments";
             Assert.True(_mainWindowVm.HasComments());
-            
+
             _mainWindowVm.GeneralComments = null;
             Assert.False(_mainWindowVm.HasComments());
 
@@ -486,7 +489,7 @@ namespace PReviewer.Test
             _commentsBuilder.Build(_mainWindowVm.Diffs, _mainWindowVm.GeneralComments)
                 .Returns("");
 
-            
+
             _reviewClient.WhenForAnyArgs(x => x.Create("", "", 1, null)).Do(x => { throw new Exception(); });
 
             Assert.Throws<Exception>(async () => await _mainWindowVm.SubmitComments());
@@ -498,7 +501,9 @@ namespace PReviewer.Test
         public async void CanSaveComments()
         {
             await _mainWindowVm.SaveComments();
-            _commentsPersist.Received(1).Save(_pullRequestLocator, _mainWindowVm.Diffs, _mainWindowVm.GeneralComments).IgnoreAsyncWarning();
+            _commentsPersist.Received(1)
+                .Save(_pullRequestLocator, _mainWindowVm.Diffs, _mainWindowVm.GeneralComments)
+                .IgnoreAsyncWarning();
         }
 
         [Test]
@@ -554,6 +559,34 @@ namespace PReviewer.Test
             Assert.That(_mainWindowVm.PullRequestLocator, Is.EqualTo(PullRequestLocator.Empty));
         }
 
+        [Test]
+        public async void ShouldStoreOwnerAndRepoHistoryForAutoCompletion()
+        {
+            await _mainWindowVm.RetrieveDiffs();
+            CollectionAssert.Contains(_mainWindowVm.RecentRepoes.Owners, _pullRequestLocator.Owner);
+            CollectionAssert.Contains(_mainWindowVm.RecentRepoes.Repositories, _pullRequestLocator.Repository);
+
+            _repoHistoryPersist.Received(1)
+                .Save(_mainWindowVm.RecentRepoes.Owners,
+                    _mainWindowVm.RecentRepoes.Repositories).IgnoreAsyncWarning();
+        }
+
+        [Test]
+        public async void HasTheAbilityToLoadRepoHistory()
+        {
+            var container = new RepoHistoryContainer()
+            {
+                Owners = new List<string> {"owner1", "owner2"},
+                Repositories = new List<string> {"repo1", "repo2"}
+            };
+            _repoHistoryPersist.Load().Returns(Task.FromResult(container));
+
+            await _mainWindowVm.LoadRepoHistory();
+
+            _repoHistoryPersist.Received(1).Load().IgnoreAsyncWarning();
+            CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Owners, container.Owners);
+            CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Repositories, container.Repositories);
+        }
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
             var headContent = new MockRepositoryContent {EncodedContent = rawContent};
@@ -583,7 +616,8 @@ namespace PReviewer.Test
             Head = new GitReference("", "", "", "asdfasdf", null, null);
         }
 
-        public new int Number{
+        public new int Number
+        {
             get { return base.Number; }
             set { base.Number = value; }
         }

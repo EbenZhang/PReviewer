@@ -17,12 +17,14 @@ namespace PReviewer.Domain
         private readonly IDiffToolLauncher _diffTool;
         private readonly IFileContentPersist _fileContentPersist;
         private readonly IPatchService _patchService;
+        private readonly IRepoHistoryPersist _repoHistoryPersist;
         private readonly IIssueCommentsClient _reviewClient;
         private string _generalComments;
         private bool _IsProcessing;
         private bool _IsUrlMode = true;
         private PullRequestLocator _PullRequestLocator = PullRequestLocator.Empty;
         private string _PullRequestUrl;
+        private RecentRepo _recentRepoes = new RecentRepo();
         private CommitFileVm _SelectedDiffFile;
         public string BaseCommit;
         public string HeadCommit;
@@ -31,7 +33,8 @@ namespace PReviewer.Domain
             IDiffToolLauncher diffTool,
             IPatchService patchService,
             ICommentsBuilder commentsBuilder,
-            ICommentsPersist commentsPersist)
+            ICommentsPersist commentsPersist,
+            IRepoHistoryPersist repoHistoryPersist)
         {
             Diffs = new ObservableCollection<CommitFileVm>();
             _client = client;
@@ -41,6 +44,7 @@ namespace PReviewer.Domain
             _reviewClient = client.Issue.Comment;
             _commentsBuilder = commentsBuilder;
             _commentsPersist = commentsPersist;
+            _repoHistoryPersist = repoHistoryPersist;
         }
 
         public ObservableCollection<CommitFileVm> Diffs { get; set; }
@@ -127,6 +131,16 @@ namespace PReviewer.Domain
             }
         }
 
+        public RecentRepo RecentRepoes
+        {
+            get { return _recentRepoes; }
+            set
+            {
+                _recentRepoes = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public async Task RetrieveDiffs()
         {
             IsProcessing = true;
@@ -158,17 +172,17 @@ namespace PReviewer.Domain
                 HeadCommit = pr.Head.Sha;
 
                 var comments = await _commentsPersist.Load(PullRequestLocator);
-                this.GeneralComments = comments.GeneralComments;
+                GeneralComments = comments.GeneralComments;
 
                 foreach (var fileComment in comments.FileComments)
                 {
                     var file = Diffs.SingleOrDefault(r => r.GitHubCommitFile.Filename == fileComment.FileName);
-                    if (file != null)
-                    {
-                        file.Comments = fileComment.Comments;
-                        file.ReviewStatus = fileComment.ReviewStatus;
-                    }
+                    if (file == null) continue;
+                    file.Comments = fileComment.Comments;
+                    file.ReviewStatus = fileComment.ReviewStatus;
                 }
+
+                await RecentRepoes.Save(PullRequestLocator, _repoHistoryPersist);
             }
             finally
             {
@@ -274,8 +288,8 @@ namespace PReviewer.Domain
                 IsProcessing = true;
                 var comments = _commentsBuilder.Build(Diffs, GeneralComments);
                 await _reviewClient.Create(_PullRequestLocator.Owner,
-                        _PullRequestLocator.Repository,
-                        _PullRequestLocator.PullRequestNumber, comments);
+                    _PullRequestLocator.Repository,
+                    _PullRequestLocator.PullRequestNumber, comments);
             }
             finally
             {
@@ -293,6 +307,21 @@ namespace PReviewer.Domain
                 }
                 IsProcessing = true;
                 await _commentsPersist.Save(_PullRequestLocator, Diffs, GeneralComments);
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
+        }
+
+        public async Task LoadRepoHistory()
+        {
+            try
+            {
+                IsProcessing = true;
+                var historyContainer = await _repoHistoryPersist.Load();
+                RecentRepoes.Owners.Assign(historyContainer.Owners);
+                RecentRepoes.Repositories.Assign(historyContainer.Repositories);
             }
             finally
             {
