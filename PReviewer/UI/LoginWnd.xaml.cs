@@ -1,44 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Command;
-using PReviewer;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.UI;
-using WpfCommon;
 using WpfCommon.Utils;
+using Application = System.Windows.Application;
 
 namespace PReviewer
 {
     /// <summary>
-    /// Interaction logic for LoginWnd.xaml
+    ///     Interaction logic for LoginWnd.xaml
     /// </summary>
     public partial class LoginWnd : Window
     {
         private readonly LoginWndVm _viewModel;
+
         public LoginWnd()
         {
             InitializeComponent();
             _viewModel = DataContext as LoginWndVm;
             _viewModel.LoadCredential();
-            this.Loaded += LoginWnd_Loaded;
+            Loaded += LoginWnd_Loaded;
         }
 
-        void LoginWnd_Loaded(object sender, RoutedEventArgs e)
+        public ICommand LoginCmd
         {
+            get { return new RelayCommand(Login); }
+        }
+
+        private void LoginWnd_Loaded(object sender, RoutedEventArgs e)
+        {
+            TxtUserName.Focus();
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 if (!string.IsNullOrWhiteSpace(_viewModel.UserName))
@@ -46,11 +41,6 @@ namespace PReviewer
                     Login();
                 }
             }));
-        }
-
-        public ICommand LoginCmd
-        {
-            get { return new RelayCommand(Login); }
         }
 
         private async void Login()
@@ -69,7 +59,7 @@ namespace PReviewer
                 ViewModelLocator.RegisterInstance<IGitHubClient, IGitHubClient>(client);
 
                 var main = new MainWindow();
-                App.Current.MainWindow = main;
+                Application.Current.MainWindow = main;
                 main.Show();
 
                 Close();

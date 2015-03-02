@@ -47,7 +47,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0">User Name:</TextBlock>
-        <TextBox Grid.Row="0" Grid.Column="2">
+        <TextBox Grid.Row="0" Grid.Column="2" x:Name="TxtUserName">
             <TextBox.Text>
                 <Binding Path="UserName">
                     <Binding.ValidationRules>
