@@ -31,9 +31,11 @@ If you prefer, you can rather get me a bottle of coke next time I am in a locati
 * [AutoFac](http://autofac.org/) library for Dependency Injection. [MIT License](http://opensource.org/licenses/mit-license.php)
 * [Notification](https://toastspopuphelpballoon.codeplex.com/) library to popup toasts. [BSD License](https://toastspopuphelpballoon.codeplex.com/license)
 * [Nunit](http://www.nunit.org/) and [NSubstitute](http://nsubstitute.github.io)
+* [MarkdownSharp](https://code.google.com/p/markdownsharp/) library to convert Markdown to HTML. [MIT License](http://opensource.org/licenses/mit-license.php)
 * Executable patch.exe file from installed git bin dir. Not sure about the license, but should be GPL.
 * The Visual Studio 2013 Community Version.
+* [GlyphIcon](http://glyphicons.com/). [GLYPHICONS FREE License](http://glyphicons.com/license/)
 
 # Feedbacks
 
-Please submit [here](http://www.nicologies.tk/contact.html) if you have any question or suggestion.
+Please submit [here](https://github.com/EbenZhang/PReviewer/issues/new) if you have any question or suggestion.

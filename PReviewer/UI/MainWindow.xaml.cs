@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
+using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
 using Octokit;
@@ -38,6 +41,25 @@ namespace PReviewer.UI
         public ICommand SubmitCommentsCmd
         {
             get { return new RelayCommand(SubmitComments); }
+        }
+
+        public ICommand AboutCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    var licMarkdown = File.ReadAllText(Path.Combine(PathHelper.ProcessDir, "LICENSE"));
+                    var markdown = new MarkdownSharp.Markdown();
+                    var html = "<html><body>" + markdown.Transform(licMarkdown) + "</body></html>";
+                    var dlg = new WpfCommon.Controls.AboutDialog
+                    {
+                        Owner = this,
+                        HtmlDescription = html,
+                    };
+                    dlg.ShowDialog();
+                });
+            }
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -136,6 +158,19 @@ namespace PReviewer.UI
             {
                 MessageBoxHelper.ShowError(this, "Unable to get diff content.\r\n\r\n" + ex);
             }
+        }
+
+        private void OnBtnMenuClicked(object sender, RoutedEventArgs e)
+        {
+            MainMenu.Margin = new Thickness(0, BtnMenu.ActualHeight + 4, 0, 0);
+            MainMenu.Visibility = MainMenu.Visibility == Visibility.Visible
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+
+        private void OnMenuClicked(object sender, MouseButtonEventArgs e)
+        {
+            MainMenu.Visibility = Visibility.Collapsed;
         }
     }
 }

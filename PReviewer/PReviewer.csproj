@@ -85,6 +85,9 @@
     <Reference Include="Mantin.Controls.Wpf.Notification">
       <HintPath>..\packages\Mantin.Controls.Wpf.Notification.2.7.0.0\lib\net40\Mantin.Controls.Wpf.Notification.dll</HintPath>
     </Reference>
+    <Reference Include="MarkdownSharp">
+      <HintPath>..\packages\MarkdownSharp.1.13.0.0\lib\35\MarkdownSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Octokit, Version=0.7.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Octokit.0.7.1\lib\net45\Octokit.dll</HintPath>
@@ -212,7 +215,11 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <None Include="LICENSE" />
+    <Content Include="LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Images\glyphicons_158_show_lines.png" />
+    <Resource Include="Images\glyphicons_194_circle_question_mark.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

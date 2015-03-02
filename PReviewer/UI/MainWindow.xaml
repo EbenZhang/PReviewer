@@ -199,13 +199,54 @@
                 </Grid>
             </GroupBox>
         </Grid>
-        <Button 
-            Command="{Binding ShowSettingsCmd, ElementName=ThisWnd}"
-            Grid.Row="0" Margin="3" 
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top">
-            <Image Margin="4,2,4,2" Width="24" Height="18" Source="/Images/settings.png" />
-        </Button>
+        <Grid>
+            <Button 
+                Click="OnBtnMenuClicked"
+                x:Name="BtnMenu"
+                Grid.Row="0" Margin="3" 
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+                <Image Margin="4,2,4,2" Width="20" Height="18" Source="/Images/glyphicons_158_show_lines.png" />
+            </Button>
+            <Border
+                BorderThickness="1"
+                BorderBrush="LightGray"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Name="MainMenu" Visibility="Collapsed">
+                <Menu>
+                    <Menu.Resources>
+                        <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                            <EventSetter Event="PreviewMouseUp" Handler="OnMenuClicked"></EventSetter>
+                        </Style>
+                        <Style TargetType="Image">
+                            <Setter Property="Height" Value="15"></Setter>
+                        </Style>
+                    </Menu.Resources>
+                    <Menu.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </Menu.ItemsPanel>
+                    <MenuItem Command="{Binding ShowSettingsCmd, ElementName=ThisWnd}">
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image Source="/Images/settings.png"></Image>
+                                <Label>Compare Tool Settings</Label>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem Command="{Binding AboutCmd, ElementName=ThisWnd}" >
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image Source="/Images/glyphicons_194_circle_question_mark.png"></Image>
+                                <Label>About</Label>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                </Menu>
+            </Border>
+        </Grid>
         <xctk:BusyIndicator
             VerticalAlignment="Center"
             HorizontalAlignment="Center"
