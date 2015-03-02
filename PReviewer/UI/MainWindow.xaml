@@ -137,8 +137,12 @@
                 </Grid>
             </GroupBox>
             <!--File list-->
-            <GroupBox Grid.Row="1" Margin="0,4,0,0" Header="Differences">
-                <ListView Margin="4" ItemsSource="{Binding Diffs}" SelectedItem="{Binding SelectedDiffFile}">
+            <GroupBox Grid.Row="1" Margin="0,4,0,0"
+                      Header="Differences">
+                <ListView Margin="4" 
+                          x:Name="DiffListView"
+                          ItemsSource="{Binding Diffs}" 
+                          SelectedItem="{Binding SelectedDiffFile}">
                     <ListView.Resources>
                         <Style TargetType="ListViewItem">
                             <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
@@ -147,6 +151,40 @@
                     <ListView.View>
                         <controls:AutoSizedGridView>
                             <GridView.Columns>
+                                <GridViewColumn>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ToolTip>
+                                                    <Binding Path="ReviewStatus">
+                                                        <Binding.Converter>
+                                                            <ui:ReviewStatusToStringConverter/>
+                                                        </Binding.Converter>
+                                                    </Binding>
+                                                </Grid.ToolTip>
+                                                <Button BorderBrush="Transparent" 
+                                                        BorderThickness="0" 
+                                                        Background="Transparent" 
+                                                        PreviewMouseDoubleClick="OnPreviewBtnReviewStatusDbClicked"
+                                                        PreviewMouseDown="OnPreviewBtnReviewStatusMouseDown"
+                                                        Padding="0" 
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        Command="{Binding ChangeReviewStatusCmd}">
+                                                    <Image Width="15">
+                                                        <Image.Source>
+                                                            <Binding Path="ReviewStatus">
+                                                                <Binding.Converter>
+                                                                    <ui:ReviewStatusToIconConverter/>
+                                                                </Binding.Converter>
+                                                            </Binding>
+                                                        </Image.Source>
+                                                    </Image>
+                                                </Button>
+
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="File">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
@@ -278,7 +316,7 @@
                     <MenuItem Command="{Binding AboutCmd, ElementName=ThisWnd}" >
                         <MenuItem.Header>
                             <DockPanel>
-                                <Image Source="/Images/glyphicons_194_circle_question_mark.png"></Image>
+                                <Image Source="/Images/question.png"></Image>
                                 <Label>About</Label>
                             </DockPanel>
                         </MenuItem.Header>

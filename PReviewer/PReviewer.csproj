@@ -156,6 +156,7 @@
     <Compile Include="Domain\IPatchService.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Domain\PullRequestLocator.cs" />
+    <Compile Include="Domain\ReviewStatus.cs" />
     <Compile Include="Model\CommentsBuilder.cs" />
     <Compile Include="Model\CommentsContainer.cs" />
     <Compile Include="Model\CommentsPersist.cs" />
@@ -170,6 +171,8 @@
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
+    <Compile Include="UI\ReviewStatusToIconConverter.cs" />
+    <Compile Include="UI\ReviewStatusToStringConverter.cs" />
     <Page Include="UI\CompareToolSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -220,15 +223,17 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <Resource Include="Images\added.ico" />
-    <Resource Include="Images\Modified.ico" />
-    <Resource Include="Images\removed.ico" />
-    <Resource Include="Images\renamed.ico" />
+    <Resource Include="Images\added.png" />
+    <Resource Include="Images\Modified.png" />
+    <Resource Include="Images\new.png" />
+    <Resource Include="Images\question.png" />
+    <Resource Include="Images\removed.png" />
+    <Resource Include="Images\renamed.png" />
+    <Resource Include="Images\reviewed.png" />
     <Content Include="LICENSE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="Images\glyphicons_158_show_lines.png" />
-    <Resource Include="Images\glyphicons_194_circle_question_mark.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

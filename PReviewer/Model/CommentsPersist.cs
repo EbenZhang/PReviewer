@@ -16,6 +16,10 @@ namespace PReviewer.Model
             var commentsFile = GetCommentsFilePath(prInfo);
             await Task.Run(() =>
             {
+                if (File.Exists(commentsFile))
+                {
+                    File.Delete(commentsFile);
+                }
                 using (var stream = File.OpenWrite(commentsFile))
                 {
                     new XmlSerializer(typeof (CommentsContainer))

@@ -21,13 +21,13 @@ namespace PReviewer.UI
             switch (status)
             {
                 case GitFileStatus.Modified:
-                    return new BitmapImage(new Uri("/Images/modified.ico", UriKind.Relative));
+                    return new BitmapImage(new Uri("/Images/modified.png", UriKind.Relative));
                 case GitFileStatus.New:
-                    return new BitmapImage(new Uri("/Images/added.ico", UriKind.Relative));
+                    return new BitmapImage(new Uri("/Images/added.png", UriKind.Relative));
                 case GitFileStatus.Removed:
-                    return new BitmapImage(new Uri("/Images/removed.ico", UriKind.Relative));
+                    return new BitmapImage(new Uri("/Images/removed.png", UriKind.Relative));
                 case GitFileStatus.Renamed:
-                    return new BitmapImage(new Uri("/Images/renamed.ico", UriKind.Relative));
+                    return new BitmapImage(new Uri("/Images/renamed.png", UriKind.Relative));
             }
             throw new InvalidEnumArgumentException(@"Unknow status: " + status);
         }

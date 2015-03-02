@@ -43,6 +43,8 @@ namespace PReviewer.Test
         private const string Comment1 = "Comment1";
         private const string Comment2 = "Comment2";
         private const string GeneralComments = "general comment";
+        private const ReviewStatus ReviewStatus1 = ReviewStatus.Reviewed;
+        private const ReviewStatus ReviewStatus2 = ReviewStatus.HasntBeenReviewed;
 
         [SetUp]
         public void SetUp()
@@ -91,12 +93,14 @@ namespace PReviewer.Test
             _commentsContainer.FileComments.Add(new FileComment
             {
                 FileName = _compareResults.File1.Filename,
-                Comments = Comment1
+                Comments = Comment1,
+                ReviewStatus = ReviewStatus1,
             });
             _commentsContainer.FileComments.Add(new FileComment
             {
                 FileName = _compareResults.File2.Filename,
-                Comments = Comment2
+                Comments = Comment2,
+                ReviewStatus = ReviewStatus2,
             });
             _commentsPersist.Load(Arg.Is<PullRequestLocator>(x => x.Equals(_pullRequestLocator))).Returns(Task.FromResult(_commentsContainer));
         }
@@ -216,6 +220,21 @@ namespace PReviewer.Test
 
             _contentsClient.Received(1).GetContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
                 headPath).IgnoreAsyncWarning();
+        }
+
+        [Test]
+        public async void FileShouldBeMarkedAsReviewed_AfterDiffToolInvoked()
+        {
+            MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
+            MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
+
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
+
+            await _mainWindowVm.RetrieveDiffs();
+
+            await _mainWindowVm.PrepareDiffContent();
+
+            Assert.That(_mainWindowVm.SelectedDiffFile.ReviewStatus, Is.EqualTo(ReviewStatus.Reviewed));
         }
 
         [Test]
@@ -491,13 +510,15 @@ namespace PReviewer.Test
         }
 
         [Test]
-        public async void CanLoadComments()
+        public async void CanLoadCommentsAndReviewStatus()
         {
             await _mainWindowVm.RetrieveDiffs();
             _commentsPersist.Received(1).Load(_pullRequestLocator).IgnoreAsyncWarning();
             Assert.That(_mainWindowVm.GeneralComments, Is.EqualTo(GeneralComments));
             Assert.That(_mainWindowVm.Diffs[0].Comments, Is.EqualTo(Comment1));
+            Assert.That(_mainWindowVm.Diffs[0].ReviewStatus, Is.EqualTo(ReviewStatus1));
             Assert.That(_mainWindowVm.Diffs[1].Comments, Is.EqualTo(Comment2));
+            Assert.That(_mainWindowVm.Diffs[1].ReviewStatus, Is.EqualTo(ReviewStatus2));
         }
 
         [Test]
@@ -511,6 +532,26 @@ namespace PReviewer.Test
                 Comments = "Comment of DummyFile"
             });
             Assert.DoesNotThrow(async () => await _mainWindowVm.RetrieveDiffs());
+        }
+
+        [Test]
+        public void TestConvertUrlToPrLocator()
+        {
+            _mainWindowVm.PullRequestUrl = @"https://github.com/ebenzhang/ezplayer/pull/119";
+            Assert.That(_mainWindowVm.PullRequestLocator.Owner, Is.EqualTo("ebenzhang"));
+            Assert.That(_mainWindowVm.PullRequestLocator.Repository, Is.EqualTo("ezplayer"));
+            Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber, Is.EqualTo(119));
+
+            _mainWindowVm.PullRequestUrl = @"";
+            Assert.That(_mainWindowVm.PullRequestLocator, Is.EqualTo(PullRequestLocator.Empty));
+
+            _mainWindowVm.PullRequestUrl = @"https://github.com/git/gitrepo/pull/19";
+            Assert.That(_mainWindowVm.PullRequestLocator.Owner, Is.EqualTo("git"));
+            Assert.That(_mainWindowVm.PullRequestLocator.Repository, Is.EqualTo("gitrepo"));
+            Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber, Is.EqualTo(19));
+
+            _mainWindowVm.PullRequestUrl = @"https://github.com/git/gitrepo/";
+            Assert.That(_mainWindowVm.PullRequestLocator, Is.EqualTo(PullRequestLocator.Empty));
         }
 
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)

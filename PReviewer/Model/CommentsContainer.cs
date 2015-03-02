@@ -19,13 +19,21 @@ namespace PReviewer.Model
         public static CommentsContainer From(IEnumerable<CommitFileVm> diffs, string generalComments)
         {
             var ret = new CommentsContainer();
-            foreach (var diff in diffs.Where(diff => !string.IsNullOrWhiteSpace(diff.Comments)))
+            try
             {
-                ret.FileComments.Add(new FileComment()
+                foreach (var diff in diffs)
                 {
-                    FileName = diff.GitHubCommitFile.Filename,
-                    Comments = diff.Comments
-                });
+                    ret.FileComments.Add(new FileComment()
+                    {
+                        FileName = diff.GitHubCommitFile.Filename,
+                        Comments = diff.Comments,
+                        ReviewStatus = diff.ReviewStatus,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                
             }
             ret.GeneralComments = generalComments;
             return ret;

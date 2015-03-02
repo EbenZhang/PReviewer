@@ -62,7 +62,7 @@ namespace PReviewer.Domain
             {
                 _PullRequestUrl = value;
                 RaisePropertyChanged();
-                if (string.IsNullOrWhiteSpace(_PullRequestUrl))
+                if (!string.IsNullOrWhiteSpace(_PullRequestUrl))
                 {
                     try
                     {
@@ -70,7 +70,7 @@ namespace PReviewer.Domain
                     }
                     catch
                     {
-                        // ignored
+                        PullRequestLocator = PullRequestLocator.Empty;
                     }
                 }
                 else
@@ -166,6 +166,7 @@ namespace PReviewer.Domain
                     if (file != null)
                     {
                         file.Comments = fileComment.Comments;
+                        file.ReviewStatus = fileComment.ReviewStatus;
                     }
                 }
             }
@@ -232,6 +233,8 @@ namespace PReviewer.Domain
                 }
 
                 _diffTool.Open(basePath, headPath);
+
+                SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
             }
             finally
             {

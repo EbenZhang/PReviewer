@@ -52,7 +52,7 @@ namespace PReviewer.Test
         }
 
         [Test]
-        public void ShouldSkipEmptyComments()
+        public void ShouldNotSkipEmptyComments_AsWeNeedToSaveReviewStatus()
         {
             var file1 = new CommitFileVm(
                 new MockGitHubCommitFile
@@ -60,7 +60,8 @@ namespace PReviewer.Test
                     Filename = "File1"
                 })
             {
-                Comments = "Comment1"
+                Comments = "Comment1",
+                ReviewStatus = ReviewStatus.HasntBeenReviewed
             };
 
             var file2 = new CommitFileVm(
@@ -69,7 +70,8 @@ namespace PReviewer.Test
                     Filename = "File2"
                 })
             {
-                Comments = ""
+                Comments = "",
+                ReviewStatus = ReviewStatus.Reviewed
             };
 
             var file3 = new CommitFileVm(
@@ -78,7 +80,8 @@ namespace PReviewer.Test
                     Filename = "File2"
                 })
             {
-                Comments = null
+                Comments = null,
+                ReviewStatus = ReviewStatus.ConfirmLater
             };
             var diffs = new List<CommitFileVm>()
             {
@@ -89,7 +92,17 @@ namespace PReviewer.Test
             var container = CommentsContainer.From(diffs, "general comments");
             Assert.That(container.FileComments[0].Comments, Is.EqualTo("Comment1"));
             Assert.That(container.FileComments[0].FileName, Is.EqualTo("File1"));
-            Assert.That(container.FileComments.Count, Is.EqualTo(1));
+            Assert.That(container.FileComments[0].ReviewStatus, Is.EqualTo(ReviewStatus.HasntBeenReviewed));
+
+            Assert.That(container.FileComments[1].Comments, Is.EqualTo(""));
+            Assert.That(container.FileComments[1].FileName, Is.EqualTo("File2"));
+            Assert.That(container.FileComments[1].ReviewStatus, Is.EqualTo(ReviewStatus.Reviewed));
+            
+            Assert.That(container.FileComments[2].Comments, Is.EqualTo(null));
+            Assert.That(container.FileComments[2].FileName, Is.EqualTo("File2"));
+            Assert.That(container.FileComments[2].ReviewStatus, Is.EqualTo(ReviewStatus.ConfirmLater));
+
+            Assert.That(container.FileComments.Count, Is.EqualTo(3));
         }
     }
 }

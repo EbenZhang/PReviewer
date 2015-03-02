@@ -14,6 +14,7 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using WpfCommon.Utils;
+using Xceed.Wpf.AvalonDock.Controls;
 
 namespace PReviewer.UI
 {
@@ -180,6 +181,7 @@ namespace PReviewer.UI
                     ShowCloseButton = true
                 };
                 ballon.Show();
+                _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
                 return;
             }
             if (_viewModel.SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
@@ -190,6 +192,7 @@ namespace PReviewer.UI
                     ShowCloseButton = true
                 };
                 ballon.Show();
+                _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
                 return;
             }
             try
@@ -213,6 +216,25 @@ namespace PReviewer.UI
         private void OnMenuClicked(object sender, MouseButtonEventArgs e)
         {
             MainMenu.Visibility = Visibility.Collapsed;
+        }
+        
+        private void OnPreviewBtnReviewStatusDbClicked(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as FrameworkElement;
+            if (item != null)
+            {
+                _viewModel.SelectedDiffFile = item.DataContext as CommitFileVm;
+            }
+            e.Handled = true;
+        }
+
+        private void OnPreviewBtnReviewStatusMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as FrameworkElement;
+            if (item != null)
+            {
+                _viewModel.SelectedDiffFile = item.DataContext as CommitFileVm;
+            }
         }
     }
 }

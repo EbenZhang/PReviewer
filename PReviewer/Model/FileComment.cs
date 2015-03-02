@@ -1,4 +1,5 @@
 ﻿using System;
+using PReviewer.Domain;
 
 namespace PReviewer.Model
 {
@@ -7,5 +8,6 @@ namespace PReviewer.Model
     {
         public string FileName { get; set; }
         public string Comments { get; set; }
+        public ReviewStatus ReviewStatus { get; set; }
     }
 }
