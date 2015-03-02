@@ -264,6 +264,13 @@
                             </TextBox>
                         </TabItem>
                     </TabControl>
+                    <TextBlock Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">           
+                        You can use
+                        <Hyperlink NavigateUri="https://guides.github.com/features/mastering-markdown/" RequestNavigate="Hyperlink_RequestNavigate">
+                            Markdown
+                        </Hyperlink>
+                        syntax in comments.
+                    </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Margin="0,4,0,0">
                         <Button
                             Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
