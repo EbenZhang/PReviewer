@@ -128,7 +128,14 @@ namespace PReviewer.UI
                 ballon.Show();
                 return;
             }
-            await _viewModel.PrepareDiffContent();
+            try
+            {
+                await _viewModel.PrepareDiffContent();
+            }
+            catch (Exception ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to get diff content.\r\n\r\n" + ex);
+            }
         }
     }
 }
