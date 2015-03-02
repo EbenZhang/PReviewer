@@ -66,7 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommentsContainerTest.cs" />
+    <Compile Include="TestCommentsContainer.cs" />
     <Compile Include="NSubstituteAsyncHelper.cs" />
     <Compile Include="TestCommentBuilder.cs" />
     <Compile Include="TestCompareToolSettings.cs" />
