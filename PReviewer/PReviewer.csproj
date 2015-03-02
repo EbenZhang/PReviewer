@@ -141,7 +141,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Domain\CommitFileVm.cs" />
     <Compile Include="Domain\CompareToolSettingsVm.cs" />
+    <Compile Include="Domain\ICommentsBuilder.cs" />
     <Compile Include="Domain\ICredentialPersisit.cs" />
     <Compile Include="Domain\IDiffToolParamBuilder.cs" />
     <Compile Include="Domain\IDiffToolLauncher.cs" />
@@ -150,6 +152,7 @@
     <Compile Include="Domain\IPatchService.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
     <Compile Include="Domain\PullRequestLocator.cs" />
+    <Compile Include="Model\CommentsBuilder.cs" />
     <Compile Include="Model\CompareToolSettings.cs" />
     <Compile Include="Model\CompareToolSettingsContainer.cs" />
     <Compile Include="Model\CompareToolSettingsPersist.cs" />

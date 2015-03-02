@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ExtendedCL;
 using NSubstitute;
@@ -31,8 +32,13 @@ namespace PReviewer.Test
         private MockPullRequest _pullRequest;
         private IRepositoriesClient _repoClient;
         private IPatchService _patchService;
+        private IIssueCommentsClient _reviewClient;
         private string _baseFileName;
         private string _headFileName;
+        private ICommentsBuilder _commentsBuilder;
+        private const string Comment1 = "Comment1";
+        private const string Comment2 = "Comment2";
+        private const string GeneralComments = "general comment";
 
         [SetUp]
         public void SetUp()
@@ -46,10 +52,14 @@ namespace PReviewer.Test
             _fileContentPersist = Substitute.For<IFileContentPersist>();
             _diffTool = Substitute.For<IDiffToolLauncher>();
             _patchService = Substitute.For<IPatchService>();
+            _reviewClient = Substitute.For<IIssueCommentsClient>();
+            _commentsBuilder = Substitute.For<ICommentsBuilder>();
+
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
             _repoClient.PullRequest.Returns(_prClient);
             _repoClient.Content.Returns(_contentsClient);
+            _gitHubClient.Issue.Comment.Returns(_reviewClient);
 
             _commitsClient.Compare(Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -57,13 +67,14 @@ namespace PReviewer.Test
                 Arg.Any<string>()
                 ).Returns(Task.FromResult((CompareResult) _compareResults));
 
-            _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool, _patchService)
+            _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist,
+                _diffTool, _patchService, _commentsBuilder)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
             };
 
-            _pullRequest = new MockPullRequest();
+            _pullRequest = new MockPullRequest {Number = _pullRequestLocator.PullRequestNumber};
             _prClient.Get(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
                 _mainWindowVm.PullRequestLocator.PullRequestNumber).Returns(Task.FromResult((PullRequest) _pullRequest));
 
@@ -82,8 +93,9 @@ namespace PReviewer.Test
             _commitsClient.Received(1)
                 .Compare(_mainWindowVm.PullRequestLocator.Owner, _mainWindowVm.PullRequestLocator.Repository,
                     _pullRequest.Base.Sha, _pullRequest.Head.Sha).IgnoreAsyncWarning();
-            Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File1));
-            Assert.That(_mainWindowVm.Diffs, Contains.Item(_compareResults.File2));
+            var githubCommitFiles = _mainWindowVm.Diffs.Select(r => r.GitHubCommitFile);
+            Assert.That(githubCommitFiles, Contains.Item(_compareResults.File1));
+            Assert.That(githubCommitFiles, Contains.Item(_compareResults.File2));
         }
 
         [Test]
@@ -119,7 +131,8 @@ namespace PReviewer.Test
         [Test]
         public void ShouldBeInUrlModeByDefault()
         {
-            Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist, _diffTool, _patchService).IsUrlMode);
+            Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist,
+                _diffTool, _patchService, _commentsBuilder).IsUrlMode);
         }
 
         [Test]
@@ -170,7 +183,7 @@ namespace PReviewer.Test
             MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
             MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -192,7 +205,7 @@ namespace PReviewer.Test
             MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
             MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
             await _mainWindowVm.RetrieveDiffs();
 
             var updateCount = 0;
@@ -213,7 +226,7 @@ namespace PReviewer.Test
         [Test]
         public async void BusyStatusSetCorretly_WhenFailedToGetContent()
         {
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
             await _mainWindowVm.RetrieveDiffs();
 
             _contentsClient.When(x => x.GetContents(Arg.Any<string>(),
@@ -232,7 +245,7 @@ namespace PReviewer.Test
 
             var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -261,7 +274,7 @@ namespace PReviewer.Test
                 Arg.Any<string>(),
                 headContent.Content).Returns(Task.FromResult(headPath));
 
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -280,7 +293,7 @@ namespace PReviewer.Test
             const string cachedPath = "DummyPath";
             _fileContentPersist.GetCachedFilePath(Arg.Any<PullRequestLocator>(), Arg.Any<string>()).Returns(cachedPath);
 
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -309,7 +322,7 @@ namespace PReviewer.Test
                 headContent.Content).Returns(Task.FromResult(headPath));
 
             _compareResults.File1.Status = GitFileStatus.New;
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -339,7 +352,7 @@ namespace PReviewer.Test
             _fileContentPersist.ReadContent(headPath).Returns(Task.FromResult(headContent.Content));
 
             _compareResults.File1.Status = GitFileStatus.Renamed;
-            _mainWindowVm.SelectedDiffFile = _compareResults.File1;
+            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
 
             await _mainWindowVm.RetrieveDiffs();
 
@@ -356,6 +369,83 @@ namespace PReviewer.Test
             _contentsClient.DidNotReceive().GetContents(_pullRequestLocator.Owner,
                 _pullRequestLocator.Repository, _baseFileName).IgnoreAsyncWarning();
             _diffTool.Received(1).Open(basePath, headPath);
+        }
+
+        [Test]
+        public async void TestHasComments()
+        {
+            await _mainWindowVm.RetrieveDiffs();
+            Assert.False(_mainWindowVm.HasComments());
+
+            _mainWindowVm.Diffs.First().Comments = "my comment on file";
+            Assert.True(_mainWindowVm.HasComments());
+
+            _mainWindowVm.Diffs.First().Comments = null;
+            Assert.False(_mainWindowVm.HasComments());
+
+            _mainWindowVm.Diffs.First().Comments = "";
+            Assert.False(_mainWindowVm.HasComments());
+
+            _mainWindowVm.GeneralComments = "my general comments";
+            Assert.True(_mainWindowVm.HasComments());
+            
+            _mainWindowVm.GeneralComments = null;
+            Assert.False(_mainWindowVm.HasComments());
+
+            _mainWindowVm.GeneralComments = "";
+            Assert.False(_mainWindowVm.HasComments());
+        }
+
+        [Test]
+        public async void TestSubmitComments()
+        {
+            var expectedComments = string.Join("\r\n", Comment1, Comment2, GeneralComments);
+
+            _commentsBuilder.Build(_mainWindowVm.Diffs, _mainWindowVm.GeneralComments)
+                .Returns(expectedComments);
+
+            await _mainWindowVm.SubmitComments();
+
+            _reviewClient.Received(1).Create(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
+                _pullRequestLocator.PullRequestNumber, expectedComments).IgnoreAsyncWarning();
+        }
+
+        [Test]
+        public async void BusyStatusSetCorretly_WhenSubmitComments()
+        {
+            var expectedComments = string.Join("\r\n", Comment1, Comment2, GeneralComments);
+            _commentsBuilder.Build(_mainWindowVm.Diffs, _mainWindowVm.GeneralComments)
+                .Returns(expectedComments);
+
+            var updateCount = 0;
+            _mainWindowVm.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == PropertyName.Get((MainWindowVm x) => x.IsProcessing))
+                {
+                    updateCount++;
+                }
+            };
+
+            await _mainWindowVm.SubmitComments();
+
+            Assert.That(updateCount, Is.EqualTo(2));
+            Assert.False(_mainWindowVm.IsProcessing);
+        }
+
+        [Test]
+#pragma warning disable 1998
+        public async void BusyStatusSetCorretly_WhenFailedSubmitComments()
+#pragma warning restore 1998
+        {
+            _commentsBuilder.Build(_mainWindowVm.Diffs, _mainWindowVm.GeneralComments)
+                .Returns("");
+
+            
+            _reviewClient.WhenForAnyArgs(x => x.Create("", "", 1, null)).Do(x => { throw new Exception(); });
+
+            Assert.Throws<Exception>(async () => await _mainWindowVm.SubmitComments());
+
+            Assert.False(_mainWindowVm.IsProcessing);
         }
 
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
@@ -385,6 +475,11 @@ namespace PReviewer.Test
         {
             Base = new GitReference("", "", "", "1212", null, null);
             Head = new GitReference("", "", "", "asdfasdf", null, null);
+        }
+
+        public new int Number{
+            get { return base.Number; }
+            set { base.Number = value; }
         }
     }
 
@@ -430,7 +525,7 @@ namespace PReviewer.Test
         {
             Sha = "e74fe8d371a5e33c4877f662e6f8ed7c0949a8b0",
             Filename = "test.xaml",
-            Patch = "Patch",
+            Patch = "Patch"
         };
 
         public MockGitHubCommitFile File2 = new MockGitHubCommitFile

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ExtendedCL;
 using GalaSoft.MvvmLight;
@@ -14,34 +12,42 @@ namespace PReviewer.Domain
     public class MainWindowVm : ViewModelBase
     {
         private readonly IGitHubClient _client;
-        private readonly IFileContentPersist _fileContentPersist;
+        private readonly ICommentsBuilder _commentsBuilder;
         private readonly IDiffToolLauncher _diffTool;
+        private readonly IFileContentPersist _fileContentPersist;
         private readonly IPatchService _patchService;
+        private readonly IIssueCommentsClient _reviewClient;
+        private string _generalComments;
         private bool _IsProcessing;
-        private string _PullRequestUrl;
-        private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
         private bool _IsUrlMode = true;
+        private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
+        private string _PullRequestUrl;
+        private CommitFileVm _SelectedDiffFile;
+        public string BaseCommit;
+        public string HeadCommit;
 
-        public MainWindowVm(IGitHubClient client, 
-            IFileContentPersist fileContentPersist,
+        public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist,
             IDiffToolLauncher diffTool,
-            IPatchService patchService)
+            IPatchService patchService,
+            ICommentsBuilder commentsBuilder)
         {
-            Diffs = new ObservableCollection<GitHubCommitFile>();
+            Diffs = new ObservableCollection<CommitFileVm>();
             _client = client;
             _fileContentPersist = fileContentPersist;
             _diffTool = diffTool;
             _patchService = patchService;
+            _reviewClient = client.Issue.Comment;
+            _commentsBuilder = commentsBuilder;
         }
 
-        public ObservableCollection<GitHubCommitFile> Diffs { get; set; }
+        public ObservableCollection<CommitFileVm> Diffs { get; set; }
 
         public bool IsProcessing
         {
             get { return _IsProcessing; }
             set
             {
-                _IsProcessing = value; 
+                _IsProcessing = value;
                 RaisePropertyChanged();
             }
         }
@@ -58,10 +64,7 @@ namespace PReviewer.Domain
 
         public PullRequestLocator PullRequestLocator
         {
-            get
-            {
-                return _PullRequestLocator;
-            }
+            get { return _PullRequestLocator; }
             set
             {
                 _PullRequestLocator = value;
@@ -70,28 +73,38 @@ namespace PReviewer.Domain
         }
 
         /// <summary>
-        /// Indicates if pull request Url selected.
-        /// In this mode, we need to parse the Url to get the
-        ///  - Owner
-        ///  - Repo
-        ///  - PR number.
+        ///     Indicates if pull request Url selected.
+        ///     In this mode, we need to parse the Url to get the
+        ///     - Owner
+        ///     - Repo
+        ///     - PR number.
         /// </summary>
         public bool IsUrlMode
         {
             get { return _IsUrlMode; }
             set
             {
-                _IsUrlMode = value; 
+                _IsUrlMode = value;
                 RaisePropertyChanged();
             }
         }
 
-        public GitHubCommitFile SelectedDiffFile
+        public CommitFileVm SelectedDiffFile
         {
             get { return _SelectedDiffFile; }
             set
             {
-                _SelectedDiffFile = value; 
+                _SelectedDiffFile = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string GeneralComments
+        {
+            get { return _generalComments; }
+            set
+            {
+                _generalComments = value;
                 RaisePropertyChanged();
             }
         }
@@ -113,10 +126,16 @@ namespace PReviewer.Domain
                     }
                 }
                 var repo = _client.Repository;
-                var pr = await repo.PullRequest.Get(PullRequestLocator.Owner, PullRequestLocator.Repository, PullRequestLocator.PullRequestNumber);
+                var pr =
+                    await
+                        repo.PullRequest.Get(PullRequestLocator.Owner, PullRequestLocator.Repository,
+                            PullRequestLocator.PullRequestNumber);
                 var commitsClient = repo.Commits;
-                var compareResult = await commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha, pr.Head.Sha);
-                Diffs.Assign(compareResult.Files);
+                var compareResult =
+                    await
+                        commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha,
+                            pr.Head.Sha);
+                Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
                 BaseCommit = pr.Base.Sha;
                 HeadCommit = pr.Head.Sha;
             }
@@ -126,16 +145,12 @@ namespace PReviewer.Domain
             }
         }
 
-        public string BaseCommit = null;
-        public string HeadCommit = null;
-        private GitHubCommitFile _SelectedDiffFile;
-
         public async Task PrepareDiffContent()
         {
             try
             {
                 IsProcessing = true;
-                var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.Filename);
+                var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.GitHubCommitFile.Filename);
                 var headPath = "";
                 string contentOfHead = null;
                 if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
@@ -144,7 +159,7 @@ namespace PReviewer.Domain
                         await
                             _client.Repository.Content.GetContents(PullRequestLocator.Owner,
                                 PullRequestLocator.Repository,
-                                _SelectedDiffFile.GetFilePath(HeadCommit));
+                                _SelectedDiffFile.GitHubCommitFile.GetFilePath(HeadCommit));
 
                     contentOfHead = collectionOfContentOfHead.First().Content;
                     headPath = await SaveToFile(headFileName, contentOfHead);
@@ -153,14 +168,14 @@ namespace PReviewer.Domain
                 {
                     headPath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, headFileName);
                 }
-                
-                var baseFileName = BuildBaseFileName(BaseCommit, SelectedDiffFile.Filename);
+
+                var baseFileName = BuildBaseFileName(BaseCommit, SelectedDiffFile.GitHubCommitFile.Filename);
                 var basePath = "";
                 if (_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
                 {
                     basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
                 }
-                else if (SelectedDiffFile.Status == GitFileStatus.Renamed)
+                else if (SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Renamed)
                 {
                     if (contentOfHead == null)
                     {
@@ -169,9 +184,9 @@ namespace PReviewer.Domain
 
                     basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
 
-                    await _patchService.RevertViaPatch(contentOfHead, SelectedDiffFile.Patch, basePath);
+                    await _patchService.RevertViaPatch(contentOfHead, SelectedDiffFile.GitHubCommitFile.Patch, basePath);
                 }
-                else if (SelectedDiffFile.Status == GitFileStatus.New)
+                else if (SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.New)
                 {
                     basePath = await SaveToFile(baseFileName, "");
                 }
@@ -181,8 +196,8 @@ namespace PReviewer.Domain
                         await
                             _client.Repository.Content.GetContents(PullRequestLocator.Owner,
                                 PullRequestLocator.Repository,
-                                _SelectedDiffFile.GetFilePath(BaseCommit));
-                    
+                                _SelectedDiffFile.GitHubCommitFile.GetFilePath(BaseCommit));
+
                     basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
                 }
 
@@ -207,6 +222,32 @@ namespace PReviewer.Domain
         public async Task<string> SaveToFile(string fileName, string content)
         {
             return await _fileContentPersist.SaveContent(PullRequestLocator, fileName, content);
+        }
+
+        public bool HasComments()
+        {
+            if (!string.IsNullOrWhiteSpace(GeneralComments))
+            {
+                return true;
+            }
+            var hasFileComment = Diffs.Any(r => !string.IsNullOrWhiteSpace(r.Comments));
+            return hasFileComment;
+        }
+
+        public async Task SubmitComments()
+        {
+            try
+            {
+                IsProcessing = true;
+                var comments = _commentsBuilder.Build(Diffs, GeneralComments);
+                await _reviewClient.Create(_PullRequestLocator.Owner,
+                        _PullRequestLocator.Repository,
+                        _PullRequestLocator.PullRequestNumber, comments);
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
         }
     }
 }

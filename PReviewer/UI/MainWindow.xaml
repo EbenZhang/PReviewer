@@ -7,7 +7,8 @@
         xmlns:validation="clr-namespace:WpfCommon.Validations;assembly=WpfCommon"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:attachBehaviour="clr-namespace:WpfCommon.AttachBehaviour;assembly=WpfCommon"
-        xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon">
+        xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon"
+        xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
@@ -15,9 +16,10 @@
         <Grid Margin="20,10,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="4"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
+            <!--Criteria-->
             <GroupBox Grid.Row="0" Header="Pull Request / Branch">
                 <GroupBox.InputBindings>
                     <KeyBinding Key="Enter" Command="{Binding ShowChangesCmd, ElementName=ThisWnd}"></KeyBinding>
@@ -126,7 +128,8 @@
                         Command="{Binding ShowChangesCmd, ElementName=ThisWnd}">Show Changes</Button>
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Row="2" Header="Differences">
+            <!--File list-->
+            <GroupBox Grid.Row="1" Margin="0,4,0,0" Header="Differences">
                 <ListView Margin="4" ItemsSource="{Binding Diffs}" SelectedItem="{Binding SelectedDiffFile}">
                     <ListView.Resources>
                         <Style TargetType="ListViewItem">
@@ -136,12 +139,64 @@
                     <ListView.View>
                         <GridView>
                             <GridView.Columns>
-                                <GridViewColumn Header="File" DisplayMemberBinding="{Binding Filename}"/>
-                                <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}"/>
+                                <GridViewColumn Header="File" DisplayMemberBinding="{Binding GitHubCommitFile.Filename}"/>
+                                <GridViewColumn Header="Status" DisplayMemberBinding="{Binding GitHubCommitFile.Status}"/>
                             </GridView.Columns>
                         </GridView>
                     </ListView.View>
                 </ListView>
+            </GroupBox>
+            <!--Comments-->
+            <GroupBox Grid.Row="2" Margin="0,4,0,0" Header="Comments">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <!--Comment tab-->
+                    <TabControl Grid.Row="0">
+                        <TabItem Header="File specific comments">
+                            <Grid>
+                                <TextBox AcceptsReturn="True" AcceptsTab="True">
+                                    <TextBox.IsEnabled>
+                                        <Binding Path="SelectedDiffFile" UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.Converter>
+                                                <converter:NullEmptyToFalseConverter/>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBox.IsEnabled>
+                                    <TextBox.Text>
+                                        <Binding Path="SelectedDiffFile.Comments"/>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <TextBlock Text="Please select a file to comment on." VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <TextBlock.Visibility>
+                                        <Binding Path="SelectedDiffFile">
+                                            <Binding.Converter>
+                                                <converter:CompositeConverter>
+                                                    <converter:NullEmptyToFalseConverter/>
+                                                    <converter:InverseBooleanConverter/>
+                                                    <BooleanToVisibilityConverter/>
+                                                </converter:CompositeConverter>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Visibility>
+                                </TextBlock>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="General comments">
+                            <TextBox AcceptsReturn="True" AcceptsTab="True">
+                                <TextBox.Text>
+                                    <Binding Path="GeneralComments"/>
+                                </TextBox.Text>
+                            </TextBox>
+                        </TabItem>
+                    </TabControl>
+                    <Button
+                        Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
+                        Grid.Row="1" Margin="0,4,0,0"
+                        HorizontalAlignment="Center" Padding="2,0,2,0">Submit Comments</Button>
+                </Grid>
             </GroupBox>
         </Grid>
         <Button 

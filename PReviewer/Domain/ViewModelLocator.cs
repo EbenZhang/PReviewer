@@ -59,6 +59,9 @@ namespace PReviewer.Domain
             _builder.RegisterInstance(new FileContentPersist()).As<IFileContentPersist>();
             _builder.RegisterInstance(new DiffToolLauncher(compareToolSettingsPersist, new DiffToolParamBuilder()))
                 .As<IDiffToolLauncher>();
+
+            _builder.RegisterInstance(new CommentsBuilder()).As<ICommentsBuilder>();
+
             _builder.RegisterInstance(new PatchService()).As<IPatchService>();
             _container = _builder.Build();
         }

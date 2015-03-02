@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NSubstituteAsyncHelper.cs" />
+    <Compile Include="TestCommentBuilder.cs" />
     <Compile Include="TestCompareToolSettings.cs" />
     <Compile Include="TestCompareToolSettingsVm.cs" />
     <Compile Include="TestDiffToolParamBuilder.cs" />
