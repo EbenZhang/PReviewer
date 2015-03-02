@@ -199,10 +199,15 @@
                             </TextBox>
                         </TabItem>
                     </TabControl>
-                    <Button
-                        Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
-                        Grid.Row="1" Margin="0,4,0,0"
-                        HorizontalAlignment="Center" Padding="2,0,2,0">Submit Comments</Button>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Margin="0,4,0,0">
+                        <Button
+                            Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
+                            HorizontalAlignment="Center" Padding="2,0,2,0">Submit Comments</Button>
+                        <Button
+                            Margin="16,0,0,0"
+                            Command="{Binding OpenInBrowserCmd, ElementName=ThisWnd}"
+                            HorizontalAlignment="Center" Padding="2,0,2,0">_Open In Browser</Button>
+                    </StackPanel>
                 </Grid>
             </GroupBox>
         </Grid>

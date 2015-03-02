@@ -5,6 +5,7 @@ namespace PReviewer.Domain
 {
     public class PullRequestLocator : ViewModelBase
     {
+        public static readonly PullRequestLocator Empty = new PullRequestLocator();
         private string _Repository;
         private string _Owner;
         private int _PullRequestNumber;
@@ -58,6 +59,12 @@ namespace PReviewer.Domain
             locator.Owner = splited[1];
             locator.Repository = splited[2];
             locator.PullRequestNumber = int.Parse(splited[4]);
+        }
+
+        public string ToUrl()
+        {
+            return string.Format("https//github.com/{0}/{1}/pull/{2}",
+                Owner, Repository, PullRequestNumber);
         }
     }
 }

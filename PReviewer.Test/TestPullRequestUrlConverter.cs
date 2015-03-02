@@ -58,5 +58,18 @@ namespace PReviewer.Test
             Assert.That(locator.Repository, Is.EqualTo("EZPlayer"));
             Assert.That(locator.PullRequestNumber, Is.EqualTo(183));
         }
+
+        [Test]
+        public void CanConvertToUrl()
+        {
+            var locator = new PullRequestLocator()
+            {
+                Owner = "EbenZhang",
+                PullRequestNumber = 100,
+                Repository = "PReviewer",
+            };
+            var url = locator.ToUrl();
+            Assert.That(url, Is.EqualTo("https//github.com/EbenZhang/PReviewer/pull/100"));
+        }
     }
 }

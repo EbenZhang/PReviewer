@@ -21,7 +21,7 @@ namespace PReviewer.Domain
         private string _generalComments;
         private bool _IsProcessing;
         private bool _IsUrlMode = true;
-        private PullRequestLocator _PullRequestLocator = new PullRequestLocator();
+        private PullRequestLocator _PullRequestLocator = PullRequestLocator.Empty;
         private string _PullRequestUrl;
         private CommitFileVm _SelectedDiffFile;
         public string BaseCommit;
@@ -62,6 +62,21 @@ namespace PReviewer.Domain
             {
                 _PullRequestUrl = value;
                 RaisePropertyChanged();
+                if (string.IsNullOrWhiteSpace(_PullRequestUrl))
+                {
+                    try
+                    {
+                        PullRequestLocator = PullRequestLocator.FromUrl(_PullRequestUrl);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+                else
+                {
+                    PullRequestLocator = PullRequestLocator.Empty;
+                }
             }
         }
 

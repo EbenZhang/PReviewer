@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -66,6 +68,38 @@ namespace PReviewer.UI
                         HtmlDescription = html,
                     };
                     dlg.ShowDialog();
+                });
+            }
+        }
+
+        public ICommand OpenInBrowserCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    try
+                    {
+                        if (_viewModel.IsUrlMode)
+                        {
+                            if (Regex.IsMatch(_viewModel.PullRequestUrl, @"^https://|^http://", RegexOptions.IgnoreCase))
+                            {
+                                Process.Start(_viewModel.PullRequestUrl);
+                            }
+                            else
+                            {
+                                Process.Start("https://" + _viewModel.PullRequestUrl);
+                            }
+                        }
+                        else
+                        {
+                            Process.Start(_viewModel.PullRequestLocator.ToUrl());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBoxHelper.ShowError(this, "Unable to open, please check you pull request URL.\r\n\r\n" + ex);
+                    }
                 });
             }
         }
