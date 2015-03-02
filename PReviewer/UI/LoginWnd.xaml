@@ -77,6 +77,8 @@
         </Button>
 
         <xctk:BusyIndicator 
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
             Grid.Column="0" Grid.Row="0" 
             Grid.ColumnSpan="3"
             Grid.RowSpan="5"

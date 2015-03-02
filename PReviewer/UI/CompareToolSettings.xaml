@@ -117,7 +117,10 @@
             </Button>
         </StackPanel>
 
-        <xctk:BusyIndicator Grid.Row="0" IsBusy="{Binding IsProcessing}">
+        <xctk:BusyIndicator
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Grid.Row="0" IsBusy="{Binding IsProcessing}">
         </xctk:BusyIndicator>
     </Grid>
 </Window>

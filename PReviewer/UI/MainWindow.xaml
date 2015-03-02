@@ -206,7 +206,10 @@
             VerticalAlignment="Top">
             <Image Margin="4,2,4,2" Width="24" Height="18" Source="/Images/settings.png" />
         </Button>
-        <xctk:BusyIndicator IsBusy="{Binding IsProcessing}" Grid.Row="0" HorizontalAlignment="Center">
+        <xctk:BusyIndicator
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            IsBusy="{Binding IsProcessing}" Grid.Row="0">
         </xctk:BusyIndicator>
     </Grid>
 </Window>
