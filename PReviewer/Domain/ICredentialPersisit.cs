@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
 using ExtendedCL;
 
 namespace PReviewer.Domain
@@ -12,8 +9,8 @@ namespace PReviewer.Domain
     [Serializable]
     public struct LoginCredential
     {
-        public string UserName;
         public string Password;
+        public string UserName;
     }
 
     public interface ICredentialPersisit
@@ -24,7 +21,9 @@ namespace PReviewer.Domain
 
     public class CredentialPersisit : ICredentialPersisit
     {
-        private static readonly string LoginCredentialFile = Path.Combine(PathHelper.ProcessAppDir, "LoginCredential.bin");
+        private static readonly string LoginCredentialFile = Path.Combine(PathHelper.ProcessAppDir,
+            "LoginCredential.bin");
+
         public LoginCredential Load()
         {
             if (!File.Exists(LoginCredentialFile))
@@ -36,7 +35,8 @@ namespace PReviewer.Domain
                 using (var stream = File.OpenRead(LoginCredentialFile))
                 {
                     var fmt = new BinaryFormatter();
-                    var credential = (LoginCredential)fmt.Deserialize(stream);
+                    var credential = (LoginCredential) fmt.Deserialize(stream);
+                    credential.Password = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(credential.Password));
                     return credential;
                 }
             }
@@ -59,6 +59,7 @@ namespace PReviewer.Domain
             var formatter = new BinaryFormatter();
             using (var stream = File.OpenWrite(LoginCredentialFile))
             {
+                credential.Password = Convert.ToBase64String(Encoding.UTF8.GetBytes(credential.Password));
                 formatter.Serialize(stream, credential);
             }
         }
