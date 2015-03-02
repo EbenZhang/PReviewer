@@ -8,7 +8,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:attachBehaviour="clr-namespace:WpfCommon.AttachBehaviour;assembly=WpfCommon"
         xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon"
-        xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon">
+        xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
+        xmlns:ui="clr-namespace:PReviewer.UI">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
@@ -147,7 +148,24 @@
                         <GridView>
                             <GridView.Columns>
                                 <GridViewColumn Header="File" DisplayMemberBinding="{Binding GitHubCommitFile.Filename}"/>
-                                <GridViewColumn Header="Status" DisplayMemberBinding="{Binding GitHubCommitFile.Status}"/>
+                                <GridViewColumn Header="Status">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DockPanel LastChildFill="True">
+                                                <Image Width="15" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <Image.Source>
+                                                        <Binding Path="GitHubCommitFile.Status">
+                                                            <Binding.Converter>
+                                                                <ui:FileStatusToIconConverter/>
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </Image.Source>
+                                                </Image>
+                                                <TextBlock Text="{Binding GitHubCommitFile.Status}"></TextBlock>
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                             </GridView.Columns>
                         </GridView>
                     </ListView.View>
