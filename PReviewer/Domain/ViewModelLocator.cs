@@ -45,6 +45,11 @@ namespace PReviewer.Domain
             get { return _container.Resolve<CompareToolSettingsVm>(); }
         }
 
+        public static T Resolve<T>()
+        {
+            return _container.Resolve<T>();
+        }
+
         public static void BootStrap()
         {
             // Usually you're only interested in exposing the type

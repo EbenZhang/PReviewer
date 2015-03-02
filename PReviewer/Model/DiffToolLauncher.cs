@@ -1,9 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using PReviewer.Domain;
 
 namespace PReviewer.Model
 {
+    public class InvalidDiffToolSettings : Exception
+    {
+        public InvalidDiffToolSettings(Exception ex) : base("Invalid difftool settings." , ex)
+        {
+        }
+    }
     public class DiffToolLauncher : IDiffToolLauncher
     {
         private readonly ICompareToolSettingsPersist _compareToolSettingsPersist;
@@ -25,10 +33,18 @@ namespace PReviewer.Model
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = tool.ExePath,
-                    Arguments = _diffToolParamBuilder.Build(tool.Parameters, @base, head)
+                    Arguments = _diffToolParamBuilder.Build(tool.Parameters, @base, head),
+                    WorkingDirectory = Path.GetDirectoryName(tool.ExePath),
                 }
             };
-            p.Start();
+            try
+            {
+                p.Start();
+            }
+            catch(Exception ex)
+            {
+                throw new InvalidDiffToolSettings(ex);
+            }
         }
     }
 }

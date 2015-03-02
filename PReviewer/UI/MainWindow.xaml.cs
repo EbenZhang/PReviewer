@@ -199,6 +199,11 @@ namespace PReviewer.UI
             {
                 await _viewModel.PrepareDiffContent();
             }
+            catch (InvalidDiffToolSettings)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to launch the diff tool.\r\nPlease check your settings.");
+                ShowSettingsCmd.Execute(null);
+            }
             catch (Exception ex)
             {
                 MessageBoxHelper.ShowError(this, "Unable to get diff content.\r\n\r\n" + ex);
