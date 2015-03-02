@@ -1,9 +1,11 @@
+using System;
 using System.Text.RegularExpressions;
+using System.Windows.Documents.DocumentStructures;
 using GalaSoft.MvvmLight;
 
 namespace PReviewer.Domain
 {
-    public class PullRequestLocator : ViewModelBase
+    public class PullRequestLocator : ViewModelBase, IEquatable<PullRequestLocator>
     {
         public static readonly PullRequestLocator Empty = new PullRequestLocator();
         private string _Repository;
@@ -65,6 +67,23 @@ namespace PReviewer.Domain
         {
             return string.Format("https//github.com/{0}/{1}/pull/{2}",
                 Owner, Repository, PullRequestNumber);
+        }
+
+        public bool Equals(PullRequestLocator other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.Owner == other.Owner
+                   && this.Repository == other.Repository
+                   && this.PullRequestNumber == other.PullRequestNumber;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Owner ?? "" + Repository ?? "" + PullRequestNumber).GetHashCode();
         }
     }
 }

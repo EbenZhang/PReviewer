@@ -98,7 +98,7 @@ namespace PReviewer.Test
                 FileName = _compareResults.File2.Filename,
                 Comments = Comment2
             });
-            _commentsPersist.Load(_pullRequestLocator).Returns(Task.FromResult(_commentsContainer));
+            _commentsPersist.Load(Arg.Is<PullRequestLocator>(x => x.Equals(_pullRequestLocator))).Returns(Task.FromResult(_commentsContainer));
         }
 
         [Test]
