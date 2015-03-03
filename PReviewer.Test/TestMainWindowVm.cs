@@ -226,21 +226,6 @@ namespace PReviewer.Test
         }
 
         [Test]
-        public async void FileShouldBeMarkedAsReviewed_AfterDiffToolInvoked()
-        {
-            MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);
-            MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
-
-            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
-
-            await _mainWindowVm.RetrieveDiffs();
-
-            await _mainWindowVm.PrepareDiffContent();
-
-            Assert.That(_mainWindowVm.SelectedDiffFile.ReviewStatus, Is.EqualTo(ReviewStatus.Reviewed));
-        }
-
-        [Test]
         public async void BusyStatusSetCorretly_WhenRetrieveFileContent()
         {
             MockFile1PersistFor("baseContent", _pullRequest.Base.Sha);

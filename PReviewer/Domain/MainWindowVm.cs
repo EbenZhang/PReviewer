@@ -247,8 +247,6 @@ namespace PReviewer.Domain
                 }
 
                 _diffTool.Open(basePath, headPath);
-
-                SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
             }
             finally
             {
