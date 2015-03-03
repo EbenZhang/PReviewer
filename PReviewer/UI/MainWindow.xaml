@@ -9,7 +9,8 @@
         xmlns:attachBehaviour="clr-namespace:WpfCommon.AttachBehaviour;assembly=WpfCommon"
         xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon"
         xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
-        xmlns:ui="clr-namespace:PReviewer.UI">
+        xmlns:ui="clr-namespace:PReviewer.UI"
+        xmlns:textEditor="clr-namespace:ICSharpCode.TextEditor;assembly=ICSharpCode.TextEditor">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
@@ -142,85 +143,119 @@
             </GroupBox>
             <!--File list-->
             <GroupBox Grid.Row="1" Margin="0,4,0,0"
-                      Header="Differences">
-                <ListView Margin="4" 
-                          x:Name="DiffListView"
-                          ItemsSource="{Binding Diffs}" 
-                          SelectedItem="{Binding SelectedDiffFile}">
-                    <ListView.Resources>
-                        <Style TargetType="ListViewItem">
-                            <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
-                        </Style>
-                    </ListView.Resources>
-                    <ListView.View>
-                        <controls:AutoSizedGridView>
-                            <GridView.Columns>
-                                <GridViewColumn>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <Grid.ToolTip>
-                                                    <Binding Path="ReviewStatus">
-                                                        <Binding.Converter>
-                                                            <ui:ReviewStatusToStringConverter/>
-                                                        </Binding.Converter>
-                                                    </Binding>
-                                                </Grid.ToolTip>
-                                                <Button BorderBrush="Transparent" 
-                                                        BorderThickness="0" 
-                                                        Background="Transparent" 
-                                                        PreviewMouseDoubleClick="OnPreviewBtnReviewStatusDbClicked"
-                                                        PreviewMouseDown="OnPreviewBtnReviewStatusMouseDown"
-                                                        Padding="0" 
-                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                        Command="{Binding ChangeReviewStatusCmd}">
-                                                    <Image Width="15">
+                      Header="Differences. Double click to view in external diff tool">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="1.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListView
+                        SelectionChanged="DiffListView_OnSelectionChanged"
+                        Grid.Column="0"
+                        Margin="4" 
+                        x:Name="DiffListView"
+                        ItemsSource="{Binding Diffs}" 
+                        SelectedItem="{Binding SelectedDiffFile}">
+                        <ListView.Resources>
+                            <Style TargetType="ListViewItem">
+                                <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
+                            </Style>
+                        </ListView.Resources>
+                        <ListView.View>
+                            <controls:AutoSizedGridView>
+                                <GridView.Columns>
+                                    <GridViewColumn>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ToolTip>
+                                                        <Binding Path="ReviewStatus">
+                                                            <Binding.Converter>
+                                                                <ui:ReviewStatusToStringConverter/>
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </Grid.ToolTip>
+                                                    <Button BorderBrush="Transparent" 
+                                                            BorderThickness="0" 
+                                                            Background="Transparent" 
+                                                            PreviewMouseDoubleClick="OnPreviewBtnReviewStatusDbClicked"
+                                                            PreviewMouseDown="OnPreviewBtnReviewStatusMouseDown"
+                                                            Padding="0" 
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Command="{Binding ChangeReviewStatusCmd}">
+                                                        <Image Width="15">
+                                                            <Image.Source>
+                                                                <Binding Path="ReviewStatus">
+                                                                    <Binding.Converter>
+                                                                        <ui:ReviewStatusToIconConverter/>
+                                                                    </Binding.Converter>
+                                                                </Binding>
+                                                            </Image.Source>
+                                                        </Image>
+                                                    </Button>
+
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="File">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock 
+                                                    TextTrimming="WordEllipsis"
+                                                    ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                    Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Status">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <DockPanel LastChildFill="True">
+                                                    <Image Width="15" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Image.Source>
-                                                            <Binding Path="ReviewStatus">
+                                                            <Binding Path="GitHubCommitFile.Status">
                                                                 <Binding.Converter>
-                                                                    <ui:ReviewStatusToIconConverter/>
+                                                                    <ui:FileStatusToIconConverter/>
                                                                 </Binding.Converter>
                                                             </Binding>
                                                         </Image.Source>
                                                     </Image>
-                                                </Button>
-
-                                            </Grid>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="File">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock 
-                                                TextTrimming="WordEllipsis"
-                                                ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                                                Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Status">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <DockPanel LastChildFill="True">
-                                                <Image Width="15" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                    <Image.Source>
-                                                        <Binding Path="GitHubCommitFile.Status">
-                                                            <Binding.Converter>
-                                                                <ui:FileStatusToIconConverter/>
-                                                            </Binding.Converter>
-                                                        </Binding>
-                                                    </Image.Source>
-                                                </Image>
-                                                <TextBlock Text="{Binding GitHubCommitFile.Status}"></TextBlock>
-                                            </DockPanel>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView.Columns>
-                        </controls:AutoSizedGridView>
-                    </ListView.View>
-                </ListView>
+                                                    <TextBlock Text="{Binding GitHubCommitFile.Status}"></TextBlock>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView.Columns>
+                            </controls:AutoSizedGridView>
+                        </ListView.View>
+                    </ListView>
+                    <GridSplitter Grid.Column="1" Background="Gray" Visibility="Visible" Width="5" HorizontalAlignment="Stretch">
+                    </GridSplitter>
+                    <Grid Grid.Column="2">
+                        <Grid.Visibility>
+                            <Binding Path="IsProcessing">
+                                <Binding.Converter>
+                                    <converter:CompositeConverter>
+                                        <converter:InverseBooleanConverter/>
+                                        <BooleanToVisibilityConverter/>
+                                    </converter:CompositeConverter>
+                                </Binding.Converter>
+                            </Binding>
+                        </Grid.Visibility>
+                        <WindowsFormsHost>
+                            <textEditor:TextEditorControl 
+                                IsReadOnly="True" 
+                                ShowSpaces="False"
+                                ShowEOLMarkers="False"
+                                ShowLineNumbers="True"
+                                ShowTabs="False"
+                                AutoSize="True" 
+                                x:Name="DiffViewer"/>
+                        </WindowsFormsHost>
+                    </Grid>
+                </Grid>
             </GroupBox>
             <!--Comments-->
             <GroupBox Grid.Row="2" Margin="0,4,0,0" Header="Comments">
@@ -269,11 +304,11 @@
                         </TabItem>
                     </TabControl>
                     <TextBlock Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">           
-                        You can use
+                               You can use
                         <Hyperlink NavigateUri="https://guides.github.com/features/mastering-markdown/" RequestNavigate="Hyperlink_RequestNavigate">
-                            Markdown
+                                   Markdown
                         </Hyperlink>
-                        syntax in comments.
+                                   syntax in comments.
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Margin="0,4,0,0">
                         <Button

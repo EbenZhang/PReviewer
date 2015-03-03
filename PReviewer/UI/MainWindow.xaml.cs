@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
@@ -14,7 +13,6 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using WpfCommon.Utils;
-using Xceed.Wpf.AvalonDock.Controls;
 
 namespace PReviewer.UI
 {
@@ -30,7 +28,17 @@ namespace PReviewer.UI
             InitializeComponent();
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
+            DiffViewer.TextChanged += DiffViewerOnTextChanged;
             SetupWindowClosingActions();
+        }
+
+        private void DiffViewerOnTextChanged(object sender, EventArgs eventArgs)
+        {
+            var markerStrategy = DiffViewer.Document.MarkerStrategy;
+            markerStrategy.RemoveAll(m => true);
+
+            if (DiffViewer.Text == "") return;
+            new PatchHighlighter(DiffViewer.Document).Highlight();
         }
 
         private void SetupWindowClosingActions()
@@ -252,6 +260,21 @@ namespace PReviewer.UI
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
+        }
+
+        private void DiffListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_viewModel.SelectedDiffFile == null
+                ||_viewModel.SelectedDiffFile.GitHubCommitFile == null
+                ||string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
+            {
+                DiffViewer.Text = "";
+                DiffViewer.Refresh();
+                return;
+            }
+
+            DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
+            DiffViewer.Refresh();
         }
     }
 }

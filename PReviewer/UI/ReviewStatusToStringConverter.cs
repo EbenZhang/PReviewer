@@ -21,7 +21,7 @@ namespace PReviewer.UI
                 case ReviewStatus.Reviewed:
                     return "Reviewed";
                 case ReviewStatus.ConfirmLater:
-                    return "Partially reviewed, will come back later";
+                    return "Partially reviewed, will continue later";
                 case ReviewStatus.HasntBeenReviewed:
                     return "Hasn't been reviewd";
             }
