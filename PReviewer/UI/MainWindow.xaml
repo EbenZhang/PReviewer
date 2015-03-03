@@ -250,6 +250,7 @@
                                 ShowSpaces="False"
                                 ShowEOLMarkers="False"
                                 ShowLineNumbers="True"
+                                ShowInvalidLines="False"
                                 ShowTabs="False"
                                 AutoSize="True" 
                                 x:Name="DiffViewer"/>
