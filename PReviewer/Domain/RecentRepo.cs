@@ -1,5 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
+using ExtendedCL;
 using GalaSoft.MvvmLight;
 
 namespace PReviewer.Domain
@@ -10,30 +13,57 @@ namespace PReviewer.Domain
         {
             Owners = new ObservableCollection<string>();
             Repositories = new ObservableCollection<string>();
+            PullRequests = new ObservableCollection<PullRequestLocator>();
         }
 
         public ObservableCollection<string> Owners { get; set; }
         public ObservableCollection<string> Repositories { get; set; }
+        public ObservableCollection<PullRequestLocator> PullRequests { get; private set; }
 
         public async Task Save(PullRequestLocator prInfo, IRepoHistoryPersist persist)
         {
-            var hasChanges = false;
-            if (!string.IsNullOrWhiteSpace(prInfo.Owner)
-                && !Owners.Contains(prInfo.Owner))
+            if (!prInfo.IsValid())
             {
-                hasChanges = true;
+                return;
+            }
+
+            if (PullRequests.Contains(prInfo))
+            {
+                return;
+            }
+
+            if (!Owners.Contains(prInfo.Owner))
+            {
                 Owners.Add(prInfo.Owner);
             }
-            if (!string.IsNullOrWhiteSpace(prInfo.Repository)
-                && !Repositories.Contains(prInfo.Repository))
+            if (!Repositories.Contains(prInfo.Repository))
             {
-                hasChanges = true;
                 Repositories.Add(prInfo.Repository);
             }
-            if (hasChanges)
+
+            PullRequests.Add(new PullRequestLocator()
             {
-                await persist.Save(Owners, Repositories);
-            }
+                Owner = prInfo.Owner,
+                Repository =  prInfo.Repository,
+                PullRequestNumber =  prInfo.PullRequestNumber,
+            });
+            await persist.Save(ToContainer());
+        }
+
+        public void From(RepoHistoryContainer historyContainer)
+        {
+            Owners.Assign(historyContainer.Owners);
+            Repositories.Assign(historyContainer.Repositories);
+            PullRequests.Assign(historyContainer.Urls.Select(PullRequestLocator.FromUrl));
+        }
+
+        public RepoHistoryContainer ToContainer()
+        {
+            var container = new RepoHistoryContainer();
+            container.Owners.AddRange(Owners);
+            container.Repositories.AddRange(Repositories);
+            container.Urls.AddRange(PullRequests.Select(p => p.ToUrl()));
+            return container;
         }
     }
 }

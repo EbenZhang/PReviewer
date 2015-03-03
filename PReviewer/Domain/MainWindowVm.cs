@@ -318,8 +318,7 @@ namespace PReviewer.Domain
             {
                 IsProcessing = true;
                 var historyContainer = await _repoHistoryPersist.Load();
-                RecentRepoes.Owners.Assign(historyContainer.Owners);
-                RecentRepoes.Repositories.Assign(historyContainer.Repositories);
+                RecentRepoes.From(historyContainer);
             }
             finally
             {

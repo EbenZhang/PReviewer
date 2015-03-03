@@ -11,16 +11,12 @@ namespace PReviewer.Model
     {
         private static readonly string RepoHistoryFile = Path.Combine(PathHelper.ProcessAppDir, "repohistory.xml");
 
-        public async Task Save(IEnumerable<string> owners, IEnumerable<string> repositories)
+        public async Task Save(RepoHistoryContainer container)
         {
             if (File.Exists(RepoHistoryFile))
             {
                 File.Delete(RepoHistoryFile);
             }
-
-            var container = new RepoHistoryContainer();
-            container.Owners.AddRange(owners);
-            container.Repositories.AddRange(repositories);
 
             await Task.Run(() =>
             {

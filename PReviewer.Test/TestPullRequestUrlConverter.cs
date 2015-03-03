@@ -69,7 +69,7 @@ namespace PReviewer.Test
                 Repository = "PReviewer",
             };
             var url = locator.ToUrl();
-            Assert.That(url, Is.EqualTo("https//github.com/EbenZhang/PReviewer/pull/100"));
+            Assert.That(url, Is.EqualTo("https://github.com/EbenZhang/PReviewer/pull/100"));
         }
     }
 }

@@ -62,6 +62,8 @@
                             Grid.Column="0"
                             ToolTip="The URL of the pull request">PR URL(?):</RadioButton>
                         <controls:AutoCompleteBoxEx
+                            ItemsSource="{Binding RecentRepoes.PullRequests}"
+                            FilterMode="Contains"
                             x:Name="TxtPullRequest"
                             Grid.Row="0"
                             Grid.Column="1" 

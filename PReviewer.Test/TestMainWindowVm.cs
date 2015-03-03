@@ -550,10 +550,11 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
             CollectionAssert.Contains(_mainWindowVm.RecentRepoes.Owners, _pullRequestLocator.Owner);
             CollectionAssert.Contains(_mainWindowVm.RecentRepoes.Repositories, _pullRequestLocator.Repository);
+            CollectionAssert.Contains(_mainWindowVm.RecentRepoes.PullRequests, _pullRequestLocator);
 
             _repoHistoryPersist.Received(1)
-                .Save(_mainWindowVm.RecentRepoes.Owners,
-                    _mainWindowVm.RecentRepoes.Repositories).IgnoreAsyncWarning();
+                .Save(Arg.Is<RepoHistoryContainer>(r => r.Equals(_mainWindowVm.RecentRepoes.ToContainer())))
+                .IgnoreAsyncWarning();
         }
 
         [Test]

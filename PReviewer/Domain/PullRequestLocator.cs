@@ -71,19 +71,31 @@ namespace PReviewer.Domain
 
         public bool Equals(PullRequestLocator other)
         {
-            if (object.ReferenceEquals(this, other))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }
 
-            return this.Owner == other.Owner
-                   && this.Repository == other.Repository
+            return String.Compare(Owner, other.Owner, StringComparison.InvariantCultureIgnoreCase) == 0
+                   &&String.Compare(Repository, other.Repository, StringComparison.InvariantCultureIgnoreCase) == 0
                    && this.PullRequestNumber == other.PullRequestNumber;
         }
 
         public override int GetHashCode()
         {
-            return (Owner ?? "" + Repository ?? "" + PullRequestNumber).GetHashCode();
+            return (Owner ?? "" + (Repository ?? "") + PullRequestNumber).GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return ToUrl();
+        }
+
+        public bool IsValid()
+        {
+            return !string.IsNullOrWhiteSpace(Owner) &&
+                   !string.IsNullOrWhiteSpace(Repository)
+                   && PullRequestNumber != 0;
         }
     }
 }
