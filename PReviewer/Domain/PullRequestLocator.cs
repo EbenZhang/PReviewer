@@ -65,7 +65,7 @@ namespace PReviewer.Domain
 
         public string ToUrl()
         {
-            return string.Format("https//github.com/{0}/{1}/pull/{2}",
+            return string.Format("https://github.com/{0}/{1}/pull/{2}",
                 Owner, Repository, PullRequestNumber);
         }
 
