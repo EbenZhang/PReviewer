@@ -27,6 +27,7 @@ namespace PReviewer.UI
                 case GitFileStatus.Removed:
                     return new BitmapImage(new Uri("/Images/removed.png", UriKind.Relative));
                 case GitFileStatus.Renamed:
+                case GitFileStatus.Changed:
                     return new BitmapImage(new Uri("/Images/renamed.png", UriKind.Relative));
             }
             throw new InvalidEnumArgumentException(@"Unknow status: " + status);
