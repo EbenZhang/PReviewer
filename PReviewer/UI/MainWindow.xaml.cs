@@ -374,7 +374,7 @@ namespace PReviewer.UI
                 return;
             }
 
-            DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
+            DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch.Replace("\r\n", "\n");
             DiffViewer.Refresh();
         }
 
