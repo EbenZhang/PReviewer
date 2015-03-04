@@ -113,6 +113,29 @@ namespace PReviewer.UI
             }
         }
 
+        public ICommand ClearCommentsCmd
+        {
+            get { return new RelayCommand(ClearComments); }
+        }
+
+        private async void ClearComments()
+        {
+            if (MessageBoxHelper.ShowConfirmation(this, "Are you sure to clear all the comments locally.") ==
+                MessageBoxResult.No)
+            {
+                return;
+            }
+
+            try
+            {
+                await _viewModel.ClearComments();
+            }
+            catch (Exception ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to delete local comments.\r\n\r\n" + ex);
+            }
+        }
+
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
             TxtPullRequest.Focus();

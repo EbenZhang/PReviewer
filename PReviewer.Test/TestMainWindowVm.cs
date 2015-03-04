@@ -445,6 +445,18 @@ namespace PReviewer.Test
         }
 
         [Test]
+        public async void CanClearComments()
+        {
+            await _mainWindowVm.ClearComments();
+            _commentsPersist.Received(1).Delete(_mainWindowVm.PullRequestLocator).IgnoreAsyncWarning();
+            foreach (var diff in _mainWindowVm.Diffs)
+            {
+                Assert.IsNullOrEmpty(diff.Comments);
+            }
+            Assert.IsNullOrEmpty(_mainWindowVm.GeneralComments);
+        }
+
+        [Test]
         public async void BusyStatusSetCorretly_WhenSubmitComments()
         {
             var expectedComments = string.Join("\r\n", Comment1, Comment2, GeneralComments);

@@ -52,5 +52,19 @@ namespace PReviewer.Model
                 }
             });
         }
+
+        public async Task Delete(PullRequestLocator pullRequestLocator)
+        {
+            var commentsFile = GetCommentsFilePath(pullRequestLocator);
+            
+            await Task.Run(() =>
+            {
+                if (!File.Exists(commentsFile))
+                {
+                    return;
+                }
+                File.Delete(commentsFile);
+            });
+        }
     }
 }

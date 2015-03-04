@@ -325,5 +325,24 @@ namespace PReviewer.Domain
                 IsProcessing = false;
             }
         }
+
+        public async Task ClearComments()
+        {
+            try
+            {
+                IsProcessing = true;
+                await _commentsPersist.Delete(PullRequestLocator);
+                foreach (var diff in Diffs)
+                {
+                    diff.Comments = "";
+                }
+                GeneralComments = "";
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
+            
+        }
     }
 }

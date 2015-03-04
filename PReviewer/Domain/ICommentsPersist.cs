@@ -12,5 +12,6 @@ namespace PReviewer.Domain
     {
         Task Save(PullRequestLocator prInfo, IEnumerable<CommitFileVm> diffs, string generalComments);
         Task<CommentsContainer> Load(PullRequestLocator prInfo);
+        Task Delete(PullRequestLocator pullRequestLocator);
     }
 }
