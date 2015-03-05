@@ -146,6 +146,7 @@ namespace PReviewer.Domain
             IsProcessing = true;
             try
             {
+                await SaveCommentsWithoutChangeBusyStatus();
                 if (IsUrlMode)
                 {
                     try
@@ -299,17 +300,22 @@ namespace PReviewer.Domain
         {
             try
             {
-                if (PullRequestLocator == PullRequestLocator.Empty)
-                {
-                    return;
-                }
                 IsProcessing = true;
-                await _commentsPersist.Save(_PullRequestLocator, Diffs, GeneralComments);
+                await SaveCommentsWithoutChangeBusyStatus();
             }
             finally
             {
                 IsProcessing = false;
             }
+        }
+
+        private async Task SaveCommentsWithoutChangeBusyStatus()
+        {
+            if (PullRequestLocator == PullRequestLocator.Empty)
+            {
+                return;
+            }
+            await _commentsPersist.Save(_PullRequestLocator, Diffs, GeneralComments);
         }
 
         public async Task LoadRepoHistory()

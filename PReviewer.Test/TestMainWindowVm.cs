@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using ExtendedCL;
@@ -585,6 +586,26 @@ namespace PReviewer.Test
             CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Owners, container.Owners);
             CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Repositories, container.Repositories);
         }
+
+        [Test]
+        public async void ShouldSaveCommentsBeforeRetrieveDiff()
+        {
+            const string expectedGeneralComments = GeneralComments + "Comments Before Retrieve Diff";
+            _mainWindowVm.GeneralComments = expectedGeneralComments;
+            var expectedDiff = new CommitFileVm(new MockGitHubCommitFile());
+            _mainWindowVm.Diffs.Add(expectedDiff);
+            _mainWindowVm.Diffs[0].Comments = Comment1 + "Comments Before Retrieve Diff";
+
+            _commentsPersist.When(r => r.Save(_pullRequestLocator, Arg.Any<ObservableCollection<CommitFileVm>>(), expectedGeneralComments)).Do(x =>
+            {// have to verify in 'When Do', because the vm.Diffs changed by RetrieveDiffs when verifying via 'Recieved' method
+                var diffs = x.Args()[1] as ObservableCollection<CommitFileVm>;
+                Assert.That(diffs.Count, Is.EqualTo(1));
+                Assert.That(diffs[0], Is.EqualTo(expectedDiff));
+            });
+
+            await _mainWindowVm.RetrieveDiffs();
+        }
+
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
             var headContent = new MockRepositoryContent {EncodedContent = rawContent};
