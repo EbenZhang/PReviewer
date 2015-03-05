@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -201,6 +202,11 @@ namespace PReviewer.UI
 
         private async void OnFileDoubleClicked(object sender, MouseButtonEventArgs e)
         {
+            await OpenInDiffTool(sender);
+        }
+
+        private async Task OpenInDiffTool(object sender)
+        {
             if (_viewModel.SelectedDiffFile == null)
             {
                 return;
@@ -298,6 +304,48 @@ namespace PReviewer.UI
 
             DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
             DiffViewer.Refresh();
+        }
+
+        public ICommand CopyFileNameCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    Clipboard.SetText(Path.GetFileName(_viewModel.SelectedDiffFile.GitHubCommitFile.Filename));
+                });
+            }
+        }
+
+        public ICommand CopyFilePathCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    Clipboard.SetText(_viewModel.SelectedDiffFile.GitHubCommitFile.Filename);
+                });
+            }
+        }
+
+        public ICommand OpenInDiffToolCmd
+        {
+            get { return new RelayCommand(async () => await OpenInDiffTool(DiffListView.SelectedItem)); }
+        }
+
+        public ICommand FlagAsReviewedCmd
+        {
+            get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed);}
+        }
+
+        public ICommand FlagAsBackLaterCmd
+        {
+            get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.ConfirmLater); }
+        }
+
+        public ICommand FlagAsFreshCmd
+        {
+            get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.HasntBeenReviewed); }
         }
     }
 }

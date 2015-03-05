@@ -160,10 +160,28 @@
                         ItemsSource="{Binding Diffs}" 
                         SelectedItem="{Binding SelectedDiffFile}">
                         <ListView.Resources>
-                            <Style TargetType="ListViewItem">
+                            <ResourceDictionary>
+                                <ContextMenu x:Key="ItemContextMenu" DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                    <MenuItem Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
+                                    <MenuItem Header="_Flag">
+                                        <MenuItem Header="_Reviewed" Command="{Binding FlagAsReviewedCmd}"></MenuItem>
+                                        <MenuItem Header ="_Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
+                                        <MenuItem Header ="_Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
+                                    </MenuItem>
+                                    <MenuItem Command="{Binding CopyFileNameCmd}" Header="Copy File _Name"></MenuItem>
+                                    <MenuItem Command="{Binding CopyFilePathCmd}" Header="Copy File _Path"></MenuItem>
+                                </ContextMenu>
+                                <Style TargetType="ListViewItem">
                                 <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
                             </Style>
+                            </ResourceDictionary>
                         </ListView.Resources>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" >
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                <Setter Property="Tag" Value="{Binding ., ElementName=ThisWnd}"></Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
                         <ListView.View>
                             <controls:AutoSizedGridView>
                                 <GridView.Columns>
