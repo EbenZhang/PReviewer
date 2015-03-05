@@ -234,6 +234,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="..\LICENSE.md">
+      <Link>LICENSE.md</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <Resource Include="Images\added.png" />
     <Resource Include="Images\Modified.png" />
@@ -242,9 +246,6 @@
     <Resource Include="Images\removed.png" />
     <Resource Include="Images\renamed.png" />
     <Resource Include="Images\reviewed.png" />
-    <Content Include="LICENSE">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Images\glyphicons_158_show_lines.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
