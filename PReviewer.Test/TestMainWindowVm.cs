@@ -606,6 +606,22 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
         }
 
+        [Test]
+        public async void CanRetrieveTitleAndDescription()
+        {
+            await _mainWindowVm.RetrieveDiffs();
+            Assert.That(_mainWindowVm.PrTitle, Is.EqualTo(_pullRequest.Title));
+            Assert.That(_mainWindowVm.PrDescription, Is.EqualTo(_pullRequest.Body));
+        }
+
+        [Test]
+        public async void ShouldSetDefaultDescriptionIsNotProvidedByThePullRequest()
+        {
+            _pullRequest.Body = "";
+            await _mainWindowVm.RetrieveDiffs();
+            Assert.That(_mainWindowVm.PrDescription, Is.EqualTo(MainWindowVm.DefaultPrDescription)); 
+        }
+
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
             var headContent = new MockRepositoryContent {EncodedContent = rawContent};
@@ -631,6 +647,12 @@ namespace PReviewer.Test
     {
         public MockPullRequest()
         {
+            Title = "Title";
+            Body = @"# 1st head
+paragraph1
+# 2nd head
+paragraph2
+";
             Base = new GitReference("", "", "", "1212", null, null);
             Head = new GitReference("", "", "", "asdfasdf", null, null);
         }
@@ -639,6 +661,12 @@ namespace PReviewer.Test
         {
             get { return base.Number; }
             set { base.Number = value; }
+        }
+
+        public new string Body
+        {
+            get { return base.Body; }
+            set { base.Body = value; }
         }
     }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using ExtendedCL;
 using GalaSoft.MvvmLight;
@@ -32,6 +33,8 @@ namespace PReviewer.Domain
         private CommitFileVm _SelectedDiffFile;
         public string BaseCommit;
         public string HeadCommit;
+        private string _prTitle;
+        private string _prDescription;
 
         public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist,
             IDiffToolLauncher diffTool,
@@ -175,6 +178,9 @@ namespace PReviewer.Domain
                 Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
                 BaseCommit = pr.Base.Sha;
                 HeadCommit = pr.Head.Sha;
+
+                PrTitle = pr.Title;
+                PrDescription = pr.Body;
 
                 var comments = await _commentsPersist.Load(PullRequestLocator);
                 GeneralComments = comments.GeneralComments;
@@ -354,5 +360,30 @@ namespace PReviewer.Domain
             }
             
         }
+
+        public string PrTitle
+        {
+            get { return _prTitle; }
+            set
+            {
+                _prTitle = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string PrDescription
+        {
+            get { return _prDescription; }
+            set
+            {
+                if(_prDescription != value)
+                {
+                    _prDescription = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        public static readonly string DefaultPrDescription = "## The guy is too lazy to leave anything here.";
     }
 }

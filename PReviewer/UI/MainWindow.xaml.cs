@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Forms.Integration;
 using System.Windows.Input;
+using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
@@ -31,6 +35,22 @@ namespace PReviewer.UI
             Loaded += OnLoaded;
             DiffViewer.TextChanged += DiffViewerOnTextChanged;
             SetupWindowClosingActions();
+            _viewModel.PropertyChanged += OnPrDescriptionChanged;
+        }
+
+        void OnPrDescriptionChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != PropertyName.Get((MainWindowVm x) => x.PrDescription))
+            {
+                return;
+            }
+            var md = new MarkdownSharp.Markdown();
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+            {
+                TxtPrDescription.DocumentText=("<html><body>" + md.Transform(_viewModel.PrDescription) +
+                                                "</body></html>");
+            }));
+
         }
 
         private void DiffViewerOnTextChanged(object sender, EventArgs eventArgs)
@@ -346,6 +366,17 @@ namespace PReviewer.UI
         public ICommand FlagAsFreshCmd
         {
             get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.HasntBeenReviewed); }
+        }
+
+        private void Thumb_OnDragDelta(object sender, DragDeltaEventArgs e)
+        {
+            TxtPrDescription.Hide();
+        }
+
+        private void Thumb_OnDragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            TxtPrDescription.Show();
+            TxtPrDescription.Height += (int)e.VerticalChange;
         }
     }
 }

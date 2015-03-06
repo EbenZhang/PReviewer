@@ -10,6 +10,7 @@
         xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon"
         xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
         xmlns:ui="clr-namespace:PReviewer.UI"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:textEditor="clr-namespace:ICSharpCode.TextEditor;assembly=ICSharpCode.TextEditor">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
@@ -25,7 +26,10 @@
         <Grid Margin="20,10,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <!--Criteria-->
@@ -143,8 +147,60 @@
                         Command="{Binding ShowChangesCmd, ElementName=ThisWnd}">Show Changes</Button>
                 </Grid>
             </GroupBox>
+            <!--pull request descriptoin-->
+            <GroupBox Grid.Row="1" Margin="0,4,0,0" Header="Pull Request Description">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBox 
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        BorderBrush="Transparent"
+                        Grid.Row="0" FontSize="14"
+                        Text="{Binding PrTitle}">
+                    </TextBox>
+
+                    <Grid Grid.Row="1">
+                        <Grid.Visibility>
+                            <Binding Path="IsDragging" ElementName="Splitter">
+                                <Binding.Converter>
+                                    <converter:CompositeConverter>
+                                        <converter:InverseBooleanConverter/>
+                                        <converter:FalseToHiddenConverter/>
+                                    </converter:CompositeConverter>
+                                </Binding.Converter>
+                            </Binding>
+                        </Grid.Visibility>
+                        <WindowsFormsHost>
+                            <WindowsFormsHost.Visibility>
+                                <Binding Path="IsProcessing">
+                                    <Binding.Converter>
+                                        <converter:CompositeConverter>
+                                            <converter:InverseBooleanConverter/>
+                                            <converter:FalseToHiddenConverter/>
+                                        </converter:CompositeConverter>
+                                    </Binding.Converter>
+                                </Binding>
+                            </WindowsFormsHost.Visibility>
+                            <wf:WebBrowser 
+                                WebBrowserShortcutsEnabled="False"
+                                Height="100"
+                                x:Name="TxtPrDescription">
+                            </wf:WebBrowser>
+                        </WindowsFormsHost>
+                    </Grid>
+                </Grid>
+            </GroupBox>
+            <GridSplitter Grid.Row="2" Background="Gray"
+                          x:Name="Splitter"
+                          DragDelta="Thumb_OnDragDelta"
+                          DragCompleted="Thumb_OnDragCompleted"
+                          Visibility="Visible" Height="3"
+                          HorizontalAlignment="Stretch"/>
             <!--File list-->
-            <GroupBox Grid.Row="1" Margin="0,4,0,0"
+            <GroupBox Grid.Row="3" Margin="0,4,0,0"
                       Header="Differences. Double click to view in external diff tool.">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -257,7 +313,7 @@
                                 <Binding.Converter>
                                     <converter:CompositeConverter>
                                         <converter:InverseBooleanConverter/>
-                                        <BooleanToVisibilityConverter/>
+                                        <converter:FalseToHiddenConverter/>
                                     </converter:CompositeConverter>
                                 </Binding.Converter>
                             </Binding>
@@ -276,8 +332,9 @@
                     </Grid>
                 </Grid>
             </GroupBox>
+            <GridSplitter Grid.Row="4" Background="Gray" Visibility="Visible" Height="3" HorizontalAlignment="Stretch"/>
             <!--Comments-->
-            <GroupBox Grid.Row="2" Margin="0,4,0,0" Header="Comments">
+            <GroupBox Grid.Row="5" Margin="0,4,0,0" Header="Comments">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
