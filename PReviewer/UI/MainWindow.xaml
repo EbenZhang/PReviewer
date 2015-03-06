@@ -171,13 +171,11 @@
                                     <MenuItem Command="{Binding CopyFileNameCmd}" Header="Copy File _Name"></MenuItem>
                                     <MenuItem Command="{Binding CopyFilePathCmd}" Header="Copy File _Path"></MenuItem>
                                 </ContextMenu>
-                                <Style TargetType="ListViewItem">
-                                <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
-                            </Style>
                             </ResourceDictionary>
                         </ListView.Resources>
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}" >
+                                <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
                                 <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
                                 <Setter Property="Tag" Value="{Binding ., ElementName=ThisWnd}"></Setter>
                             </Style>
