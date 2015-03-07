@@ -180,7 +180,7 @@ namespace PReviewer.Domain
                 HeadCommit = pr.Head.Sha;
 
                 PrTitle = pr.Title;
-                PrDescription = pr.Body;
+                PrDescription = string.IsNullOrWhiteSpace(pr.Body) ? DefaultPrDescription : pr.Body;
 
                 var comments = await _commentsPersist.Load(PullRequestLocator);
                 GeneralComments = comments.GeneralComments;
