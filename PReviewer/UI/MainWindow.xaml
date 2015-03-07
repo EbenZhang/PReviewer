@@ -30,7 +30,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1.4*"/>
             </Grid.RowDefinitions>
             <!--Criteria-->
             <GroupBox Grid.Row="0" Header="Pull Request / Branch">
@@ -66,6 +66,8 @@
                             Grid.Column="0"
                             ToolTip="The URL of the pull request">PR URL(?):</RadioButton>
                         <controls:AutoCompleteBoxEx
+                            IsTextCompletionEnabled="True"
+                            MinimumPrefixLength="1"
                             ItemsSource="{Binding RecentRepoes.PullRequests}"
                             FilterMode="Contains"
                             x:Name="TxtPullRequest"
@@ -89,6 +91,8 @@
                             Grid.Column="0"
                             ToolTip="The person/organization who owns the repository">Owner(?):</RadioButton>
                         <controls:AutoCompleteBoxEx
+                            IsTextCompletionEnabled="True"
+                            MinimumPrefixLength="1"
                             x:Name="TxtOwner"
                             Grid.Row="2"
                             Grid.Column="1" 
@@ -108,6 +112,8 @@
                             Grid.Row="2"
                             Grid.Column="2" Margin="8,0,0,0" ToolTip="The name of the repository">Repo(?):</TextBlock>
                         <controls:AutoCompleteBoxEx
+                            IsTextCompletionEnabled="True"
+                            MinimumPrefixLength="1"
                             ItemsSource="{Binding RecentRepoes.Repositories}"
                             IsEnabled="{Binding IsChecked, ElementName=RdUrl, Converter={StaticResource InverseBooleanConverter}}"
                             FilterMode="Contains"
@@ -367,7 +373,7 @@
                         </TabControl.Resources>
                         <TabItem Header="File specific comments">
                             <Grid>
-                                <TextBox AcceptsReturn="True" AcceptsTab="True">
+                                <TextBox TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto">
                                     <TextBox.IsEnabled>
                                         <Binding Path="SelectedDiffFile" UpdateSourceTrigger="PropertyChanged">
                                             <Binding.Converter>
@@ -395,7 +401,10 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="General comments">
-                            <TextBox AcceptsReturn="True" AcceptsTab="True">
+                            <TextBox TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
+                                     VerticalScrollBarVisibility="Auto">
                                 <TextBox.Text>
                                     <Binding Path="GeneralComments"/>
                                 </TextBox.Text>
