@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Policy;
 using System.Threading.Tasks;
@@ -9,6 +11,15 @@ namespace PReviewer.Domain
 {
     public class RecentRepo : ViewModelBase
     {
+        private const int MAX_HISTORY_ITEMS = 100;
+        private int _maxHistoryItems = MAX_HISTORY_ITEMS;
+
+        public int MaxHistoryItems
+        {
+            get { return _maxHistoryItems; }
+            set { _maxHistoryItems = value; }
+        }
+
         public RecentRepo()
         {
             Owners = new ObservableCollection<string>();
@@ -52,9 +63,14 @@ namespace PReviewer.Domain
 
         public void From(RepoHistoryContainer historyContainer)
         {
-            Owners.Assign(historyContainer.Owners);
-            Repositories.Assign(historyContainer.Repositories);
-            PullRequests.Assign(historyContainer.Urls.Select(PullRequestLocator.FromUrl));
+            Owners.Assign(RemoveIfExceedMax(historyContainer.Owners));
+            Repositories.Assign(RemoveIfExceedMax(historyContainer.Repositories));
+            PullRequests.Assign(RemoveIfExceedMax(historyContainer.Urls.Select(PullRequestLocator.FromUrl).ToList()));
+        }
+
+        private IList<T> RemoveIfExceedMax<T>(IList<T> orgList)
+        {
+            return orgList.Count > MaxHistoryItems ? orgList.Skip(MaxHistoryItems/2).ToList() : orgList;
         }
 
         public RepoHistoryContainer ToContainer()

@@ -119,5 +119,22 @@ namespace PReviewer.Test
             Assert.That(repoHistory.PullRequests.Select(r => r.ToUrl()), Contains.Item(prInfo.ToUrl()));
 
         }
+
+        [Test]
+        public void CanCleanHistory_WhenExceedMaxItems()
+        {
+            var container = new RepoHistoryContainer();
+            const int maxItems = 10;
+            for (var i = 1; i <= maxItems; ++i)
+            {
+                container.Urls.Add("https://github.com/ebenzhang/ezplayer/pull/" + i);
+            }
+            var repoHistory = new RecentRepo { MaxHistoryItems = maxItems };
+            repoHistory.From(container);
+            Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(10));
+            container.Urls.Add("https://github.com/ebenzhang/ezplayer/pull/21000");
+            repoHistory.From(container);
+            Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(6), "Half of the MaxItems are removed.");
+        }
     }
 }
