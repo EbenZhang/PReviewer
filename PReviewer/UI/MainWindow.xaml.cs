@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -18,6 +19,8 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using WpfCommon.Utils;
+using Clipboard = System.Windows.Clipboard;
+using Control = System.Windows.Controls.Control;
 
 namespace PReviewer.UI
 {
@@ -36,6 +39,7 @@ namespace PReviewer.UI
             DiffViewer.TextChanged += DiffViewerOnTextChanged;
             SetupWindowClosingActions();
             _viewModel.PropertyChanged += OnPrDescriptionChanged;
+            TxtPrDescription.Navigating += WebBrowser_OnNavigating;
         }
 
         void OnPrDescriptionChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -44,13 +48,31 @@ namespace PReviewer.UI
             {
                 return;
             }
-            var md = new MarkdownSharp.Markdown();
+            
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
-                TxtPrDescription.DocumentText=("<html><body>" + md.Transform(_viewModel.PrDescription) +
-                                                "</body></html>");
+                var md = new MarkdownSharp.Markdown();
+                // replace \r\n with \r\n\r\n as required by the Transformer to generate <ul><li>
+                var transformed = md.Transform(_viewModel.PrDescription.Replace("\r\n", "\r\n\r\n"));
+                var text = "<html><body>" + transformed.Replace("\n", "") + "</body></html>";
+                TxtPrDescription.DocumentText = StyleMarkdown(text);
             }));
 
+        }
+
+        private static string StyleMarkdown(string text)
+        {
+            return text.Replace("<p>", "<p style='line-height:15%'>")
+                .Replace("<code>", "<code style='background-color:#e0eaf1'>");
+        }
+
+        private void WebBrowser_OnNavigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            if (!e.Url.ToString().StartsWith("about:blank"))
+            {
+                e.Cancel = true;
+                Process.Start(e.Url.ToString());
+            }
         }
 
         private void DiffViewerOnTextChanged(object sender, EventArgs eventArgs)
