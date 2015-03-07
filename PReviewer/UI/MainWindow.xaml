@@ -148,57 +148,75 @@
                 </Grid>
             </GroupBox>
             <!--pull request descriptoin-->
-            <GroupBox Grid.Row="1" Margin="0,4,0,0" Header="Pull Request Description">
+            <Expander Grid.Row="1"
+                      IsExpanded="True"
+                      x:Name="PrDescExpander" 
+                      Header="Pull Request Description">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBox 
-                        IsReadOnly="True"
-                        BorderThickness="0"
-                        BorderBrush="Transparent"
-                        Grid.Row="0" FontSize="14"
-                        Text="{Binding PrTitle}">
-                    </TextBox>
+                    <GroupBox Margin="0,4,0,0" Header="Pull Request Description">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBox 
+                                IsReadOnly="True"
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                Grid.Row="0" FontSize="14"
+                                Text="{Binding PrTitle}">
+                            </TextBox>
 
-                    <Grid Grid.Row="1">
-                        <Grid.Visibility>
-                            <Binding Path="IsDragging" ElementName="Splitter">
-                                <Binding.Converter>
-                                    <converter:CompositeConverter>
-                                        <converter:InverseBooleanConverter/>
-                                        <converter:FalseToHiddenConverter/>
-                                    </converter:CompositeConverter>
-                                </Binding.Converter>
+                            <Grid Grid.Row="1">
+                                <Grid.Visibility>
+                                    <Binding Path="IsDragging" ElementName="Splitter">
+                                        <Binding.Converter>
+                                            <converter:CompositeConverter>
+                                                <converter:InverseBooleanConverter/>
+                                                <converter:FalseToHiddenConverter/>
+                                            </converter:CompositeConverter>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </Grid.Visibility>
+                                <WindowsFormsHost>
+                                    <WindowsFormsHost.Visibility>
+                                        <Binding Path="IsProcessing">
+                                            <Binding.Converter>
+                                                <converter:CompositeConverter>
+                                                    <converter:InverseBooleanConverter/>
+                                                    <converter:FalseToHiddenConverter/>
+                                                </converter:CompositeConverter>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </WindowsFormsHost.Visibility>
+                                    <wf:WebBrowser 
+                                        WebBrowserShortcutsEnabled="False"
+                                        Height="100"
+                                        x:Name="TxtPrDescription">
+                                    </wf:WebBrowser>
+                                </WindowsFormsHost>
+                            </Grid>
+                        </Grid>
+                    </GroupBox>
+                    <GridSplitter
+                        ShowsPreview="True"
+                        Grid.Row="1" Background="Gray"
+                        x:Name="Splitter"
+                        DragDelta="OnDragDelta"
+                        DragCompleted="OnDragCompleted"
+                        Visibility="Visible" Height="3"
+                        HorizontalAlignment="Stretch">
+                        <GridSplitter.IsEnabled>
+                            <Binding Path="IsExpanded" ElementName="PrDescExpander">
                             </Binding>
-                        </Grid.Visibility>
-                        <WindowsFormsHost>
-                            <WindowsFormsHost.Visibility>
-                                <Binding Path="IsProcessing">
-                                    <Binding.Converter>
-                                        <converter:CompositeConverter>
-                                            <converter:InverseBooleanConverter/>
-                                            <converter:FalseToHiddenConverter/>
-                                        </converter:CompositeConverter>
-                                    </Binding.Converter>
-                                </Binding>
-                            </WindowsFormsHost.Visibility>
-                            <wf:WebBrowser 
-                                WebBrowserShortcutsEnabled="False"
-                                Height="100"
-                                x:Name="TxtPrDescription">
-                            </wf:WebBrowser>
-                        </WindowsFormsHost>
-                    </Grid>
+                        </GridSplitter.IsEnabled>
+                    </GridSplitter>
                 </Grid>
-            </GroupBox>
-            <GridSplitter Grid.Row="2" Background="Gray"
-                          x:Name="Splitter"
-                          DragDelta="Thumb_OnDragDelta"
-                          DragCompleted="Thumb_OnDragCompleted"
-                          Visibility="Visible" Height="3"
-                          HorizontalAlignment="Stretch"/>
+            </Expander>
             <!--File list-->
             <GroupBox Grid.Row="3" Margin="0,4,0,0"
                       Header="Differences. Double click to view in external diff tool.">

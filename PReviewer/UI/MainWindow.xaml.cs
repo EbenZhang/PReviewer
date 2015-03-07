@@ -368,15 +368,21 @@ namespace PReviewer.UI
             get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.HasntBeenReviewed); }
         }
 
-        private void Thumb_OnDragDelta(object sender, DragDeltaEventArgs e)
+        private void OnDragDelta(object sender, DragDeltaEventArgs e)
         {
-            TxtPrDescription.Hide();
+            if (TxtPrDescription.Visible)
+            {
+                TxtPrDescription.Hide();
+            }
         }
 
-        private void Thumb_OnDragCompleted(object sender, DragCompletedEventArgs e)
+        private void OnDragCompleted(object sender, DragCompletedEventArgs e)
         {
-            TxtPrDescription.Show();
-            TxtPrDescription.Height += (int)e.VerticalChange;
+            if (PrDescExpander.IsExpanded)
+            {
+                TxtPrDescription.Show();
+                TxtPrDescription.Height += (int)e.VerticalChange;
+            }
         }
     }
 }
