@@ -68,9 +68,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MockCompareResult.cs" />
+    <Compile Include="MockGitHubCommit.cs" />
+    <Compile Include="MockGitHubCommitFile.cs" />
+    <Compile Include="MockPullRequest.cs" />
+    <Compile Include="MockRepositoryContent.cs" />
     <Compile Include="TestCommentsContainer.cs" />
     <Compile Include="NSubstituteAsyncHelper.cs" />
     <Compile Include="TestCommentBuilder.cs" />
+    <Compile Include="TestCommitsCombiner.cs" />
+    <Compile Include="TestCommitVm.cs" />
     <Compile Include="TestCompareToolSettings.cs" />
     <Compile Include="TestCompareToolSettingsVm.cs" />
     <Compile Include="TestDiffToolParamBuilder.cs" />

@@ -232,103 +232,158 @@
                         <ColumnDefinition Width="14"/>
                         <ColumnDefinition Width="1.5*"/>
                     </Grid.ColumnDefinitions>
-                    <ListView
-                        SelectionChanged="DiffListView_OnSelectionChanged"
-                        Grid.Column="0"
-                        Margin="4" 
-                        x:Name="DiffListView"
-                        ItemsSource="{Binding Diffs}" 
-                        SelectedItem="{Binding SelectedDiffFile}">
-                        <ListView.Resources>
-                            <ResourceDictionary>
-                                <ContextMenu x:Key="ItemContextMenu" DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                    <MenuItem Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
-                                    <MenuItem Header="_Flag">
-                                        <MenuItem Header="_Reviewed" Command="{Binding FlagAsReviewedCmd}"></MenuItem>
-                                        <MenuItem Header ="_Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
-                                        <MenuItem Header ="_Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
-                                    </MenuItem>
-                                    <MenuItem Command="{Binding CopyFileNameCmd}" Header="Copy File _Name"></MenuItem>
-                                    <MenuItem Command="{Binding CopyFilePathCmd}" Header="Copy File _Path"></MenuItem>
-                                </ContextMenu>
-                            </ResourceDictionary>
-                        </ListView.Resources>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}" >
-                                <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
-                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                <Setter Property="Tag" Value="{Binding ., ElementName=ThisWnd}"></Setter>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <controls:AutoSizedGridView>
-                                <GridView.Columns>
-                                    <GridViewColumn>
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <Grid>
-                                                    <Grid.ToolTip>
-                                                        <Binding Path="ReviewStatus">
-                                                            <Binding.Converter>
-                                                                <ui:ReviewStatusToStringConverter/>
-                                                            </Binding.Converter>
-                                                        </Binding>
-                                                    </Grid.ToolTip>
-                                                    <Button BorderBrush="Transparent" 
-                                                            BorderThickness="0" 
-                                                            Background="Transparent" 
-                                                            PreviewMouseDoubleClick="OnPreviewBtnReviewStatusDbClicked"
-                                                            PreviewMouseDown="OnPreviewBtnReviewStatusMouseDown"
-                                                            Padding="0" 
-                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                            Command="{Binding ChangeReviewStatusCmd}">
-                                                        <Image Width="15">
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row ="0">
+                            <Grid.IsEnabled>
+                                <Binding Path="Commits.Count">
+                                    <Binding.Converter>
+                                        <converter:ZeroToFalseConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </Grid.IsEnabled>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0">BASE:</TextBlock>
+                                <ComboBox
+                                    Grid.Column="2"
+                                    ToolTip="{Binding SelectedItem.WholeMessage, RelativeSource={RelativeSource Self}}"
+                                    SelectedValuePath="Sha"
+                                    SelectedValue="{Binding BaseCommit}"
+                                    ItemsSource="{Binding Commits}" Height="22" VerticalAlignment="Top">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock ToolTip="{Binding WholeMessage}" Text="{Binding Display}"></TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Grid.Column="4">HEAD:</TextBlock>
+                                <ComboBox  
+                                    Grid.Column="6"
+                                    ToolTip="{Binding SelectedItem.WholeMessage, RelativeSource={RelativeSource Self}}"
+                                    SelectedValuePath="Sha"
+                                    SelectedValue="{Binding HeadCommit}"
+                                    ItemsSource="{Binding Commits}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock ToolTip="{Binding WholeMessage}" Text="{Binding Display}"></TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Command="{Binding ChangeCommitRangeCmd}" Grid.Column="8">_Apply</Button>
+                            </Grid>
+                        </Grid>
+                        <ListView
+                            SelectionChanged="DiffListView_OnSelectionChanged"
+                            Grid.Row="1"
+                            Margin="4" 
+                            x:Name="DiffListView"
+                            ItemsSource="{Binding Diffs}" 
+                            SelectedItem="{Binding SelectedDiffFile}">
+                            <ListView.Resources>
+                                <ResourceDictionary>
+                                    <ContextMenu x:Key="ItemContextMenu" DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
+                                        <MenuItem Header="_Flag">
+                                            <MenuItem Header="_Reviewed" Command="{Binding FlagAsReviewedCmd}"></MenuItem>
+                                            <MenuItem Header ="_Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
+                                            <MenuItem Header ="_Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
+                                        </MenuItem>
+                                        <MenuItem Command="{Binding CopyFileNameCmd}" Header="Copy File _Name"></MenuItem>
+                                        <MenuItem Command="{Binding CopyFilePathCmd}" Header="Copy File _Path"></MenuItem>
+                                    </ContextMenu>
+                                </ResourceDictionary>
+                            </ListView.Resources>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="Tag" Value="{Binding ., ElementName=ThisWnd}"></Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <controls:AutoSizedGridView>
+                                    <GridView.Columns>
+                                        <GridViewColumn>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.ToolTip>
+                                                            <Binding Path="ReviewStatus">
+                                                                <Binding.Converter>
+                                                                    <ui:ReviewStatusToStringConverter/>
+                                                                </Binding.Converter>
+                                                            </Binding>
+                                                        </Grid.ToolTip>
+                                                        <Button BorderBrush="Transparent" 
+                                                                BorderThickness="0" 
+                                                                Background="Transparent" 
+                                                                PreviewMouseDoubleClick="OnPreviewBtnReviewStatusDbClicked"
+                                                                PreviewMouseDown="OnPreviewBtnReviewStatusMouseDown"
+                                                                Padding="0" 
+                                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                Command="{Binding ChangeReviewStatusCmd}">
+                                                            <Image Width="15">
+                                                                <Image.Source>
+                                                                    <Binding Path="ReviewStatus">
+                                                                        <Binding.Converter>
+                                                                            <ui:ReviewStatusToIconConverter/>
+                                                                        </Binding.Converter>
+                                                                    </Binding>
+                                                                </Image.Source>
+                                                            </Image>
+                                                        </Button>
+
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="File">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock 
+                                                        TextTrimming="WordEllipsis"
+                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                        Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Status">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel LastChildFill="True">
+                                                        <Image Width="15" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                             <Image.Source>
-                                                                <Binding Path="ReviewStatus">
+                                                                <Binding Path="GitHubCommitFile.Status">
                                                                     <Binding.Converter>
-                                                                        <ui:ReviewStatusToIconConverter/>
+                                                                        <ui:FileStatusToIconConverter/>
                                                                     </Binding.Converter>
                                                                 </Binding>
                                                             </Image.Source>
                                                         </Image>
-                                                    </Button>
-
-                                                </Grid>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="File">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock 
-                                                    TextTrimming="WordEllipsis"
-                                                    ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                                                    Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Status">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <DockPanel LastChildFill="True">
-                                                    <Image Width="15" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                        <Image.Source>
-                                                            <Binding Path="GitHubCommitFile.Status">
-                                                                <Binding.Converter>
-                                                                    <ui:FileStatusToIconConverter/>
-                                                                </Binding.Converter>
-                                                            </Binding>
-                                                        </Image.Source>
-                                                    </Image>
-                                                    <TextBlock Text="{Binding GitHubCommitFile.Status}"></TextBlock>
-                                                </DockPanel>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                </GridView.Columns>
-                            </controls:AutoSizedGridView>
-                        </ListView.View>
-                    </ListView>
+                                                        <TextBlock Text="{Binding GitHubCommitFile.Status}"></TextBlock>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView.Columns>
+                                </controls:AutoSizedGridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
                     <GridSplitter Grid.Column="1" Background="Gray" Visibility="Visible" Width="5" HorizontalAlignment="Stretch">
                     </GridSplitter>
                     <Grid Grid.Column="2">
