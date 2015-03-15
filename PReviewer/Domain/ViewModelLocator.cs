@@ -14,6 +14,7 @@
 
 using Autofac;
 using PReviewer.Model;
+using PReviewer.Service;
 
 namespace PReviewer.Domain
 {
@@ -72,6 +73,8 @@ namespace PReviewer.Domain
             _builder.RegisterInstance(new CommentsPersist()).As<ICommentsPersist>();
 
             _builder.RegisterInstance(new RepoHistoryPersist()).As<IRepoHistoryPersist>();
+
+            _builder.RegisterInstance(new BackgroundTaskRunner()).As<IBackgroundTaskRunner>();
             _container = _builder.Build();
         }
 

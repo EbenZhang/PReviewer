@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
+using PReviewer.Service;
 
 namespace PReviewer.Test
 {
@@ -46,6 +47,7 @@ namespace PReviewer.Test
         private IRepositoriesClient _repoClient;
         private IRepoHistoryPersist _repoHistoryPersist;
         private IIssueCommentsClient _reviewClient;
+        private IBackgroundTaskRunner _backgroundTaskRunner;
 
         [SetUp]
         public void SetUp()
@@ -63,6 +65,7 @@ namespace PReviewer.Test
             _commentsBuilder = Substitute.For<ICommentsBuilder>();
             _commentsPersist = Substitute.For<ICommentsPersist>();
             _repoHistoryPersist = Substitute.For<IRepoHistoryPersist>();
+            _backgroundTaskRunner = Substitute.For<IBackgroundTaskRunner>();
 
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commits.Returns(_commitsClient);
@@ -78,7 +81,7 @@ namespace PReviewer.Test
 
             _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist,
                 _diffTool, _patchService, _commentsBuilder,
-                _commentsPersist, _repoHistoryPersist)
+                _commentsPersist, _repoHistoryPersist, _backgroundTaskRunner)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
@@ -106,6 +109,28 @@ namespace PReviewer.Test
             });
             _commentsPersist.Load(Arg.Is<PullRequestLocator>(x => x.Equals(_pullRequestLocator)))
                 .Returns(Task.FromResult(_commentsContainer));
+        }
+
+        private void VerifyCommentsReloaded()
+        {
+            _commentsPersist.Received(1).Load(_pullRequestLocator).IgnoreAsyncWarning();
+            Assert.That(_mainWindowVm.GeneralComments, Is.EqualTo(GeneralComments));
+            Assert.That(_mainWindowVm.Diffs[0].Comments, Is.EqualTo(Comment1));
+            Assert.That(_mainWindowVm.Diffs[0].ReviewStatus, Is.EqualTo(ReviewStatus1));
+            Assert.That(_mainWindowVm.Diffs[1].Comments, Is.EqualTo(Comment2));
+            Assert.That(_mainWindowVm.Diffs[1].ReviewStatus, Is.EqualTo(ReviewStatus2));
+        }
+
+        private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
+        {
+            var headContent = new MockRepositoryContent { EncodedContent = rawContent };
+            IReadOnlyList<RepositoryContent> headContentCollection =
+                new List<RepositoryContent> { headContent }.AsReadOnly();
+            _contentsClient.GetContents(Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Is<string>(x => x == _compareResults.File1.GetFilePath(sha)))
+                .Returns(Task.FromResult(headContentCollection));
+            return headContent;
         }
 
         [Test]
@@ -159,7 +184,7 @@ namespace PReviewer.Test
         {
             Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist,
                 _diffTool, _patchService, _commentsBuilder,
-                _commentsPersist, _repoHistoryPersist).IsUrlMode);
+                _commentsPersist, _repoHistoryPersist, _backgroundTaskRunner).IsUrlMode);
         }
 
         [Test]
@@ -202,6 +227,10 @@ namespace PReviewer.Test
             await _mainWindowVm.RetrieveDiffs();
             Assert.That(_mainWindowVm.BaseCommit, Is.EqualTo(_pullRequest.Base.Sha));
             Assert.That(_mainWindowVm.HeadCommit, Is.EqualTo(_pullRequest.Head.Sha));
+
+            Assert.That(_mainWindowVm.Commits.Count, Is.EqualTo(2));
+            Assert.That(_mainWindowVm.Commits[0].Sha, Is.EqualTo(_pullRequest.Base.Sha));
+            Assert.That(_mainWindowVm.Commits[1].Sha, Is.EqualTo(_pullRequest.Head.Sha));
         }
 
         [Test]
@@ -516,12 +545,7 @@ namespace PReviewer.Test
         public async void CanLoadCommentsAndReviewStatus()
         {
             await _mainWindowVm.RetrieveDiffs();
-            _commentsPersist.Received(1).Load(_pullRequestLocator).IgnoreAsyncWarning();
-            Assert.That(_mainWindowVm.GeneralComments, Is.EqualTo(GeneralComments));
-            Assert.That(_mainWindowVm.Diffs[0].Comments, Is.EqualTo(Comment1));
-            Assert.That(_mainWindowVm.Diffs[0].ReviewStatus, Is.EqualTo(ReviewStatus1));
-            Assert.That(_mainWindowVm.Diffs[1].Comments, Is.EqualTo(Comment2));
-            Assert.That(_mainWindowVm.Diffs[1].ReviewStatus, Is.EqualTo(ReviewStatus2));
+            VerifyCommentsReloaded();
         }
 
         [Test]
@@ -622,114 +646,55 @@ namespace PReviewer.Test
             Assert.That(_mainWindowVm.PrDescription, Is.EqualTo(MainWindowVm.DefaultPrDescription)); 
         }
 
-        private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
+        [Test]
+        public async void ShouldRetrieveCommitsInBackground()
         {
-            var headContent = new MockRepositoryContent {EncodedContent = rawContent};
-            IReadOnlyList<RepositoryContent> headContentCollection =
-                new List<RepositoryContent> {headContent}.AsReadOnly();
-            _contentsClient.GetContents(Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Is<string>(x => x == _compareResults.File1.GetFilePath(sha)))
-                .Returns(Task.FromResult(headContentCollection));
-            return headContent;
-        }
-    }
-
-    internal class MockRepositoryContent : RepositoryContent
-    {
-        public new string EncodedContent
-        {
-            set { base.EncodedContent = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((value))); }
-        }
-    }
-
-    internal class MockPullRequest : PullRequest
-    {
-        public MockPullRequest()
-        {
-            Title = "Title";
-            Body = @"# 1st head
-paragraph1
-# 2nd head
-paragraph2
-";
-            Base = new GitReference("", "", "", "1212", null, null);
-            Head = new GitReference("", "", "", "asdfasdf", null, null);
+            await _mainWindowVm.RetrieveDiffs();
+            _backgroundTaskRunner.ReceivedWithAnyArgs(1).RunInBackground(null);
         }
 
-        public new int Number
+        [Test]
+        public void GivenAnEmptyCommitsList_CommitsCombinerShouldComplain_BecauseShouldAlwaysHasBaseAndHeadCommitsInIt()
         {
-            get { return base.Number; }
-            set { base.Number = value; }
-        }
-
-        public new string Body
-        {
-            get { return base.Body; }
-            set { base.Body = value; }
-        }
-    }
-
-    internal class MockGitHubCommit : GitHubCommit
-    {
-        public new string Sha
-        {
-            get { return base.Sha; }
-            set { base.Sha = value; }
-        }
-    }
-
-    internal class MockGitHubCommitFile : GitHubCommitFile
-    {
-        public new string Sha
-        {
-            get { return base.Sha; }
-            set { base.Sha = value; }
-        }
-
-        public new string Filename
-        {
-            get { return base.Filename; }
-            set { base.Filename = value; }
-        }
-
-        public new string Status
-        {
-            get { return base.Status; }
-            set { base.Status = value; }
-        }
-
-        public new string Patch
-        {
-            get { return base.Patch; }
-            set { base.Patch = value; }
-        }
-    }
-
-    internal class MockCompareResult : CompareResult
-    {
-        public MockGitHubCommitFile File1 = new MockGitHubCommitFile
-        {
-            Sha = "e74fe8d371a5e33c4877f662e6f8ed7c0949a8b0",
-            Filename = "test.xaml",
-            Patch = "Patch"
-        };
-
-        public MockGitHubCommitFile File2 = new MockGitHubCommitFile
-        {
-            Sha = "9dc7f01526e368a64c49714c51f1d851885793ba",
-            Filename = "app.xaml.cs"
-        };
-
-        public MockCompareResult()
-        {
-            Files = new List<GitHubCommitFile>
+            Assert.Throws<ArgumentException>(() =>
             {
-                File1,
-                File2
-            };
-            var mockBasCommit = new MockGitHubCommit {Sha = "ef4f2857776d06cc28acedbd023bbb33ca83d216"};
-            BaseCommit = mockBasCommit;
+                var x = new CommitsCombiner(new ObservableCollection<CommitVm>());
+            });
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var x = new CommitsCombiner(new ObservableCollection<CommitVm>
+                {
+                    new CommitVm("BASE","SHA"),
+                });
+            });
+
+            Assert.DoesNotThrow(() =>
+            {
+                var x = new CommitsCombiner(new ObservableCollection<CommitVm>
+                {
+                    new CommitVm("BASE", "SHA"),
+                    new CommitVm("HEAD", "SHA"),
+                });
+            });
+        }
+
+        [Test]
+        public void TestChangeCommitRange()
+        {
+            _mainWindowVm.BaseCommit = "alsdkjfalsdf";
+            _mainWindowVm.HeadCommit = "11212asdfasdf";
+            _mainWindowVm.ChangeCommitRangeCmd.Execute(null);
+            _commentsPersist.ReceivedWithAnyArgs(1).Save(null, null, null);
+            _commitsClient.Received(1)
+                .Compare(_pullRequestLocator.Owner, _pullRequestLocator.Repository, _mainWindowVm.BaseCommit,
+                    _mainWindowVm.HeadCommit);
+
+            var githubCommitFiles = _mainWindowVm.Diffs.Select(r => r.GitHubCommitFile);
+            Assert.That(githubCommitFiles, Contains.Item(_compareResults.File1));
+            Assert.That(githubCommitFiles, Contains.Item(_compareResults.File2));
+
+            VerifyCommentsReloaded();
         }
     }
 }

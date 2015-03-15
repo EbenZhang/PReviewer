@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ExtendedCL;
+using GalaSoft.MvvmLight.Threading;
 using Microsoft.Win32;
 using PReviewer.Domain;
 using PReviewer.Model;
@@ -18,6 +19,7 @@ namespace PReviewer
     {
         public App()
         {
+            DispatcherHelper.Initialize();
             ViewModelLocator.BootStrap();
         }
 

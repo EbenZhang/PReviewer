@@ -153,6 +153,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\CommitFileVm.cs" />
+    <Compile Include="Domain\CommitsCombiner.cs" />
+    <Compile Include="Domain\CommitVm.cs" />
     <Compile Include="Domain\CompareToolSettingsVm.cs" />
     <Compile Include="Domain\ICommentsBuilder.cs" />
     <Compile Include="Domain\ICommentsPersist.cs" />
@@ -182,6 +184,7 @@
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
     <Compile Include="Model\RepoHistoryPersist.cs" />
+    <Compile Include="Service\IBackgroundTaskRunner.cs" />
     <Compile Include="UI\PatchHighlighter.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using ExtendedCL;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using GalaSoft.MvvmLight.Threading;
 using Octokit;
 using PReviewer.Model;
+using PReviewer.Service;
 
 namespace PReviewer.Domain
 {
@@ -24,6 +24,7 @@ namespace PReviewer.Domain
         private readonly IPatchService _patchService;
         private readonly IRepoHistoryPersist _repoHistoryPersist;
         private readonly IIssueCommentsClient _reviewClient;
+        private readonly IBackgroundTaskRunner _backgroundTaskRunner;
         private string _generalComments;
         private bool _IsProcessing;
         private bool _IsUrlMode = true;
@@ -31,19 +32,42 @@ namespace PReviewer.Domain
         private string _PullRequestUrl;
         private RecentRepo _recentRepoes = new RecentRepo();
         private CommitFileVm _SelectedDiffFile;
-        public string BaseCommit;
-        public string HeadCommit;
+
+        public string BaseCommit
+        {
+            get { return _baseCommit; }
+            set
+            {
+                _baseCommit = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string HeadCommit
+        {
+            get { return _headCommit; }
+            set
+            {
+                _headCommit = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _prTitle;
         private string _prDescription;
+        private string _baseCommit;
+        private string _headCommit;
 
         public MainWindowVm(IGitHubClient client, IFileContentPersist fileContentPersist,
             IDiffToolLauncher diffTool,
             IPatchService patchService,
             ICommentsBuilder commentsBuilder,
             ICommentsPersist commentsPersist,
-            IRepoHistoryPersist repoHistoryPersist)
+            IRepoHistoryPersist repoHistoryPersist,
+            IBackgroundTaskRunner backgroundTaskRunner)
         {
             Diffs = new ObservableCollection<CommitFileVm>();
+            Commits = new ObservableCollection<CommitVm>();
             _client = client;
             _fileContentPersist = fileContentPersist;
             _diffTool = diffTool;
@@ -52,6 +76,7 @@ namespace PReviewer.Domain
             _commentsBuilder = commentsBuilder;
             _commentsPersist = commentsPersist;
             _repoHistoryPersist = repoHistoryPersist;
+            _backgroundTaskRunner = backgroundTaskRunner;
         }
 
         public ObservableCollection<CommitFileVm> Diffs { get; set; }
@@ -176,22 +201,19 @@ namespace PReviewer.Domain
                         commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha,
                             pr.Head.Sha);
                 Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
+                Commits.Clear();
+                Commits.Add(new CommitVm(pr.Base.Label, pr.Base.Sha));
+                Commits.Add(new CommitVm(pr.Head.Label, pr.Head.Sha));
                 BaseCommit = pr.Base.Sha;
                 HeadCommit = pr.Head.Sha;
+
+                _backgroundTaskRunner.RunInBackground(() => RetrieveCommits(repo.PullRequest,
+                    _PullRequestLocator, new CommitsCombiner(Commits)));
 
                 PrTitle = pr.Title;
                 PrDescription = string.IsNullOrWhiteSpace(pr.Body) ? DefaultPrDescription : pr.Body;
 
-                var comments = await _commentsPersist.Load(PullRequestLocator);
-                GeneralComments = comments.GeneralComments;
-
-                foreach (var fileComment in comments.FileComments)
-                {
-                    var file = Diffs.SingleOrDefault(r => r.GitHubCommitFile.Filename == fileComment.FileName);
-                    if (file == null) continue;
-                    file.Comments = fileComment.Comments;
-                    file.ReviewStatus = fileComment.ReviewStatus;
-                }
+                await ReloadComments();
 
                 await RecentRepoes.Save(PullRequestLocator, _repoHistoryPersist);
             }
@@ -199,6 +221,19 @@ namespace PReviewer.Domain
             {
                 IsProcessing = false;
             }
+        }
+
+        private static void RetrieveCommits(IPullRequestsClient prClient,
+            PullRequestLocator prLocator,
+            CommitsCombiner combiner)
+        {
+            var commits = prClient.Commits(prLocator.Owner, prLocator.Repository,
+                prLocator.PullRequestNumber).Result;
+
+            DispatcherHelper.RunAsync(() =>
+            {
+                combiner.Add(commits);
+            });
         }
 
         public async Task PrepareDiffContent()
@@ -381,6 +416,54 @@ namespace PReviewer.Domain
                     _prDescription = value;
                     RaisePropertyChanged();
                 }
+            }
+        }
+
+        public ObservableCollection<CommitVm> Commits { get; set; }
+
+        public ICommand ChangeCommitRangeCmd
+        {
+            get
+            {
+                return new RelayCommand(ChangeCommitRange);
+            }
+        }
+
+        private async void ChangeCommitRange()
+        {
+            IsProcessing = true;
+            try
+            {
+                await SaveCommentsWithoutChangeBusyStatus();
+
+                var repo = _client.Repository;
+                var commitsClient = repo.Commits;
+                var compareResult =
+                    await
+                        commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, BaseCommit,
+                            HeadCommit);
+
+                Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
+
+                await ReloadComments();
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
+        }
+
+        private async Task ReloadComments()
+        {
+            var comments = await _commentsPersist.Load(PullRequestLocator);
+            GeneralComments = comments.GeneralComments;
+
+            foreach (var fileComment in comments.FileComments)
+            {
+                var file = Diffs.SingleOrDefault(r => r.GitHubCommitFile.Filename == fileComment.FileName);
+                if (file == null) continue;
+                file.Comments = fileComment.Comments;
+                file.ReviewStatus = fileComment.ReviewStatus;
             }
         }
 
