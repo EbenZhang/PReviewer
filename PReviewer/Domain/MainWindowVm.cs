@@ -175,8 +175,7 @@ namespace PReviewer.Domain
 
         public async Task RetrieveDiffs()
         {
-            IsProcessing = true;
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus();
                 if (IsUrlMode)
@@ -217,10 +216,6 @@ namespace PReviewer.Domain
 
                 await RecentRepoes.Save(PullRequestLocator, _repoHistoryPersist);
             }
-            finally
-            {
-                IsProcessing = false;
-            }
         }
 
         private static void RetrieveCommits(IPullRequestsClient prClient,
@@ -238,9 +233,8 @@ namespace PReviewer.Domain
 
         public async Task PrepareDiffContent()
         {
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                IsProcessing = true;
                 var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.GitHubCommitFile.Filename);
                 var headPath = "";
                 string contentOfHead = null;
@@ -294,10 +288,6 @@ namespace PReviewer.Domain
 
                 _diffTool.Open(basePath, headPath);
             }
-            finally
-            {
-                IsProcessing = false;
-            }
         }
 
         public static string BuildHeadFileName(string headCommit, string orgFileName)
@@ -327,30 +317,20 @@ namespace PReviewer.Domain
 
         public async Task SubmitComments()
         {
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                IsProcessing = true;
                 var comments = _commentsBuilder.Build(Diffs, GeneralComments);
                 await _reviewClient.Create(_PullRequestLocator.Owner,
                     _PullRequestLocator.Repository,
                     _PullRequestLocator.PullRequestNumber, comments);
             }
-            finally
-            {
-                IsProcessing = false;
-            }
         }
 
         public async Task SaveComments()
         {
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                IsProcessing = true;
                 await SaveCommentsWithoutChangeBusyStatus();
-            }
-            finally
-            {
-                IsProcessing = false;
             }
         }
 
@@ -365,23 +345,17 @@ namespace PReviewer.Domain
 
         public async Task LoadRepoHistory()
         {
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                IsProcessing = true;
                 var historyContainer = await _repoHistoryPersist.Load();
                 RecentRepoes.From(historyContainer);
-            }
-            finally
-            {
-                IsProcessing = false;
             }
         }
 
         public async Task ClearComments()
         {
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                IsProcessing = true;
                 await _commentsPersist.Delete(PullRequestLocator);
                 foreach (var diff in Diffs)
                 {
@@ -389,11 +363,6 @@ namespace PReviewer.Domain
                 }
                 GeneralComments = "";
             }
-            finally
-            {
-                IsProcessing = false;
-            }
-            
         }
 
         public string PrTitle
@@ -431,8 +400,7 @@ namespace PReviewer.Domain
 
         private async void ChangeCommitRange()
         {
-            IsProcessing = true;
-            try
+            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus();
 
@@ -446,10 +414,6 @@ namespace PReviewer.Domain
                 Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
 
                 await ReloadComments();
-            }
-            finally
-            {
-                IsProcessing = false;
             }
         }
 
