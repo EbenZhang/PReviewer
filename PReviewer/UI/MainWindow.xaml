@@ -33,7 +33,7 @@
                 <RowDefinition Height="1.4*"/>
             </Grid.RowDefinitions>
             <!--Criteria-->
-            <GroupBox Grid.Row="0" Header="Pull Request / Branch">
+            <GroupBox Grid.Row="0" Header="Pull Request">
                 <GroupBox.InputBindings>
                     <KeyBinding Key="Enter" Command="{Binding ShowChangesCmd, ElementName=ThisWnd}"></KeyBinding>
                 </GroupBox.InputBindings>
