@@ -57,6 +57,10 @@ namespace PReviewer.Domain
         private static void FromUrl(PullRequestLocator locator, string url)
         {
             url = Regex.Replace(url, @"HTTPS://|http://", "", RegexOptions.IgnoreCase);
+            if (!url.Contains("/"))
+            {
+                return;
+            }
             var splited = url.Split(new char[] { '/' });
             locator.Owner = splited[1];
             locator.Repository = splited[2];
