@@ -437,7 +437,7 @@
                                         </Binding>
                                     </TextBox.IsEnabled>
                                     <TextBox.Text>
-                                        <Binding Path="SelectedDiffFile.Comments"/>
+                                        <Binding Path="SelectedDiffFile.Comments" UpdateSourceTrigger="PropertyChanged"/>
                                     </TextBox.Text>
                                 </TextBox>
                                 <TextBlock Text="Please select a file to comment on." VerticalAlignment="Center" HorizontalAlignment="Center">
