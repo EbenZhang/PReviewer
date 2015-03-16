@@ -116,11 +116,13 @@ namespace PReviewer.Domain
             }
         }
 
+        private PullRequestLocator _prePullRequestLocator = Domain.PullRequestLocator.Empty;
         public PullRequestLocator PullRequestLocator
         {
             get { return _PullRequestLocator; }
             set
             {
+                _prePullRequestLocator = _PullRequestLocator;
                 _PullRequestLocator = value;
                 RaisePropertyChanged();
             }
@@ -177,7 +179,7 @@ namespace PReviewer.Domain
         {
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                await SaveCommentsWithoutChangeBusyStatus();
+                await SaveCommentsWithoutChangeBusyStatus(_prePullRequestLocator);
                 if (IsUrlMode)
                 {
                     try
@@ -330,13 +332,13 @@ namespace PReviewer.Domain
         {
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                await SaveCommentsWithoutChangeBusyStatus();
+                await SaveCommentsWithoutChangeBusyStatus(PullRequestLocator);
             }
         }
 
-        private async Task SaveCommentsWithoutChangeBusyStatus()
+        private async Task SaveCommentsWithoutChangeBusyStatus(PullRequestLocator request)
         {
-            if (PullRequestLocator == PullRequestLocator.Empty)
+            if (request == null || !request.IsValid())
             {
                 return;
             }
@@ -402,7 +404,7 @@ namespace PReviewer.Domain
         {
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                await SaveCommentsWithoutChangeBusyStatus();
+                await SaveCommentsWithoutChangeBusyStatus(PullRequestLocator);
 
                 var repo = _client.Repository;
                 var commitsClient = repo.Commits;

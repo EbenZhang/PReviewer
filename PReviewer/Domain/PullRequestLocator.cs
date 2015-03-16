@@ -71,7 +71,7 @@ namespace PReviewer.Domain
             url = Regex.Replace(url, @"HTTPS://|http://", "", RegexOptions.IgnoreCase);
             if (!url.Contains("/"))
             {
-                return;
+                throw new UriFormatException(url);
             }
             var splited = url.Split(new char[] { '/' });
             locator.Owner = splited[1];
