@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InitForUnitTests.cs" />
     <Compile Include="MockCompareResult.cs" />
     <Compile Include="MockGitHubCommit.cs" />
     <Compile Include="MockGitHubCommitFile.cs" />

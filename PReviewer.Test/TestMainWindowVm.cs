@@ -109,6 +109,15 @@ namespace PReviewer.Test
             });
             _commentsPersist.Load(Arg.Is<PullRequestLocator>(x => x.Equals(_pullRequestLocator)))
                 .Returns(Task.FromResult(_commentsContainer));
+
+            _backgroundTaskRunner.WhenForAnyArgs(x => x.RunInBackground(null)).Do(args =>
+            {
+                var a = args[0] as Action;
+                a.Invoke();
+            });
+
+            _commentsPersist.ClearReceivedCalls();
+            _backgroundTaskRunner.ClearReceivedCalls();
         }
 
         private void VerifyCommentsReloaded()
