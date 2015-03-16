@@ -12,6 +12,18 @@ namespace PReviewer.Domain
         private string _Owner;
         private int _PullRequestNumber;
 
+        public PullRequestLocator()
+        {
+            
+        }
+
+        public PullRequestLocator(PullRequestLocator copyFrom)
+        {
+            this.Repository = copyFrom.Repository;
+            this.Owner = copyFrom.Owner;
+            this.PullRequestNumber = copyFrom.PullRequestNumber;
+        }
+
         public string Repository
         {
             get { return _Repository; }
