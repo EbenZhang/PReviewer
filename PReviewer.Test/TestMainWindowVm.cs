@@ -10,6 +10,7 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using PReviewer.Service;
+using Shouldly;
 
 namespace PReviewer.Test
 {
@@ -704,6 +705,26 @@ namespace PReviewer.Test
             Assert.That(githubCommitFiles, Contains.Item(_compareResults.File2));
 
             VerifyCommentsReloaded();
+        }
+
+        [Test]
+        public async void ChangeThePullRequestLocator_ShouldUpdateThePrUrl()
+        {
+            _mainWindowVm.IsUrlMode = false;
+            _mainWindowVm.PullRequestLocator.Repository = _mainWindowVm.PullRequestLocator.Repository + "AnotherRepo";
+            _mainWindowVm.PullRequestLocator.Owner = _mainWindowVm.PullRequestLocator.Owner + "AnotherOwner";
+            _mainWindowVm.PullRequestLocator.PullRequestNumber = _mainWindowVm.PullRequestLocator.PullRequestNumber + 100;
+            _mainWindowVm.PullRequestUrl.ShouldNotBe(_mainWindowVm.PullRequestLocator.ToUrl());
+            try
+            {
+                await _mainWindowVm.RetrieveDiffs();
+            }
+            catch
+            {
+                // ignored, because we didn't setup for the new pull request url.
+            }
+            _mainWindowVm.PullRequestUrl.ShouldBe(_mainWindowVm.PullRequestLocator.ToUrl());
+
         }
     }
 }

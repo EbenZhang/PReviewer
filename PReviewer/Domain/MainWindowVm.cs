@@ -191,6 +191,11 @@ namespace PReviewer.Domain
                         throw new UriFormatException(ex.ToString());
                     }
                 }
+                else
+                {
+                    _PullRequestUrl = PullRequestLocator.ToUrl();
+                    RaisePropertyChanged(() => PullRequestUrl);
+                }
                 var repo = _client.Repository;
                 var pr =
                     await
