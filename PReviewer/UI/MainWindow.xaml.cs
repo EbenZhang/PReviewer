@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExtendedCL;
@@ -21,6 +19,7 @@ using PReviewer.Model;
 using WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace PReviewer.UI
 {
@@ -40,6 +39,29 @@ namespace PReviewer.UI
             SetupWindowClosingActions();
             _viewModel.PropertyChanged += OnPrDescriptionChanged;
             TxtPrDescription.Navigating += WebBrowser_OnNavigating;
+
+            InputManager.Current.PreNotifyInput += ProcessF5RefreshHotKey;
+        }
+
+        private void ProcessF5RefreshHotKey(object sender, NotifyInputEventArgs e)
+        {
+            if (OwnedWindows.Count != 0)
+            {
+                return;
+            }
+            if (e.StagingItem.Input.RoutedEvent != Keyboard.KeyDownEvent)
+                return;
+
+            var args = e.StagingItem.Input as KeyEventArgs;
+            if (args == null || args.Key != Key.F5)
+            {
+                return;
+            }
+            args.Handled = true;
+            if (ShowChangesCmd.CanExecute(null))
+            {
+                ShowChangesCmd.Execute(null);
+            }
         }
 
         void OnPrDescriptionChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
