@@ -107,7 +107,6 @@ namespace PReviewer.Domain
             get { return _PullRequestLocator; }
             set
             {
-                _prePullRequestLocator = _PullRequestLocator;
                 _PullRequestLocator = value;
                 RaisePropertyChanged();
             }
@@ -165,6 +164,7 @@ namespace PReviewer.Domain
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus(_prePullRequestLocator);
+                _prePullRequestLocator = PullRequestLocator;
                 if (IsUrlMode)
                 {
                     try
