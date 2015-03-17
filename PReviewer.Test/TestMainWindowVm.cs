@@ -572,23 +572,35 @@ namespace PReviewer.Test
         }
 
         [Test]
-        public void TestConvertUrlToPrLocator()
+        public async void TestConvertUrlToPrLocator()
         {
             _mainWindowVm.PullRequestUrl = @"https://github.com/ebenzhang/ezplayer/pull/119";
+            _mainWindowVm.IsUrlMode = true;
+            try
+            {
+                await _mainWindowVm.RetrieveDiffs();
+            }
+            catch
+            {
+                // ignored
+            }
+
             Assert.That(_mainWindowVm.PullRequestLocator.Owner, Is.EqualTo("ebenzhang"));
             Assert.That(_mainWindowVm.PullRequestLocator.Repository, Is.EqualTo("ezplayer"));
             Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber, Is.EqualTo(119));
 
-            _mainWindowVm.PullRequestUrl = @"";
-            Assert.That(_mainWindowVm.PullRequestLocator, Is.EqualTo(PullRequestLocator.Empty));
-
             _mainWindowVm.PullRequestUrl = @"https://github.com/git/gitrepo/pull/19";
+            try
+            {
+                await _mainWindowVm.RetrieveDiffs();
+            }
+            catch
+            {
+                // ignored
+            }
             Assert.That(_mainWindowVm.PullRequestLocator.Owner, Is.EqualTo("git"));
             Assert.That(_mainWindowVm.PullRequestLocator.Repository, Is.EqualTo("gitrepo"));
             Assert.That(_mainWindowVm.PullRequestLocator.PullRequestNumber, Is.EqualTo(19));
-
-            _mainWindowVm.PullRequestUrl = @"https://github.com/git/gitrepo/";
-            Assert.That(_mainWindowVm.PullRequestLocator, Is.EqualTo(PullRequestLocator.Empty));
         }
 
         [Test]
@@ -610,7 +622,8 @@ namespace PReviewer.Test
             var container = new RepoHistoryContainer()
             {
                 Owners = new List<string> {"owner1", "owner2"},
-                Repositories = new List<string> {"repo1", "repo2"}
+                Repositories = new List<string> {"repo1", "repo2"},
+                Urls = new List<string> { "https://github.com/owner/repo1/pull/122", "https://github.com/owner/repo2/pull/121" },
             };
             _repoHistoryPersist.Load().Returns(Task.FromResult(container));
 
@@ -619,6 +632,23 @@ namespace PReviewer.Test
             _repoHistoryPersist.Received(1).Load().IgnoreAsyncWarning();
             CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Owners, container.Owners);
             CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Repositories, container.Repositories);
+            CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.PullRequests.Select(r => r.ToUrl()), container.Urls);
+        }
+
+        [Test]
+        public async void DefaultRepoAfterRepoHistoryLoaded()
+        {
+            var container = new RepoHistoryContainer()
+            {
+                Owners = new List<string> { "owner1", "owner2" },
+                Repositories = new List<string> { "repo1", "repo2" },
+                Urls = new List<string> { "https://github.com/owner/repo1/pull/122", "https://github.com/owner/repo2/pull/121" },
+            };
+            _repoHistoryPersist.Load().Returns(Task.FromResult(container));
+
+            await _mainWindowVm.LoadRepoHistory();
+
+            _mainWindowVm.PullRequestUrl.ShouldBe(container.Urls.Last());
         }
 
         [Test]

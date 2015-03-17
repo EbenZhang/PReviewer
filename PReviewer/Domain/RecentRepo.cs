@@ -38,10 +38,18 @@ namespace PReviewer.Domain
                 return;
             }
 
+            var newPrInfo = new PullRequestLocator()
+            {
+                Owner = prInfo.Owner,
+                Repository = prInfo.Repository,
+                PullRequestNumber = prInfo.PullRequestNumber,
+            };
+
             if (PullRequests.Contains(prInfo))
             {
-                return;
+                PullRequests.Remove(prInfo);
             }
+            PullRequests.Add(newPrInfo);
 
             if (!Owners.Contains(prInfo.Owner))
             {
@@ -51,13 +59,7 @@ namespace PReviewer.Domain
             {
                 Repositories.Add(prInfo.Repository);
             }
-
-            PullRequests.Add(new PullRequestLocator()
-            {
-                Owner = prInfo.Owner,
-                Repository =  prInfo.Repository,
-                PullRequestNumber =  prInfo.PullRequestNumber,
-            });
+            
             await persist.Save(ToContainer());
         }
 

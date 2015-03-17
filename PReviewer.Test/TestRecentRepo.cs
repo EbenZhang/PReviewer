@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using PReviewer.Domain;
@@ -93,20 +95,7 @@ namespace PReviewer.Test
             persist.DidNotReceiveWithAnyArgs().Save(null).IgnoreAsyncWarning();
             persist.ClearReceivedCalls();
         }
-
-        [Test]
-        public async void ShouldntAddDuplicateRepoToHistory()
-        {
-            var prInfo = new PullRequestLocator { Owner = "1stOwner", Repository = "1stRepo", PullRequestNumber = 1};
-
-            var persist = Substitute.For<IRepoHistoryPersist>();
-
-            var repoHistory = new RecentRepo();
-            await repoHistory.Save(prInfo, persist);
-            await repoHistory.Save(prInfo, persist);
-            persist.ReceivedWithAnyArgs(1).Save(null).IgnoreAsyncWarning();
-        }
-
+        
         [Test]
         public async void ShouldUpdatePRUrlAccordingly()
         {
@@ -135,6 +124,27 @@ namespace PReviewer.Test
             container.Urls.Add("https://github.com/ebenzhang/ezplayer/pull/21000");
             repoHistory.From(container);
             Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(6), "Half of the MaxItems are removed.");
+        }
+
+        [Test]
+        public async void WhenRetrieveDiffs_ShouldAdjustRepoPositionInHistory_SoItWillBeTheDefaultRepo()
+        {
+            var container = new RepoHistoryContainer()
+            {
+                Owners = new List<string> { "owner1", "owner2" },
+                Repositories = new List<string> { "repo1", "repo2" },
+                Urls = new List<string> { "https://github.com/owner/repo1/pull/122", "https://github.com/owner/repo2/pull/121" },
+            };
+
+            var persist = Substitute.For<IRepoHistoryPersist>();
+
+            var repoHistory = new RecentRepo();
+            repoHistory.From(container);
+            var prInfo = new PullRequestLocator();
+            prInfo.UpdateWith(container.Urls.First());
+            await repoHistory.Save(prInfo, persist);
+
+            persist.Received(1).Save(Arg.Is<RepoHistoryContainer>(x => x.Urls.Last() == prInfo.ToUrl())).IgnoreAsyncWarning();
         }
     }
 }

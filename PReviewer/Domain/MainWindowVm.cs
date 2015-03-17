@@ -98,21 +98,6 @@ namespace PReviewer.Domain
             {
                 _PullRequestUrl = value;
                 RaisePropertyChanged();
-                if (!string.IsNullOrWhiteSpace(_PullRequestUrl))
-                {
-                    try
-                    {
-                        PullRequestLocator = PullRequestLocator.FromUrl(_PullRequestUrl);
-                    }
-                    catch
-                    {
-                        PullRequestLocator = PullRequestLocator.Empty;
-                    }
-                }
-                else
-                {
-                    PullRequestLocator = PullRequestLocator.Empty;
-                }
             }
         }
 
@@ -193,8 +178,7 @@ namespace PReviewer.Domain
                 }
                 else
                 {
-                    _PullRequestUrl = PullRequestLocator.ToUrl();
-                    RaisePropertyChanged(() => PullRequestUrl);
+                    PullRequestUrl = PullRequestLocator.ToUrl();
                 }
                 var repo = _client.Repository;
                 var pr =
@@ -356,6 +340,12 @@ namespace PReviewer.Domain
             {
                 var historyContainer = await _repoHistoryPersist.Load();
                 RecentRepoes.From(historyContainer);
+
+                PullRequestLocator = RecentRepoes.PullRequests.LastOrDefault();
+                if (PullRequestLocator != null)
+                {
+                    PullRequestUrl = PullRequestLocator.ToUrl();
+                }
             }
         }
 
