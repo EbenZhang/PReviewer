@@ -13,13 +13,13 @@ namespace PReviewer.Test
     public class TestCommentBuilder
     {
         private const string MyGeneralComments = "My General Comments";
-        private const string ExpectedComment1 = @"# test.xaml
+        private const string ExpectedComment1 = @"### test.xaml
 
 comment1";
-        private const string ExpectedComment2 = @"# app.xaml.cs
+        private const string ExpectedComment2 = @"### app.xaml.cs
 
 comment2";
-        private const string ExpectedGeneralComments = @"# General Comments
+        private const string ExpectedGeneralComments = @"### General Comments
 
 My General Comments";
 

@@ -26,7 +26,7 @@ namespace PReviewer.Model
 
         private static string FormatComments(string header, string comments)
         {
-            return string.Format(@"# {0}
+            return string.Format(@"### {0}
 
 {1}", header, comments);
         }
