@@ -147,6 +147,7 @@
                         </xctk:AutoSelectTextBox>
                     </Grid>
                     <Button
+                        Padding="2,0,2,0"
                         Margin="4,0,4,0"
                         VerticalAlignment="Center"
                         Grid.Column="1" 
@@ -473,16 +474,18 @@
                         </Hyperlink>
                                    syntax in comments.
                     </TextBlock>
-                    <Grid  Grid.Row="1" Margin="0,4,0,0">
-                        <Button HorizontalAlignment="Left" ToolTip="Delete !all! the comments that cached locally." Command="{Binding ClearCommentsCmd, ElementName=ThisWnd}">Purge Comments</Button>
+                    <Grid Grid.Row="1" Margin="0,4,0,0">
+                        <Button HorizontalAlignment="Left" Padding="2,0,2,0" ToolTip="Delete !all! the comments that cached locally." Command="{Binding ClearCommentsCmd, ElementName=ThisWnd}">Purge Comments</Button>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button
+                                Padding="2,0,2,0"
                                 Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
-                                HorizontalAlignment="Center" Padding="2,0,2,0">Submit Comments</Button>
+                                HorizontalAlignment="Center">Submit Comments</Button>
                             <Button
+                                Padding="2,0,2,0"
                                 Margin="16,0,0,0"
                                 Command="{Binding OpenInBrowserCmd, ElementName=ThisWnd}"
-                                HorizontalAlignment="Center" Padding="2,0,2,0">_Open In Browser</Button>
+                                HorizontalAlignment="Center">_Open In Browser</Button>
                         </StackPanel>
                     </Grid>
                 </Grid>
