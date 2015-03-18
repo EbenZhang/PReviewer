@@ -331,7 +331,16 @@ namespace PReviewer.Domain
             {
                 return;
             }
-            await _commentsPersist.Save(_PullRequestLocator, Diffs, GeneralComments);
+            var commentsContainer = _loadedComments;
+            if (_loadedComments != null)
+            {
+                commentsContainer.AddComments(Diffs.ToList(), GeneralComments);
+            }
+            else
+            {
+                commentsContainer = CommentsContainer.From(Diffs, GeneralComments);
+            }
+            await _commentsPersist.Save(request, commentsContainer);
         }
 
         public async Task LoadRepoHistory()
@@ -416,10 +425,10 @@ namespace PReviewer.Domain
 
         private async Task ReloadComments()
         {
-            var comments = await _commentsPersist.Load(PullRequestLocator);
-            GeneralComments = comments.GeneralComments;
+            _loadedComments = await _commentsPersist.Load(PullRequestLocator);
+            GeneralComments = _loadedComments.GeneralComments;
 
-            foreach (var fileComment in comments.FileComments)
+            foreach (var fileComment in _loadedComments.FileComments)
             {
                 var file = Diffs.SingleOrDefault(r => r.GitHubCommitFile.Filename == fileComment.FileName);
                 if (file == null) continue;
@@ -429,5 +438,6 @@ namespace PReviewer.Domain
         }
 
         public static readonly string DefaultPrDescription = "## The guy is too lazy to leave anything here.";
+        private CommentsContainer _loadedComments;
     }
 }

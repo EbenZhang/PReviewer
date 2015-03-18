@@ -11,7 +11,7 @@ namespace PReviewer.Model
 {
     public class CommentsPersist : ICommentsPersist
     {
-        public async Task Save(PullRequestLocator prInfo, IEnumerable<CommitFileVm> diffs, string generalComments)
+        public async Task Save(PullRequestLocator prInfo, CommentsContainer container)
         {
             var commentsFile = GetCommentsFilePath(prInfo);
             await Task.Run(() =>
@@ -23,8 +23,7 @@ namespace PReviewer.Model
                 using (var stream = File.OpenWrite(commentsFile))
                 {
                     new XmlSerializer(typeof (CommentsContainer))
-                        .Serialize(stream,
-                            CommentsContainer.From(diffs, generalComments));
+                        .Serialize(stream, container);
                 }
             });
         }

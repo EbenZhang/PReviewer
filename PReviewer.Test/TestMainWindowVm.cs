@@ -537,9 +537,10 @@ namespace PReviewer.Test
         [Test]
         public async void CanSaveComments()
         {
+            var expectedCommentsContainer = CommentsContainer.From(_mainWindowVm.Diffs, _mainWindowVm.GeneralComments);
             await _mainWindowVm.SaveComments();
             _commentsPersist.Received(1)
-                .Save(_pullRequestLocator, _mainWindowVm.Diffs, _mainWindowVm.GeneralComments)
+                .Save(_pullRequestLocator, Arg.Is<CommentsContainer>(x => x.Equals(expectedCommentsContainer)))
                 .IgnoreAsyncWarning();
         }
 
@@ -548,7 +549,7 @@ namespace PReviewer.Test
         {
             _mainWindowVm.PullRequestLocator = PullRequestLocator.Empty;
             await _mainWindowVm.SaveComments();
-            _commentsPersist.DidNotReceiveWithAnyArgs().Save(null, null, "").IgnoreAsyncWarning();
+            _commentsPersist.DidNotReceiveWithAnyArgs().Save(null, null).IgnoreAsyncWarning();
         }
 
         [Test]
@@ -654,20 +655,26 @@ namespace PReviewer.Test
         [Test]
         public async void ShouldSaveCommentsBeforeRetrieveDiff()
         {
-            const string expectedGeneralComments = GeneralComments + "Comments Before Retrieve Diff";
-            _mainWindowVm.GeneralComments = expectedGeneralComments;
-            var expectedDiff = new CommitFileVm(new MockGitHubCommitFile());
-            _mainWindowVm.Diffs.Add(expectedDiff);
-            _mainWindowVm.Diffs[0].Comments = Comment1 + "Comments Before Retrieve Diff";
-
-            _commentsPersist.When(r => r.Save(_pullRequestLocator, Arg.Any<ObservableCollection<CommitFileVm>>(), expectedGeneralComments)).Do(x =>
-            {// have to verify in 'When Do', because the vm.Diffs changed by RetrieveDiffs when verifying via 'Recieved' method
-                var diffs = x.Args()[1] as ObservableCollection<CommitFileVm>;
-                Assert.That(diffs.Count, Is.EqualTo(1));
-                Assert.That(diffs[0], Is.EqualTo(expectedDiff));
-            });
-
             await _mainWindowVm.RetrieveDiffs();
+            _commentsPersist.ClearReceivedCalls();
+
+            var pr = PullRequestLocator.FromUrl("https://github.com/owner/newrepo1/pull/122");
+            _mainWindowVm.PullRequestLocator = pr;
+            var expectedCommentsContainer = CommentsContainer.From(_mainWindowVm.Diffs, _mainWindowVm.GeneralComments);
+
+            try
+            {
+                await _mainWindowVm.RetrieveDiffs();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            _commentsPersist.Received(1)
+                .Save(_pullRequestLocator,
+                Arg.Is<CommentsContainer>(x => x.Equals(expectedCommentsContainer)))
+                .IgnoreAsyncWarning();
         }
 
         [Test]
@@ -725,7 +732,7 @@ namespace PReviewer.Test
             _mainWindowVm.BaseCommit = "alsdkjfalsdf";
             _mainWindowVm.HeadCommit = "11212asdfasdf";
             _mainWindowVm.ChangeCommitRangeCmd.Execute(null);
-            _commentsPersist.ReceivedWithAnyArgs(1).Save(null, null, null);
+            _commentsPersist.ReceivedWithAnyArgs(1).Save(null, null);
             _commitsClient.Received(1)
                 .Compare(_pullRequestLocator.Owner, _pullRequestLocator.Repository, _mainWindowVm.BaseCommit,
                     _mainWindowVm.HeadCommit);
@@ -735,6 +742,17 @@ namespace PReviewer.Test
             Assert.That(githubCommitFiles, Contains.Item(_compareResults.File2));
 
             VerifyCommentsReloaded();
+        }
+
+        [Test]
+        public void TestCommentsAreCombinedWhenChangeCommitRange()
+        {
+            
+        }
+        [Test]
+        public void ConfirmBeforeSubmitCommentsIfInCommitRange()
+        {
+
         }
 
         [Test]
