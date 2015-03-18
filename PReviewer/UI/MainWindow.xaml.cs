@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -399,17 +400,25 @@ namespace PReviewer.UI
 
         public ICommand FlagAsReviewedCmd
         {
-            get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed);}
+            get { return new RelayCommand(() => MarkReviewingStatus(ReviewStatus.Reviewed)); }
         }
 
         public ICommand FlagAsBackLaterCmd
         {
-            get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.ConfirmLater); }
+            get { return new RelayCommand(() => MarkReviewingStatus(ReviewStatus.ConfirmLater)); }
         }
 
         public ICommand FlagAsFreshCmd
         {
-            get { return new RelayCommand(() => _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.HasntBeenReviewed); }
+            get { return new RelayCommand(() => MarkReviewingStatus(ReviewStatus.HasntBeenReviewed)); }
+        }
+
+        private void MarkReviewingStatus(ReviewStatus status)
+        {
+            foreach (var item in DiffListView.SelectedItems.Cast<CommitFileVm>())
+            {
+                item.ReviewStatus = status;
+            }
         }
 
         private void OnDragDelta(object sender, DragDeltaEventArgs e)
