@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -411,6 +412,40 @@ namespace PReviewer.UI
         public ICommand FlagAsFreshCmd
         {
             get { return new RelayCommand(() => MarkReviewingStatus(ReviewStatus.HasntBeenReviewed)); }
+        }
+
+        public ICommand AddToGitExtCmd
+        {
+            get { return new RelayCommand(AddToGitExt); }
+        }
+
+        private void AddToGitExt()
+        {
+            var dialog = new FolderBrowserDialog
+            {
+                Description = "Select the GitExtensions folder",
+                ShowNewFolderButton = false
+            };
+            var result = dialog.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK) return;
+
+            var targetDir = dialog.SelectedPath;
+            if (!targetDir.ToUpperInvariant().EndsWith(@"\PLUGINS"))
+            {
+                targetDir = Path.Combine(targetDir, "plugins");
+            }
+            const string fileName = "PReviewer.gitext.dll";
+            var src = Path.Combine(PathHelper.ProcessDir, fileName);
+            var dst = Path.Combine(targetDir, fileName);
+            try
+            {
+                File.Copy(src, dst, overwrite: true);
+                MessageBoxHelper.ShowInfo(this, "Succeed");
+            }
+            catch (Exception ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to install to GitExtensions.\r\n" + ex);
+            }
         }
 
         private void MarkReviewingStatus(ReviewStatus status)

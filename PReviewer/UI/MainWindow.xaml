@@ -528,6 +528,14 @@
                             </DockPanel>
                         </MenuItem.Header>
                     </MenuItem>
+                    <MenuItem Command="{Binding AddToGitExtCmd, ElementName=ThisWnd}" ToolTip="Add PReviewer as a GitExtensions plugin" >
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image Source="/Images/git_extensions_logo_final.PNG"></Image>
+                                <Label>Add to GitExtensions</Label>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
                     <MenuItem Command="{Binding AboutCmd, ElementName=ThisWnd}" >
                         <MenuItem.Header>
                             <DockPanel>
