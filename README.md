@@ -29,6 +29,7 @@ If you feel that the work I provide is worth it, you can donate by using the Don
 You can use Paypal to donate even if you do not have a Paypal account.There is, of course, no obligation whatsoever. 
 If you prefer, you can rather get me a bottle of coke next time I am in a location near you ;) 
 
+```html
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 <input type="hidden" name="cmd" value="_donations">
 <input type="hidden" name="business" value="nicoleflopy@gmail.com">
@@ -40,6 +41,7 @@ If you prefer, you can rather get me a bottle of coke next time I am in a locati
 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
+```
 
 # Feedback
 
