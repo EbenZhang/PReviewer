@@ -1,6 +1,6 @@
 [submodule "WpfCommon"]
 	path = WpfCommon
-	url = git@github.com:EbenZhang/WpfCommon.git
+	url = https://github.com/EbenZhang/WpfCommon.git
 [submodule "ExtendedCL"]
 	path = ExtendedCL
-	url = git@github.com:EbenZhang/ExtendedCL.git
+	url = https://github.com/EbenZhang/ExtendedCL.git
