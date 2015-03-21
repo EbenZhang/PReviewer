@@ -17,6 +17,8 @@ In this release **PReviewer** provides the ability  to
 
 Navigate to [here](https://raw.github.com/EbenZhang/PReviewer/master/dist/setup.exe) to download the setup.exe and install it following the instructions.
 
+For Windows8 users: if your system complains `Windows protected your PC blahblah...`, then just click the `More info` on the screen, and press the `Run anyway` button.
+
 # License
 
 PReview is a free tool and its [source code](https://github.com/ebenzhang/previewer) is published under [Microsoft Public License (MS-PL)](http://opensource.org/licenses/ms-pl.html)
