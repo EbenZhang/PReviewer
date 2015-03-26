@@ -310,11 +310,16 @@ namespace PReviewer.Domain
         {
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                var comments = _commentsBuilder.Build(Diffs, GeneralComments);
+                var comments = GenerateComments();
                 await _reviewClient.Create(_PullRequestLocator.Owner,
                     _PullRequestLocator.Repository,
                     _PullRequestLocator.PullRequestNumber, comments);
             }
+        }
+
+        public string GenerateComments()
+        {
+            return _commentsBuilder.Build(Diffs, GeneralComments);
         }
 
         public async Task SaveComments()

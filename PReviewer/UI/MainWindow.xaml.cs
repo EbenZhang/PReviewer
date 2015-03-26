@@ -9,19 +9,23 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
+using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
+using MarkdownSharp;
 using Microsoft.Win32;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
+using WpfCommon.Controls;
 using WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using WebBrowser = System.Windows.Controls.WebBrowser;
 
 namespace PReviewer.UI
 {
@@ -31,6 +35,8 @@ namespace PReviewer.UI
     public partial class MainWindow : Window
     {
         private readonly MainWindowVm _viewModel;
+        private Window _previewWnd;
+        private MarkdownView _previewBrowser;
 
         public MainWindow()
         {
@@ -75,17 +81,18 @@ namespace PReviewer.UI
             
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
-                var md = new MarkdownSharp.Markdown();
-                // replace \r\n with \r\n\r\n as required by the Transformer to generate <ul><li>
-                var transformed = md.Transform(_viewModel.PrDescription.Replace("\r\n", "\r\n\r\n"));
-                var text = "<html><body>" + transformed.Replace("\n", "") + "</body></html>";
-                TxtPrDescription.DocumentText = StyleMarkdown(text);
+                var html = _viewModel.PrDescription;
+                TxtPrDescription.DocumentText = MarkdownToHtml(html);
             }));
 
         }
 
-        private static string StyleMarkdown(string text)
+        private static string MarkdownToHtml(string mdText)
         {
+            var md = new Markdown();
+            // replace \r\n with \r\n\r\n as required by the Transformer to generate <ul><li>
+            var transformed = md.Transform(mdText.Replace("\r\n", "\r\n\r\n"));
+            var text = "<html><body>" + transformed.Replace("\n", "") + "</body></html>";
             return text.Replace("<p>", "<p style='line-height:15%'>")
                 .Replace("<code>", "<code style='background-color:#e0eaf1'>");
         }
@@ -417,6 +424,55 @@ namespace PReviewer.UI
         public ICommand AddToGitExtCmd
         {
             get { return new RelayCommand(AddToGitExt); }
+        }
+
+        public ICommand PreviewCommentsCmd
+        {
+            get { return new RelayCommand(PreviewComments); }
+        }
+
+        private void PreviewComments()
+        {
+            if (!_viewModel.HasComments())
+            {
+                MessageBoxHelper.ShowError(this, "You haven't commented on anything yet.");
+                return;
+            }
+            var comments = _viewModel.GenerateComments();
+            InitPreviewWnd();
+            
+            var html = MarkdownToHtml(comments);
+
+            _previewBrowser.HtmlContent = html;
+            _previewWnd.Show();
+        }
+
+        private void InitPreviewWnd()
+        {
+            if (_previewWnd != null)
+            {
+                return;
+            }
+            _previewWnd = new Window
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Height = 600,
+                Width = 800,
+                ShowInTaskbar = true,
+                Title = "Previewing"
+            };
+
+            _previewWnd.Closing += (sender, args) =>
+            {
+                _previewWnd.Hide();
+                args.Cancel = true;
+                Activate();
+            };
+
+            _previewBrowser = new MarkdownView();
+            _previewWnd.Content = _previewBrowser;
+            _previewBrowser.OpenLinkInExternalBrowser = true;
         }
 
         private void AddToGitExt()

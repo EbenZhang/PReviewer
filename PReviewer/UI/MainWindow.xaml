@@ -479,6 +479,11 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button
                                 Padding="2,0,2,0"
+                                Command="{Binding PreviewCommentsCmd, ElementName=ThisWnd}"
+                                HorizontalAlignment="Center">Preview Comments</Button>
+                            <Button
+                                Padding="2,0,2,0"
+                                Margin="16,0,0,0"
                                 Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
                                 HorizontalAlignment="Center">Submit Comments</Button>
                             <Button
