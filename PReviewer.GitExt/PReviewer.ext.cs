@@ -14,8 +14,8 @@ namespace PReviewer
 
         public override bool Execute(GitUIBaseEventArgs gitUiCommands)
         {
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var path = Path.Combine(userProfile, @"Start Menu\Programs\Nicologies\PReviewer.appref-ms");
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+            var path = Path.Combine(userProfile, @"Nicologies\PReviewer.appref-ms");
             if (File.Exists(path))
             {
                 Process.Start(path);
