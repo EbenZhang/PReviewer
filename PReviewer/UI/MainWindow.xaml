@@ -156,59 +156,43 @@
             </GroupBox>
             <!--pull request descriptoin-->
             <Expander Grid.Row="1"
-                      IsExpanded="True"
+                      IsExpanded="False"
                       x:Name="PrDescExpander" 
-                      Header="Pull Request Description">
+                      Header="{Binding PrTitle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <GroupBox Margin="0,4,0,0" Header="Pull Request Description">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBox 
-                                IsReadOnly="True"
-                                BorderThickness="0"
-                                BorderBrush="Transparent"
-                                Grid.Row="0" FontSize="14"
-                                Text="{Binding PrTitle}">
-                            </TextBox>
-
-                            <Grid Grid.Row="1">
-                                <Grid.Visibility>
-                                    <Binding Path="IsDragging" ElementName="Splitter">
-                                        <Binding.Converter>
-                                            <converter:CompositeConverter>
-                                                <converter:InverseBooleanConverter/>
-                                                <converter:FalseToHiddenConverter/>
-                                            </converter:CompositeConverter>
-                                        </Binding.Converter>
-                                    </Binding>
-                                </Grid.Visibility>
-                                <WindowsFormsHost>
-                                    <WindowsFormsHost.Visibility>
-                                        <Binding Path="IsProcessing">
-                                            <Binding.Converter>
-                                                <converter:CompositeConverter>
-                                                    <converter:InverseBooleanConverter/>
-                                                    <converter:FalseToHiddenConverter/>
-                                                </converter:CompositeConverter>
-                                            </Binding.Converter>
-                                        </Binding>
-                                    </WindowsFormsHost.Visibility>
-                                    <wf:WebBrowser 
-                                        WebBrowserShortcutsEnabled="False"
-                                        Height="100"
-                                        x:Name="TxtPrDescription">
-                                    </wf:WebBrowser>
-                                </WindowsFormsHost>
-                            </Grid>
-                        </Grid>
-                    </GroupBox>
+                    <Grid>
+                        <Grid.Visibility>
+                            <Binding Path="IsDragging" ElementName="Splitter">
+                                <Binding.Converter>
+                                    <converter:CompositeConverter>
+                                        <converter:InverseBooleanConverter/>
+                                        <converter:FalseToHiddenConverter/>
+                                    </converter:CompositeConverter>
+                                </Binding.Converter>
+                            </Binding>
+                        </Grid.Visibility>
+                        <WindowsFormsHost>
+                            <WindowsFormsHost.Visibility>
+                                <Binding Path="IsProcessing">
+                                    <Binding.Converter>
+                                        <converter:CompositeConverter>
+                                            <converter:InverseBooleanConverter/>
+                                            <converter:FalseToHiddenConverter/>
+                                        </converter:CompositeConverter>
+                                    </Binding.Converter>
+                                </Binding>
+                            </WindowsFormsHost.Visibility>
+                            <wf:WebBrowser 
+                                WebBrowserShortcutsEnabled="False"
+                                Height="100"
+                                x:Name="TxtPrDescription">
+                            </wf:WebBrowser>
+                        </WindowsFormsHost>
+                    </Grid>
                     <GridSplitter
                         ShowsPreview="True"
                         Grid.Row="1" Background="Gray"
