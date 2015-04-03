@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -16,6 +12,7 @@ namespace PReviewer.Domain
         private GitHubCommitFile _gitHubCommitFile;
         private string _comments;
         private ReviewStatus _reviewStatus = ReviewStatus.HasntBeenReviewed;
+        private string _fileName;
 
         public GitHubCommitFile GitHubCommitFile
         {
@@ -24,6 +21,7 @@ namespace PReviewer.Domain
             {
                 _gitHubCommitFile = value; 
                 RaisePropertyChanged();
+                FileName = Path.GetFileName(_gitHubCommitFile.Filename);
             }
         }
 
@@ -46,6 +44,16 @@ namespace PReviewer.Domain
             set
             {
                 _reviewStatus = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string FileName
+        {
+            get { return _fileName; }
+            set
+            {
+                _fileName = value; 
                 RaisePropertyChanged();
             }
         }

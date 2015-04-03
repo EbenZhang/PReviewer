@@ -352,16 +352,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="File">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock 
-                                                        TextTrimming="WordEllipsis"
-                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                                                        Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
+
                                         <GridViewColumn Header="Status">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
@@ -377,6 +368,28 @@
                                                         </Image>
                                                         <TextBlock Text="{Binding GitHubCommitFile.Status}"></TextBlock>
                                                     </DockPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <GridViewColumn Header="FileName">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock 
+                                                        TextTrimming="WordEllipsis"
+                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                        Text="{Binding FileName}"></TextBlock>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <GridViewColumn Header="FilePath">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock 
+                                                        TextTrimming="CharacterEllipsis"
+                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                        Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
