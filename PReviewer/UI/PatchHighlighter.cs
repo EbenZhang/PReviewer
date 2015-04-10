@@ -13,8 +13,6 @@ namespace PReviewer.UI
         private static readonly Color RemovedColor = Color.FromArgb(255, 200, 200);
         private static readonly Color HeaderColor = Color.FromArgb(230, 230, 230);
         private static readonly Color MarkerForeColor = Color.Black;
-        private static readonly Color AddedMarkerColor = Color.FromArgb(135, 255, 135);
-        private static readonly Color RemovedMarkerColor = Color.FromArgb(255, 150, 150);
         private List<Tuple<int, int>> _newLinesSections;
         private List<Tuple<int, int>> _oldLinesSections;
         private List<Tuple<int, int>> _headers;
@@ -26,8 +24,8 @@ namespace PReviewer.UI
 
         public void HighlightLinesBackground()
         {
-            HighlightSections(_newLinesSections, AddedColor);
             HighlightSections(_oldLinesSections, RemovedColor);
+            HighlightSections(_newLinesSections, AddedColor);
             HighlightSections(_headers, HeaderColor);
         }
 
@@ -50,8 +48,7 @@ namespace PReviewer.UI
             else
             {
                 var lastGreen = greens.Last();
-                var lastGreenOffset = lastGreen.Item1 + lastGreen.Item2;
-                if (lineSegment.Offset == lastGreenOffset + 1)
+                if (lineSegment.Offset == lastGreen.Item2 + 1)
                 {
                     var newEnd = lineSegment.Offset + lineSegment.Length;
                     greens.RemoveAt(greens.Count - 1);
