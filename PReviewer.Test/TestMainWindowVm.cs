@@ -637,6 +637,25 @@ namespace PReviewer.Test
         }
 
         [Test]
+        public async void ShouldBeDefaultToEmptyIfNoRepoHistory()
+        {
+            var container = new RepoHistoryContainer()
+            {
+                Owners = new List<string>(),
+                Repositories = new List<string>(),
+                Urls = new List<string>()
+            };
+            _repoHistoryPersist.Load().Returns(Task.FromResult(container));
+
+            await _mainWindowVm.LoadRepoHistory();
+
+            _repoHistoryPersist.Received(1).Load().IgnoreAsyncWarning();
+            CollectionAssert.AreEqual(_mainWindowVm.RecentRepoes.Repositories, container.Repositories);
+            _mainWindowVm.RecentRepoes.PullRequests.ShouldBeEmpty();
+            _mainWindowVm.PullRequestLocator.ShouldBe(PullRequestLocator.Empty);
+        }
+
+        [Test]
         public async void DefaultRepoAfterRepoHistoryLoaded()
         {
             var container = new RepoHistoryContainer()

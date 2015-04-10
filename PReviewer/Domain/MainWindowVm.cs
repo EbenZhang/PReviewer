@@ -364,6 +364,10 @@ namespace PReviewer.Domain
                 {
                     PullRequestUrl = PullRequestLocator.ToUrl();
                 }
+                else
+                {
+                    PullRequestLocator = PullRequestLocator.Empty;
+                }
             }
         }
 
