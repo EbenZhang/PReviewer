@@ -293,17 +293,7 @@ namespace PReviewer.UI
                 _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
                 return;
             }
-            if (_viewModel.SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
-            {
-                var ballon = new Balloon(sender as Control, "This file has been deleted in the pull request.",
-                    BalloonType.Information)
-                {
-                    ShowCloseButton = true
-                };
-                ballon.Show();
-                _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
-                return;
-            }
+            
             try
             {
                 await _viewModel.PrepareDiffContent();

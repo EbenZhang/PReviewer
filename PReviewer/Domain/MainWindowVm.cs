@@ -229,7 +229,11 @@ namespace PReviewer.Domain
                 var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.GitHubCommitFile.Filename);
                 var headPath = "";
                 string contentOfHead = null;
-                if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
+                if (SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
+                {
+                    headPath = await SaveToFile(headFileName, "");
+                }
+                else if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
                 {
                     var collectionOfContentOfHead =
                         await
