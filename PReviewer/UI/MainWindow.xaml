@@ -280,15 +280,19 @@
                             SelectedItem="{Binding SelectedDiffFile}">
                             <ListView.Resources>
                                 <ResourceDictionary>
-                                    <ContextMenu x:Key="ItemContextMenu" DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
+                                    <ContextMenu 
+                                        x:Key="ItemContextMenu" 
+                                        KeyDown="FileListContextMenuKeyDown"
+                                        DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem InputGestureText="Enter" Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
                                         <MenuItem Header="_Flag">
-                                            <MenuItem Header="_Reviewed" Command="{Binding FlagAsReviewedCmd}"></MenuItem>
-                                            <MenuItem Header ="_Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
-                                            <MenuItem Header ="_Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
+                                            <MenuItem InputGestureText="R" Header="Reviewed" Command="{Binding FlagAsReviewedCmd}">
+                                            </MenuItem>
+                                            <MenuItem InputGestureText="Q" Header ="Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
+                                            <MenuItem InputGestureText="F" Header ="Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
                                         </MenuItem>
-                                        <MenuItem Command="{Binding CopyFileNameCmd}" Header="Copy File _Name"></MenuItem>
-                                        <MenuItem Command="{Binding CopyFilePathCmd}" Header="Copy File _Path"></MenuItem>
+                                        <MenuItem InputGestureText="Ctrl+C" Command="{Binding CopyFileNameCmd}" Header="Copy File Name"></MenuItem>
+                                        <MenuItem InputGestureText="Ctrl+P" Command="{Binding CopyFilePathCmd}" Header="Copy File Path"></MenuItem>
                                     </ContextMenu>
                                 </ResourceDictionary>
                             </ListView.Resources>

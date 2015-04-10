@@ -535,10 +535,41 @@ namespace PReviewer.UI
         }
         private async void OnFileKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            switch (e.Key)
             {
-                await OpenInDiffTool(sender);
+                case Key.Enter:
+                    await OpenInDiffTool(sender);
+                    break;
+                case Key.R:
+                    FlagAsReviewedCmd.Execute(null);
+                    break;
+                case Key.Q:
+                    FlagAsBackLaterCmd.Execute(null);
+                    break;
+                case Key.F:
+                    FlagAsFreshCmd.Execute(null);
+                    break;
+                case Key.C:
+                    if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+                    {
+                        CopyFileNameCmd.Execute(null);
+                    }
+                    break;
+                case Key.P:
+                    if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+                    {
+                        CopyFilePathCmd.Execute(null);
+                    }
+                    break;
             }
+        }
+
+        private void FileListContextMenuKeyDown(object sender, KeyEventArgs e)
+        {
+            OnFileKeyDown(sender, e);
+
+            var menu = sender as System.Windows.Controls.ContextMenu;
+            if (menu != null) menu.IsOpen = false;
         }
     }
 }
