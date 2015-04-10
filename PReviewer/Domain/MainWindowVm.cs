@@ -355,7 +355,7 @@ namespace PReviewer.Domain
                 var historyContainer = await _repoHistoryPersist.Load();
                 RecentRepoes.From(historyContainer);
 
-                PullRequestLocator = RecentRepoes.PullRequests.LastOrDefault();
+                PullRequestLocator = RecentRepoes.PullRequests.FirstOrDefault();
                 if (PullRequestLocator != null)
                 {
                     PullRequestUrl = PullRequestLocator.ToUrl();

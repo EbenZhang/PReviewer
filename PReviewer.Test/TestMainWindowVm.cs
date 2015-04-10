@@ -649,7 +649,7 @@ namespace PReviewer.Test
 
             await _mainWindowVm.LoadRepoHistory();
 
-            _mainWindowVm.PullRequestUrl.ShouldBe(container.Urls.Last());
+            _mainWindowVm.PullRequestUrl.ShouldBe(container.Urls.First());
         }
 
         [Test]
