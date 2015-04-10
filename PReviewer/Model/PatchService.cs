@@ -41,15 +41,18 @@ namespace PReviewer.Model
 
             var patchExe = Path.Combine(PathHelper.ProcessDir, "PatchBin", "patch.exe");
 
-            var p = new Process();
-            p.StartInfo = new ProcessStartInfo()
+            var p = new Process
             {
-                UseShellExecute  =false,
-                RedirectStandardOutput =  true,
-                RedirectStandardError = true,
-                FileName = patchExe,
-                WorkingDirectory = dir,
-                Arguments = "-p1 -R --binary -i " + Path.GetFileName(tmpPatchFile)
+                StartInfo = new ProcessStartInfo()
+                {
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    FileName = patchExe,
+                    WorkingDirectory = dir,
+                    CreateNoWindow = true,
+                    Arguments = "-p1 -R --binary -i " + Path.GetFileName(tmpPatchFile)
+                }
             };
             p.OutputDataReceived += p_OutputDataReceived;
             p.ErrorDataReceived += POnErrorDataReceived;
