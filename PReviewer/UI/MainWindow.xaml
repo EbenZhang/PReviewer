@@ -396,17 +396,30 @@
                                 </Binding.Converter>
                             </Binding>
                         </Grid.Visibility>
-                        <WindowsFormsHost>
-                            <textEditor:TextEditorControl 
-                                IsReadOnly="True" 
-                                ShowSpaces="False"
-                                ShowEOLMarkers="False"
-                                ShowLineNumbers="True"
-                                ShowInvalidLines="False"
-                                ShowTabs="False"
-                                AutoSize="True" 
-                                x:Name="DiffViewer"/>
-                        </WindowsFormsHost>
+                        <Grid>
+                            <Grid.Visibility>
+                                <Binding Path="Visibility" ElementName="MainMenu">
+                                    <Binding.Converter>
+                                        <converter:CompositeConverter>
+                                            <converter:IsVisableConverter/>
+                                            <converter:InverseBooleanConverter/>
+                                            <BooleanToVisibilityConverter/>
+                                        </converter:CompositeConverter>
+                                    </Binding.Converter>
+                                </Binding>
+                            </Grid.Visibility>
+                            <WindowsFormsHost>
+                                <textEditor:TextEditorControl 
+                                    IsReadOnly="True" 
+                                    ShowSpaces="False"
+                                    ShowEOLMarkers="False"
+                                    ShowLineNumbers="True"
+                                    ShowInvalidLines="False"
+                                    ShowTabs="False"
+                                    AutoSize="True" 
+                                    x:Name="DiffViewer"/>
+                            </WindowsFormsHost>
+                        </Grid>
                     </Grid>
                 </Grid>
             </GroupBox>
@@ -544,6 +557,14 @@
                             <DockPanel>
                                 <Image Source="/Images/question.png"></Image>
                                 <Label>About</Label>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem Command="{Binding LogoutCmd, ElementName=ThisWnd}">
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image Source="/Images/logout.png"></Image>
+                                <Label>_Change Account</Label>
                             </DockPanel>
                         </MenuItem.Header>
                     </MenuItem>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -16,7 +15,7 @@ namespace PReviewer.Domain
 {
     public class MainWindowVm : ViewModelBase
     {
-        private readonly IGitHubClient _client;
+        private IGitHubClient _client;
         private readonly ICommentsBuilder _commentsBuilder;
         private readonly ICommentsPersist _commentsPersist;
         private readonly IDiffToolLauncher _diffTool;
@@ -452,5 +451,10 @@ namespace PReviewer.Domain
 
         public static readonly string DefaultPrDescription = "## The guy is too lazy to leave anything here.";
         private CommentsContainer _loadedComments;
+
+        public void UpdateGithubClient(IGitHubClient client)
+        {
+            _client = client;
+        }
     }
 }

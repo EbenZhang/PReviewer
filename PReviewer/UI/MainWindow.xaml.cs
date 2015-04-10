@@ -418,6 +418,24 @@ namespace PReviewer.UI
             get { return new RelayCommand(PreviewComments); }
         }
 
+        public ICommand LogoutCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    var login = new LoginWnd {Owner = this, IsChangingAccount = true};
+                    login.ShowDialog();
+                    var factory = ViewModelLocator.Resolve<IGitHubClientFactory>();
+                    var client = factory.GetClient();
+                    if (client != null)
+                    {
+                        _viewModel.UpdateGithubClient(client);
+                    }
+                });
+            }
+        }
+
         private void PreviewComments()
         {
             if (!_viewModel.HasComments())

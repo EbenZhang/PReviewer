@@ -5,6 +5,7 @@ namespace PReviewer.Domain
 {
     public interface IGitHubClientFactory
     {
-        Task<IGitHubClient> GetClient(string userName, string password);
+        Task<IGitHubClient> Login(string userName, string password);
+        IGitHubClient GetClient();
     }
 }
