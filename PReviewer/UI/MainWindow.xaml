@@ -295,6 +295,7 @@
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
+                                    <EventSetter Event="KeyDown" Handler="OnFileKeyDown"></EventSetter>
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
                                     <Setter Property="Tag" Value="{Binding ., ElementName=ThisWnd}"></Setter>
                                 </Style>

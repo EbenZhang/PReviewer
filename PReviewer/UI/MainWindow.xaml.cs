@@ -2,14 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExtendedCL;
@@ -25,7 +23,6 @@ using WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using WebBrowser = System.Windows.Controls.WebBrowser;
 
 namespace PReviewer.UI
 {
@@ -526,6 +523,13 @@ namespace PReviewer.UI
             {
                 TxtPrDescription.Show();
                 TxtPrDescription.Height += (int)e.VerticalChange;
+            }
+        }
+        private async void OnFileKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                await OpenInDiffTool(sender);
             }
         }
     }
