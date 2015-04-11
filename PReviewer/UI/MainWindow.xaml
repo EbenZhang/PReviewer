@@ -157,8 +157,36 @@
             <!--pull request descriptoin-->
             <Expander Grid.Row="1"
                       IsExpanded="False"
-                      x:Name="PrDescExpander" 
-                      Header="{Binding PrTitle}">
+                      x:Name="PrDescExpander">
+                <Expander.Header>
+                    <DockPanel>
+                        <Border CornerRadius="2" Background="LightCoral" Padding="4">
+                            <Border.Visibility>
+                                <Binding Path="IsClosed">
+                                    <Binding.Converter>
+                                        <BooleanToVisibilityConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </Border.Visibility>
+                            <TextBlock Text="Closed"/>
+                        </Border>
+                        <Border CornerRadius="2" Background="LightGreen" Padding="4">
+                            <Border.Visibility>
+                                <Binding Path="IsMerged">
+                                    <Binding.Converter>
+                                        <BooleanToVisibilityConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </Border.Visibility>
+                            <TextBlock Margin="4,0,0,0" Text="Merged"/>
+                        </Border>
+                        <TextBlock 
+                            Margin="4,0,0,0"
+                            Text="{Binding PrTitle}"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                            TextTrimming="CharacterEllipsis"/>
+                    </DockPanel>
+                </Expander.Header>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

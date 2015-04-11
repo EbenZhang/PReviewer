@@ -31,6 +31,8 @@ namespace PReviewer.Domain
         private string _PullRequestUrl;
         private RecentRepo _recentRepoes = new RecentRepo();
         private CommitFileVm _SelectedDiffFile;
+        private bool _isClosed;
+        private bool _isMerged;
 
         public string BaseCommit
         {
@@ -148,6 +150,26 @@ namespace PReviewer.Domain
             }
         }
 
+        public bool IsClosed
+        {
+            get { return _isClosed; }
+            set
+            {
+                _isClosed = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool IsMerged
+        {
+            get { return _isMerged; }
+            set
+            {
+                _isMerged = value; 
+                RaisePropertyChanged();
+            }
+        }
+
         public RecentRepo RecentRepoes
         {
             get { return _recentRepoes; }
@@ -169,6 +191,9 @@ namespace PReviewer.Domain
                 var repo = _client.Repository;
 
                 var pr = await FetchPullRequestObj(repo);
+
+                IsClosed = pr.State == ItemState.Closed;
+                IsMerged = pr.Merged;
 
                 var compareResult = await FetchCompareResult(repo, pr);
 
