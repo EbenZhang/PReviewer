@@ -228,7 +228,12 @@ namespace PReviewer.UI
                 MessageBoxHelper.ShowError(this, "You haven't commented on anything yet.");
                 return;
             }
-            var choice = MessageBoxHelper.ShowConfirmation(this, "Are you sure to submit?");
+            var confirmation = "Are you sure to submit?";
+            if (_viewModel.IsMerged || _viewModel.IsClosed)
+            {
+                confirmation = "!!!The Pull Request was merged/closed.!!!" + confirmation;
+            }
+            var choice = MessageBoxHelper.ShowConfirmation(this, confirmation);
             if (choice != MessageBoxResult.Yes)
             {
                 return;
