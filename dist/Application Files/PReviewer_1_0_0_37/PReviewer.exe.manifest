@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="PReviewer.exe" version="1.0.0.36" publicKeyToken="267c4f75fae0e336" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="PReviewer.exe" version="1.0.0.37" publicKeyToken="267c4f75fae0e336" language="neutral" processorArchitecture="msil" type="win32" />
   <description asmv2:iconFile="PReviewer.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="PReviewer" version="1.0.5571.25218" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="PReviewer" version="1.0.5579.36250" language="neutral" processorArchitecture="msil" />
     <commandLine file="PReviewer.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -62,7 +62,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>7pjfZcFfi8KPvmCiA197BvSavAXndIfIyQd/k9lN9n4=</dsig:DigestValue>
+        <dsig:DigestValue>zvN3Sz8ZR5vJvyT6KAK59/ifMSxQdpuG/knorz6Bok0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -139,14 +139,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="PReviewer.exe" size="294888">
-      <assemblyIdentity name="PReviewer" version="1.0.5571.25218" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="PReviewer.exe" size="302568">
+      <assemblyIdentity name="PReviewer" version="1.0.5579.36250" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>L4EMOFShepVWbiwjv61aO2iGfLBz9cBDVyn0y0feY2o=</dsig:DigestValue>
+        <dsig:DigestValue>TGJ15OJDll0C8SrpGl27C6j7pBe+SudJXmvaaKhJM2c=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -158,7 +158,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>RMJE+jrbjxYNEZX2Q2Oablru7KUDrmSgveEpaKXtcIg=</dsig:DigestValue>
+        <dsig:DigestValue>JwsRB5XhbkYjfzwLHDWjqMSSkx99RyaZKsn2VHtJ464=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -199,14 +199,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WpfCommon.dll" size="38912">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WpfCommon.dll" size="38400">
       <assemblyIdentity name="WpfCommon" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>O0Zz51S90szvb0RJvFw1FskRfqUnB16MxIZFZHl/ZmQ=</dsig:DigestValue>
+        <dsig:DigestValue>PfNUKxC6bKNqn22ow+oa3TsAQ3zbVxC9F8MV/CcEVQg=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -315,4 +315,4 @@
       <dsig:DigestValue>ntr0h5d6tViGttF7K52jB4ZyLqHbhFG+XMmQxApP6XQ=</dsig:DigestValue>
     </hash>
   </file>
-<publisherIdentity name="CN=EbenZhang-PC\EbenZhang" issuerKeyHash="ef5f6b4ca868094936b90aee758b08ce71a39c3b" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>qKrfNp7W4wEAq/Chjpq0/0m/vc7r9r1gqhHKVlnnp/s=</DigestValue></Reference></SignedInfo><SignatureValue>D1GzvOtwpVAcWbhisfKfoiGS1OgVl7Gpax8GQ6t5DrxnYoI3LFLyWswMGOPwzOTr6MZsD1orrq8isllS0TrY9ah30QVGARA5Apo3fkFHDsn/iVQhVDn8VCCdFoDOzGxwmsyUeBptBuSQKONH+YJW2hkqEUxVufklO9Lgz+cA4ZI=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>hxMwCt9lPwLEMJtFqAc+vflMhgbQcf2aLOgpEqSRxhGZJ2mr0giXiJXPC8ChjZe3oJb2m6HXBAicwOFsNTjbalxpOXTuVck5H0VCSTLMXTGJF+noHZ4R/NbB95rcXEJrEPKZVrieqcInpVeGIP/9P0tHDeSabsNt6xI3EDwAPPU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="fba7e75956ca11aa60bdf6ebcebdbf49ffb49a8ea1f0ab0001e3d69e36dfaaa8" Description="" Url=""><as:assemblyIdentity name="PReviewer.exe" version="1.0.0.36" publicKeyToken="267c4f75fae0e336" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=EbenZhang-PC\EbenZhang</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>SQWmZuB3/jdX+Y7+yxKJtbaXw1rMpvB7Ac8ExgqFvY4=</DigestValue></Reference></SignedInfo><SignatureValue>cOX3nEDViW9wClGrzUIzn83055FwIQjrXAqvi5XZcqWDMUZnAlLHvl10xCLSFWcOPbfoMEAeyw2nPbAspEAGt6ejl4rA0KQX0RUnYMicPbNN4eM8TiBdJ/QEb9txolW7qRJAR91/vbOl0rEv7JoomZENai19mc1o5i3hzhBihCk=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>hxMwCt9lPwLEMJtFqAc+vflMhgbQcf2aLOgpEqSRxhGZJ2mr0giXiJXPC8ChjZe3oJb2m6HXBAicwOFsNTjbalxpOXTuVck5H0VCSTLMXTGJF+noHZ4R/NbB95rcXEJrEPKZVrieqcInpVeGIP/9P0tHDeSabsNt6xI3EDwAPPU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIB8TCCAVqgAwIBAgIQbTBQD5dxjJVPDPH9FTvyszANBgkqhkiG9w0BAQsFADA3MTUwMwYDVQQDHiwARQBiAGUAbgBaAGgAYQBuAGcALQBQAEMAXABFAGIAZQBuAFoAaABhAG4AZzAeFw0xNTAzMDExNjQxMzNaFw0xNjAyMjkyMjQxMzNaMDcxNTAzBgNVBAMeLABFAGIAZQBuAFoAaABhAG4AZwAtAFAAQwBcAEUAYgBlAG4AWgBoAGEAbgBnMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCHEzAK32U/AsQwm0WoBz69+UyGBtBx/Zos6CkSpJHGEZknaavSCJeIlc8LwKGNl7eglvabodcECJzA4Ww1ONtqXGk5dO5VyTkfRUJJMsxdMYkX6egdnhH81sH3mtxcQmsQ8plWuJ6pwielV4Yg//0/S0cN5Jpuw23rEjcQPAA89QIDAQABMA0GCSqGSIb3DQEBCwUAA4GBADJR0akvBGuXXCTjGOTx1z6wXEZQk/ZXN+6Gl+sJaUr6bAUfwjrn9mcPRJqCE9IQJQG9zYe83IcZOSQEEElZVX0Yb/jvK4JoGSA0qsGlZbWbASiJVWF346G2Rjz0REqV+2ixooq5RNlmOOOjtqRc0IJcrAFK1jEsx2KFKEGnzYkv</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
+<publisherIdentity name="CN=EbenZhang-PC\EbenZhang" issuerKeyHash="ef5f6b4ca868094936b90aee758b08ce71a39c3b" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>ybXwuPynVufRo30C68ZRcroqMRQIitBs2pcA4Q5x2Qo=</DigestValue></Reference></SignedInfo><SignatureValue>Peg0/S5WjrbWyvsiP9X3S4lL/E6BlLvBUGmAYVcEkUccEMREUNoNpzFkHdElpQaKQamlgtzkegGicmD4ReXeIKtiShyhijVm8dTe0t9vOAdiJnrUdjLY4Y0iIPY2swkv/bx0ebkH8ISfH8koQ58rsTiRKt7nPB0l03y9fTKWke8=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>hxMwCt9lPwLEMJtFqAc+vflMhgbQcf2aLOgpEqSRxhGZJ2mr0giXiJXPC8ChjZe3oJb2m6HXBAicwOFsNTjbalxpOXTuVck5H0VCSTLMXTGJF+noHZ4R/NbB95rcXEJrEPKZVrieqcInpVeGIP/9P0tHDeSabsNt6xI3EDwAPPU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="0ad9710ee10097da6cd08a0814312aba7251c6eb027da3d1e756a7fcb8f0b5c9" Description="" Url=""><as:assemblyIdentity name="PReviewer.exe" version="1.0.0.37" publicKeyToken="267c4f75fae0e336" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=EbenZhang-PC\EbenZhang</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>OOqOGxrEed+doRmpzaescCvK0uZEJCvhsq/tsEUgLqU=</DigestValue></Reference></SignedInfo><SignatureValue>Lt1EvhxB8ceoxxFSHWLHDfZ+82BeZuTH4O8Wy+50sh/6M5eYiN/HxzR1xgfQGPA2D0Z6lCVLt9IBdogqVilY5pvGfaIzAd3tivGtFvVIAtc+2DjiiZVSGCZlQfkc+8IfKGqOW6rV1c3a9awaIPn8tFnlrkLpg2Z/YzwBoGq/PaY=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>hxMwCt9lPwLEMJtFqAc+vflMhgbQcf2aLOgpEqSRxhGZJ2mr0giXiJXPC8ChjZe3oJb2m6HXBAicwOFsNTjbalxpOXTuVck5H0VCSTLMXTGJF+noHZ4R/NbB95rcXEJrEPKZVrieqcInpVeGIP/9P0tHDeSabsNt6xI3EDwAPPU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIB8TCCAVqgAwIBAgIQbTBQD5dxjJVPDPH9FTvyszANBgkqhkiG9w0BAQsFADA3MTUwMwYDVQQDHiwARQBiAGUAbgBaAGgAYQBuAGcALQBQAEMAXABFAGIAZQBuAFoAaABhAG4AZzAeFw0xNTAzMDExNjQxMzNaFw0xNjAyMjkyMjQxMzNaMDcxNTAzBgNVBAMeLABFAGIAZQBuAFoAaABhAG4AZwAtAFAAQwBcAEUAYgBlAG4AWgBoAGEAbgBnMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCHEzAK32U/AsQwm0WoBz69+UyGBtBx/Zos6CkSpJHGEZknaavSCJeIlc8LwKGNl7eglvabodcECJzA4Ww1ONtqXGk5dO5VyTkfRUJJMsxdMYkX6egdnhH81sH3mtxcQmsQ8plWuJ6pwielV4Yg//0/S0cN5Jpuw23rEjcQPAA89QIDAQABMA0GCSqGSIb3DQEBCwUAA4GBADJR0akvBGuXXCTjGOTx1z6wXEZQk/ZXN+6Gl+sJaUr6bAUfwjrn9mcPRJqCE9IQJQG9zYe83IcZOSQEEElZVX0Yb/jvK4JoGSA0qsGlZbWbASiJVWF346G2Rjz0REqV+2ixooq5RNlmOOOjtqRc0IJcrAFK1jEsx2KFKEGnzYkv</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
