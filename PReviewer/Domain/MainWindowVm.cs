@@ -163,48 +163,86 @@ namespace PReviewer.Domain
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus(_prePullRequestLocator);
-                _prePullRequestLocator = PullRequestLocator;
-                if (IsUrlMode)
-                {
-                    try
-                    {
-                        PullRequestLocator.UpdateWith(PullRequestUrl);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new UriFormatException(ex.ToString());
-                    }
-                }
-                else
-                {
-                    PullRequestUrl = PullRequestLocator.ToUrl();
-                }
+
+                CoercePullRequestUrlAndLocator();
+
                 var repo = _client.Repository;
-                var pr =
-                    await
-                        repo.PullRequest.Get(PullRequestLocator.Owner, PullRequestLocator.Repository,
-                            PullRequestLocator.PullRequestNumber);
-                var commitsClient = repo.Commits;
-                var compareResult =
-                    await
-                        commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha,
-                            pr.Head.Sha);
-                Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
-                Commits.Clear();
-                Commits.Add(new CommitVm(pr.Base.Label, pr.Base.Sha));
-                Commits.Add(new CommitVm(pr.Head.Label, pr.Head.Sha));
-                BaseCommit = pr.Base.Sha;
-                HeadCommit = pr.Head.Sha;
 
-                _backgroundTaskRunner.RunInBackground(() => RetrieveCommits(repo.PullRequest,
-                    _PullRequestLocator, new CommitsCombiner(Commits)));
+                var pr = await FetchPullRequestObj(repo);
 
-                PrTitle = pr.Title;
-                PrDescription = string.IsNullOrWhiteSpace(pr.Body) ? DefaultPrDescription : pr.Body;
+                var compareResult = await FetchCompareResult(repo, pr);
+
+                UpdateDiffListOnCompareResultRecieved(compareResult);
+
+                UpdateCommitsRange(pr);
+
+                FetchCommitsInPrAsync(repo);
+
+                UpdatePrDecscription(pr);
 
                 await ReloadComments();
 
                 await RecentRepoes.Save(PullRequestLocator, _repoHistoryPersist);
+            }
+        }
+
+        private async Task<PullRequest> FetchPullRequestObj(IRepositoriesClient repo)
+        {
+            var pr =
+                await
+                    repo.PullRequest.Get(PullRequestLocator.Owner, PullRequestLocator.Repository,
+                        PullRequestLocator.PullRequestNumber);
+            return pr;
+        }
+
+        private async Task<CompareResult> FetchCompareResult(IRepositoriesClient repo, PullRequest pr)
+        {
+            var commitsClient = repo.Commits;
+            var compareResult =
+                await
+                    commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha,
+                        pr.Head.Sha);
+            return compareResult;
+        }
+
+        private void FetchCommitsInPrAsync(IRepositoriesClient repo)
+        {
+            _backgroundTaskRunner.RunInBackground(() => RetrieveCommits(repo.PullRequest,
+                _PullRequestLocator, new CommitsCombiner(Commits)));
+        }
+
+        private void UpdateCommitsRange(PullRequest pr)
+        {
+            Commits.Clear();
+            Commits.Add(new CommitVm(pr.Base.Label, pr.Base.Sha));
+            Commits.Add(new CommitVm(pr.Head.Label, pr.Head.Sha));
+            BaseCommit = pr.Base.Sha;
+            HeadCommit = pr.Head.Sha;
+        }
+
+        private void UpdatePrDecscription(PullRequest pr)
+        {
+            PrTitle = pr.Title;
+            PrDescription = string.IsNullOrWhiteSpace(pr.Body) ? DefaultPrDescription : pr.Body;
+        }
+
+        private void CoercePullRequestUrlAndLocator()
+        {
+            _prePullRequestLocator = PullRequestLocator;
+            if (IsUrlMode)
+            {
+                try
+                {
+                    PullRequestLocator.UpdateWith(PullRequestUrl);
+                }
+                catch (Exception ex)
+                {
+                    throw new UriFormatException(ex.ToString());
+                }
+            }
+            else
+            {
+                PullRequestUrl = PullRequestLocator.ToUrl();
             }
         }
 
@@ -225,63 +263,77 @@ namespace PReviewer.Domain
         {
             using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
             {
-                var headFileName = BuildHeadFileName(HeadCommit, SelectedDiffFile.GitHubCommitFile.Filename);
-                var headPath = "";
-                string contentOfHead = null;
-                if (SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
-                {
-                    headPath = await SaveToFile(headFileName, "");
-                }
-                else if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
-                {
-                    var collectionOfContentOfHead =
-                        await
-                            _client.Repository.Content.GetContents(PullRequestLocator.Owner,
-                                PullRequestLocator.Repository,
-                                _SelectedDiffFile.GitHubCommitFile.GetFilePath(HeadCommit));
+                var diffFile = SelectedDiffFile;
 
-                    contentOfHead = collectionOfContentOfHead.First().Content;
-                    headPath = await SaveToFile(headFileName, contentOfHead);
-                }
-                else
-                {
-                    headPath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, headFileName);
-                }
+                var pathes = await FetchDiffContent(diffFile);
 
-                var baseFileName = BuildBaseFileName(BaseCommit, SelectedDiffFile.GitHubCommitFile.Filename);
-                var basePath = "";
-                if (_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
-                {
-                    basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
-                }
-                else if (SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Renamed)
-                {
-                    if (contentOfHead == null)
-                    {
-                        contentOfHead = await _fileContentPersist.ReadContent(headPath);
-                    }
-
-                    basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
-
-                    await _patchService.RevertViaPatch(contentOfHead, SelectedDiffFile.GitHubCommitFile.Patch, basePath);
-                }
-                else if (SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.New)
-                {
-                    basePath = await SaveToFile(baseFileName, "");
-                }
-                else
-                {
-                    var contentOfBase =
-                        await
-                            _client.Repository.Content.GetContents(PullRequestLocator.Owner,
-                                PullRequestLocator.Repository,
-                                _SelectedDiffFile.GitHubCommitFile.GetFilePath(BaseCommit));
-
-                    basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
-                }
-
-                _diffTool.Open(basePath, headPath);
+                _diffTool.Open(pathes.Item1, pathes.Item2);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="diffFile"></param>
+        /// <returns>basePath and headPath</returns>
+        private async Task<Tuple<string, string>> FetchDiffContent(CommitFileVm diffFile)
+        {
+            var headFileName = BuildHeadFileName(HeadCommit, diffFile.GitHubCommitFile.Filename);
+            var headPath = "";
+            string contentOfHead = null;
+
+            if (diffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
+            {
+                headPath = await SaveToFile(headFileName, "");
+            }
+            else if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
+            {
+                var collectionOfContentOfHead =
+                    await
+                        _client.Repository.Content.GetContents(PullRequestLocator.Owner,
+                            PullRequestLocator.Repository,
+                            diffFile.GitHubCommitFile.GetFilePath(HeadCommit));
+
+                contentOfHead = collectionOfContentOfHead.First().Content;
+                headPath = await SaveToFile(headFileName, contentOfHead);
+            }
+            else
+            {
+                headPath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, headFileName);
+            }
+
+            var baseFileName = BuildBaseFileName(BaseCommit, diffFile.GitHubCommitFile.Filename);
+            var basePath = "";
+            if (_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
+            {
+                basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
+            }
+            else if (diffFile.GitHubCommitFile.Status == GitFileStatus.Renamed)
+            {
+                if (contentOfHead == null)
+                {
+                    contentOfHead = await _fileContentPersist.ReadContent(headPath);
+                }
+
+                basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
+
+                await _patchService.RevertViaPatch(contentOfHead, diffFile.GitHubCommitFile.Patch, basePath);
+            }
+            else if (diffFile.GitHubCommitFile.Status == GitFileStatus.New)
+            {
+                basePath = await SaveToFile(baseFileName, "");
+            }
+            else
+            {
+                var contentOfBase =
+                    await
+                        _client.Repository.Content.GetContents(PullRequestLocator.Owner,
+                            PullRequestLocator.Repository,
+                            diffFile.GitHubCommitFile.GetFilePath(BaseCommit));
+
+                basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
+            }
+            return new Tuple<string, string>(basePath, headPath);
         }
 
         public static string BuildHeadFileName(string headCommit, string orgFileName)
@@ -429,9 +481,20 @@ namespace PReviewer.Domain
                         commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, BaseCommit,
                             HeadCommit);
 
-                Diffs.Assign(compareResult.Files.Select(r => new CommitFileVm(r)));
+                UpdateDiffListOnCompareResultRecieved(compareResult);
 
                 await ReloadComments();
+            }
+        }
+
+        private void UpdateDiffListOnCompareResultRecieved(CompareResult compareResult)
+        {
+            Diffs.Clear();
+            foreach (var file in compareResult.Files)
+            {
+                Diffs.Add(new CommitFileVm(file));
+                var commitFile = Diffs.Last();
+                _backgroundTaskRunner.AddToQueue(async() => await FetchDiffContent(commitFile));
             }
         }
 

@@ -18,6 +18,7 @@ using Microsoft.Win32;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
+using PReviewer.Service;
 using WpfCommon.Controls;
 using WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;
@@ -114,8 +115,14 @@ namespace PReviewer.UI
 
         private void SetupWindowClosingActions()
         {
-            this.Closed += async (sender, arg) => await _viewModel.SaveComments();
-            SystemEvents.SessionEnding += async (sender, arg) => await _viewModel.SaveComments();
+            this.Closed += (s, e) => BeforeClosingWnd();
+            SystemEvents.SessionEnding += (s, e) => BeforeClosingWnd();
+        }
+
+        private async void BeforeClosingWnd()
+        {
+            ViewModelLocator.Resolve<IBackgroundTaskRunner>().Quit();
+            await _viewModel.SaveComments();
         }
 
         public ICommand ShowChangesCmd
@@ -305,7 +312,7 @@ namespace PReviewer.UI
             }
             catch (FailedToSaveContent ex)
             {
-                MessageBoxHelper.ShowError(this, "Unable to save content.\r\n\r\n" + ex);
+                MessageBoxHelper.ShowError(this, "Unable to save content. Please try again later.\r\n\r\n" + ex);
             }
             catch (Exception ex)
             {
