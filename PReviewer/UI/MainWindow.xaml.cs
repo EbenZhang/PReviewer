@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -41,7 +42,15 @@ namespace PReviewer.UI
             InitializeComponent();
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
-            DiffViewer.TextChanged += DiffViewerOnTextChanged;
+            DiffViewer.Options.ColumnRulerPosition = 120;
+            DiffViewer.Options.ShowSpaces = true;
+            DiffViewer.Options.ShowEndOfLine = true;
+            DiffViewer.Options.ShowTabs = true;
+            DiffViewer.Options.ShowBoxForControlCharacters = true;
+
+            DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
+            DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
+
             SetupWindowClosingActions();
             _viewModel.PropertyChanged += OnPrDescriptionChanged;
             TxtPrDescription.Navigating += WebBrowser_OnNavigating;
@@ -102,15 +111,6 @@ namespace PReviewer.UI
                 e.Cancel = true;
                 Process.Start(e.Url.ToString());
             }
-        }
-
-        private void DiffViewerOnTextChanged(object sender, EventArgs eventArgs)
-        {
-            var markerStrategy = DiffViewer.Document.MarkerStrategy;
-            markerStrategy.RemoveAll(m => true);
-
-            if (DiffViewer.Text == "") return;
-            new Highlighter(DiffViewer.Document).Highlight();
         }
 
         private void SetupWindowClosingActions()
@@ -370,13 +370,11 @@ namespace PReviewer.UI
                 ||string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
             {
                 DiffViewer.Text = "";
-                DiffViewer.Refresh();
                 return;
             }
 
-
+            DiffViewer.ScrollToHome();
             DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
-            DiffViewer.Refresh();
         }
 
         public ICommand CopyFileNameCmd
