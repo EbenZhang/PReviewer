@@ -6,7 +6,7 @@ using Shouldly;
 namespace PReviewer.Test
 {
     [TestFixture]
-    public class TestPatchHighlighter
+    public class TestHighlighter
     {
         [Test]
         public void TestSingleIntersection()
