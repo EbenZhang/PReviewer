@@ -110,7 +110,7 @@ namespace PReviewer.UI
             markerStrategy.RemoveAll(m => true);
 
             if (DiffViewer.Text == "") return;
-            new PatchHighlighter(DiffViewer.Document).Highlight();
+            new Highlighter(DiffViewer.Document).Highlight();
         }
 
         private void SetupWindowClosingActions()

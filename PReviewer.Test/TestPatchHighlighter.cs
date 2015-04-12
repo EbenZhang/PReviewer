@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using PReviewer.UI;
+using PReviewer.Service;
 using Shouldly;
 namespace PReviewer.Test
 {
@@ -18,7 +18,7 @@ namespace PReviewer.Test
             minusSections.Add(new Section(200, 1010, 1));
             plusSections.Add(new Section(1011, 1031, 1));
             minusSections.Add(new Section(1200, 1310, 1));
-            var intersections = PatchHighlighter.GetIntersections(minusSections, plusSections);
+            var intersections = Highlighter.GetIntersections(minusSections, plusSections);
             intersections.Count.ShouldBe(1);
             intersections.First().Item1.ShouldBe(minusSections[1]);
             intersections.First().Item2.ShouldBe(plusSections[0]);
@@ -39,7 +39,7 @@ namespace PReviewer.Test
             plusSections.Add(new Section(1411, 1490, 1));
             minusSections.Add(new Section(1499, 1510, 1));
             plusSections.Add(new Section(1522, 1590, 1));
-            var intersections = PatchHighlighter.GetIntersections(minusSections, plusSections);
+            var intersections = Highlighter.GetIntersections(minusSections, plusSections);
             intersections.Count.ShouldBe(2);
             intersections.First().Item1.ShouldBe(minusSections[1]);
             intersections.First().Item2.ShouldBe(plusSections[0]);
@@ -63,7 +63,7 @@ namespace PReviewer.Test
             minusSections.Add(new Section(1499, 1510, 1));
             plusSections.Add(new Section(1522, 1590, 1));
 
-            var intersections = PatchHighlighter.GetIntersections(minusSections, plusSections);
+            var intersections = Highlighter.GetIntersections(minusSections, plusSections);
             intersections.Count.ShouldBe(0);
         }
 
@@ -82,7 +82,7 @@ namespace PReviewer.Test
             minusSections.Add(new Section(1499, 1510, 1));
             plusSections.Add(new Section(1522, 1590, 1));
 
-            var intersections = PatchHighlighter.GetIntersections(minusSections, plusSections);
+            var intersections = Highlighter.GetIntersections(minusSections, plusSections);
             intersections.Count.ShouldBe(1);
             intersections[0].Item1.ShouldBe(minusSections[4]);
             intersections[0].Item2.ShouldBe(plusSections[1]);
@@ -104,7 +104,7 @@ namespace PReviewer.Test
             plusSections.Add(new Section(1412, 1490, 1));
             minusSections.Add(new Section(1499, 1510, 1));
             plusSections.Add(new Section(1522, 1590, 1));
-            var intersections = PatchHighlighter.GetIntersections(minusSections, plusSections);
+            var intersections = Highlighter.GetIntersections(minusSections, plusSections);
             intersections.Count.ShouldBe(2);
             intersections.First().Item1.ShouldBe(minusSections[1]);
             intersections.First().Item2.ShouldBe(plusSections[0]);

@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using ICSharpCode.TextEditor.Document;
 
-namespace PReviewer.UI
+namespace PReviewer.Service
 {
     public struct Section
     {
@@ -20,29 +20,29 @@ namespace PReviewer.UI
         }
     }
 
-    public class PatchHighlighter
+    public class Highlighter
     {
         private readonly IDocument _document;
-        private static readonly Color AddedColor = Color.FromArgb(200, 255, 200);
-        private static readonly Color RemovedColor = Color.FromArgb(255, 200, 200);
-        private static readonly Color HeaderColor = Color.FromArgb(230, 230, 230);
-        private static readonly Color AddedMarkerColor = Color.FromArgb(135, 255, 135);
-        private static readonly Color RemovedMarkerColor = Color.FromArgb(255, 150, 150);
+        private static readonly Color PlusLineColor = Color.FromArgb(200, 255, 200);
+        private static readonly Color MinusLineColor = Color.FromArgb(255, 200, 200);
+        private static readonly Color HeaderLineColor = Color.FromArgb(230, 230, 230);
+        private static readonly Color PlusLineMarkerColor = Color.FromArgb(135, 255, 135);
+        private static readonly Color MinusLineMarkerColor = Color.FromArgb(255, 150, 150);
         private static readonly Color MarkerForeColor = Color.Black;
         private List<Section> _plusLinesSections;
         private List<Section> _minusLinesSections;
         private List<Section> _headers;
 
-        public PatchHighlighter(IDocument document)
+        public Highlighter(IDocument document)
         {
             _document = document;
         }
 
         public void HighlightLinesBackground()
         {
-            HighlightSections(_minusLinesSections, RemovedColor);
-            HighlightSections(_plusLinesSections, AddedColor);
-            HighlightSections(_headers, HeaderColor);
+            HighlightSections(_minusLinesSections, MinusLineColor);
+            HighlightSections(_plusLinesSections, PlusLineColor);
+            HighlightSections(_headers, HeaderLineColor);
         }
 
         private void HighlightSections(IEnumerable<Section> sections, Color color)
@@ -55,24 +55,24 @@ namespace PReviewer.UI
             }
         }
 
-        private static void AddToSection(IList<Section> greens, LineSegment lineSegment)
+        private static void AddToSection(IList<Section> existingSections, LineSegment lineSegment)
         {
-            if (!greens.Any())
+            if (!existingSections.Any())
             {
-                greens.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
+                existingSections.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
             }
             else
             {
-                var lastGreen = greens.Last();
-                if (lineSegment.Offset == lastGreen.End + lastGreen.DelimiterLength)
+                var lastSection = existingSections.Last();
+                if (lineSegment.Offset == lastSection.End + lastSection.DelimiterLength)
                 {
                     var newEnd = lineSegment.Offset + lineSegment.Length;
-                    greens.RemoveAt(greens.Count - 1);
-                    greens.Add(new Section(lastGreen.Start, newEnd, lineSegment.DelimiterLength));
+                    existingSections.RemoveAt(existingSections.Count - 1);
+                    existingSections.Add(new Section(lastSection.Start, newEnd, lineSegment.DelimiterLength));
                 }
                 else
                 {
-                    greens.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
+                    existingSections.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
                 }
             }
         }
@@ -140,7 +140,7 @@ namespace PReviewer.UI
             {
                 markerStrategy.AddMarker(new TextMarker(startPosForPlusSection,
                                                         endPosForPlusSection - startPosForPlusSection + 1,
-                                                        TextMarkerType.SolidBlock, AddedMarkerColor,
+                                                        TextMarkerType.SolidBlock, PlusLineMarkerColor,
                                                         MarkerForeColor));
             }
 
@@ -148,7 +148,7 @@ namespace PReviewer.UI
             {
                 markerStrategy.AddMarker(new TextMarker(startPosForMinusSection,
                                                         endPosForMinusSection - startPosForMinusSection + 1,
-                                                        TextMarkerType.SolidBlock, RemovedMarkerColor,
+                                                        TextMarkerType.SolidBlock, MinusLineMarkerColor,
                                                         MarkerForeColor));
             }
         }
