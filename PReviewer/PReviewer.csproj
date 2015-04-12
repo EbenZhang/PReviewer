@@ -250,7 +250,6 @@
     <Resource Include="Images\renamed.png" />
     <Resource Include="Images\reviewed.png" />
     <Resource Include="Images\glyphicons_158_show_lines.png" />
-    <Resource Include="Images\git_extensions_logo_final.png" />
     <Resource Include="Images\logout.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -269,10 +268,6 @@
     <ProjectReference Include="..\ExtendedCL\ExtendedCL\ExtendedCL.csproj">
       <Project>{e4142c9c-2afd-4579-97e2-767f3196ac4e}</Project>
       <Name>ExtendedCL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PReviewer.GitExt\PReviewer.gitext.csproj">
-      <Project>{5560f20b-9464-4aa4-b751-683ee41553d1}</Project>
-      <Name>PReviewer.gitext</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfCommon\WpfCommon.csproj">
       <Project>{c66b81d7-c73e-41bf-8494-5cec64b21efe}</Project>

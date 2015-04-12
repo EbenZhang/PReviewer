@@ -420,11 +420,6 @@ namespace PReviewer.UI
             get { return new RelayCommand(() => MarkReviewingStatus(ReviewStatus.HasntBeenReviewed)); }
         }
 
-        public ICommand AddToGitExtCmd
-        {
-            get { return new RelayCommand(AddToGitExt); }
-        }
-
         public ICommand PreviewCommentsCmd
         {
             get { return new RelayCommand(PreviewComments); }
