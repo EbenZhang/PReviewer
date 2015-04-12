@@ -185,7 +185,7 @@
     <Compile Include="Domain\LoginWndVm.cs" />
     <Compile Include="Model\RepoHistoryPersist.cs" />
     <Compile Include="Service\IBackgroundTaskRunner.cs" />
-    <Compile Include="UI\PatchHighlighter.cs" />
+    <Compile Include="Service\Highlighter.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
     <Page Include="UI\CompareToolSettings.xaml">
