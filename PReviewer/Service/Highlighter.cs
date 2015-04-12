@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using ICSharpCode.TextEditor.Document;
+using System.Windows.Media;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Rendering;
 
 namespace PReviewer.Service
 {
@@ -18,151 +19,67 @@ namespace PReviewer.Service
             End = end;
             DelimiterLength = delimiterLength;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Start {0}, End {1}, Len {2}, EOL {3}", Start, End, End - Start + 1, DelimiterLength);
+        }
     }
 
-    public class Highlighter
+    public class HighlighterHelper
     {
-        private readonly IDocument _document;
-        private static readonly Color PlusLineColor = Color.FromArgb(200, 255, 200);
-        private static readonly Color MinusLineColor = Color.FromArgb(255, 200, 200);
-        private static readonly Color HeaderLineColor = Color.FromArgb(230, 230, 230);
-        private static readonly Color PlusLineMarkerColor = Color.FromArgb(135, 255, 135);
-        private static readonly Color MinusLineMarkerColor = Color.FromArgb(255, 150, 150);
-        private static readonly Color MarkerForeColor = Color.Black;
+        public static List<Tuple<Section, Section>> GetIntersections(List<Section> minusSections,
+            List<Section> plusSections)
+        {
+            var ret = new List<Tuple<Section, Section>>();
+            var preSucceedIndex = 0;
+            foreach (var plus in plusSections)
+            {
+                var minusIndex = minusSections.FindIndex(preSucceedIndex, r =>
+                   r.End + r.DelimiterLength == plus.Start);
+                if (minusIndex == -1) continue;
+                preSucceedIndex = minusIndex;
+                ret.Add(new Tuple<Section, Section>(minusSections[minusIndex], plus));
+            }
+            return ret;
+        }
+    }
+    class Highlighter : IBackgroundRenderer
+    {
         private List<Section> _plusLinesSections;
         private List<Section> _minusLinesSections;
         private List<Section> _headers;
 
-        public Highlighter(IDocument document)
-        {
-            _document = document;
-        }
+        private static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
+        private static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
+        private static readonly Color HeaderLineColor = Color.FromRgb(230, 230, 230);
+        private static readonly Color PlusLineMarkerColor = Color.FromRgb(135, 255, 135);
+        private static readonly Color MinusLineMarkerColor = Color.FromRgb(255, 150, 150);
 
-        public void HighlightLinesBackground()
+        public void Draw(TextView textView, DrawingContext drawingContext)
         {
-            HighlightSections(_minusLinesSections, MinusLineColor);
-            HighlightSections(_plusLinesSections, PlusLineColor);
-            HighlightSections(_headers, HeaderLineColor);
-        }
-
-        private void HighlightSections(IEnumerable<Section> sections, Color color)
-        {
-            foreach (var section in sections)
-            {
-                _document.MarkerStrategy.AddMarker(new TextMarker(section.Start,
-                    section.End - section.Start, TextMarkerType.SolidBlock, color,
-                    MarkerForeColor));
-            }
-        }
-
-        private static void AddToSection(IList<Section> existingSections, LineSegment lineSegment)
-        {
-            if (!existingSections.Any())
-            {
-                existingSections.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
-            }
-            else
-            {
-                var lastSection = existingSections.Last();
-                if (lineSegment.Offset == lastSection.End + lastSection.DelimiterLength)
-                {
-                    var newEnd = lineSegment.Offset + lineSegment.Length;
-                    existingSections.RemoveAt(existingSections.Count - 1);
-                    existingSections.Add(new Section(lastSection.Start, newEnd, lineSegment.DelimiterLength));
-                }
-                else
-                {
-                    existingSections.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
-                }
-            }
-        }
-
-        public void AddMarkerForDifferences()
-        {
-            if (!_minusLinesSections.Any())
+            var visualLines = textView.VisualLines;
+            if (visualLines.Count == 0)
             {
                 return;
             }
 
-            if (!_plusLinesSections.Any())
-            {
-                return;
-            }
+            CalculateSections(visualLines);
 
-            var intersections = GetIntersections(_minusLinesSections, _plusLinesSections);
+            HighlightLinesBackground(textView, drawingContext);
 
-            foreach (var intersection in intersections)
-            {
-                MarkDifferenceForSection(intersection.Item1, intersection.Item2);
-            }
+            AddMarkerForDifferences(textView, drawingContext);
         }
 
-        private void MarkDifferenceForSection(Section minusSection, Section plusSection)
-        {
-            var minusIter = minusSection.Start + 1; // +1 for '-' sign
-            var plusIter = plusSection.Start + 1;
-
-            while (minusIter < minusSection.End
-                   && plusIter < plusSection.End)
-            {
-                if (!_document.GetCharAt(minusIter).Equals(
-                    _document.GetCharAt(plusIter)))
-                {
-                    break;
-                }
-                minusIter++;
-                plusIter++;
-            }
-
-            var startPosForPlusSection = plusIter;
-            var startPosForMinusSection = minusIter;
-
-            minusIter = minusSection.End - 1;
-            plusIter = plusSection.End - 1;
-            while (minusIter > minusSection.Start
-                   && plusIter > plusSection.Start)
-            {
-                if (!_document.GetCharAt(minusIter).Equals(
-                    _document.GetCharAt(plusIter)))
-                {
-                    break;
-                }
-                minusIter--;
-                plusIter--;
-            }
-
-            var endPosForPlusSection = plusIter;
-            var endPosForMinusSection = minusIter;
-
-            var markerStrategy = _document.MarkerStrategy;
-
-            if (endPosForPlusSection > startPosForPlusSection)
-            {
-                markerStrategy.AddMarker(new TextMarker(startPosForPlusSection,
-                                                        endPosForPlusSection - startPosForPlusSection + 1,
-                                                        TextMarkerType.SolidBlock, PlusLineMarkerColor,
-                                                        MarkerForeColor));
-            }
-
-            if (endPosForMinusSection > startPosForMinusSection)
-            {
-                markerStrategy.AddMarker(new TextMarker(startPosForMinusSection,
-                                                        endPosForMinusSection - startPosForMinusSection + 1,
-                                                        TextMarkerType.SolidBlock, MinusLineMarkerColor,
-                                                        MarkerForeColor));
-            }
-        }
-
-        private void CalculateSections()
+        private void CalculateSections(IEnumerable<VisualLine> visualLines)
         {
             _plusLinesSections = new List<Section>();
             _minusLinesSections = new List<Section>();
             _headers = new List<Section>();
-            for (var line = 0; line < _document.TotalNumberOfLines; ++line)
+            foreach (var lineSegment in visualLines)
             {
-                var lineSegment = _document.GetLineSegment(line);
-                if (lineSegment.TotalLength == 0) { continue; }
-                var firstChar = _document.GetCharAt(lineSegment.Offset);
+                if (lineSegment.VisualLength == 0) { continue; }
+                var firstChar = lineSegment.Document.GetCharAt(lineSegment.StartOffset);
                 switch (firstChar)
                 {
                     case '+':
@@ -179,27 +96,154 @@ namespace PReviewer.Service
             }
         }
 
-        public void Highlight()
+        private void AddMarkerForDifferences(TextView textView, DrawingContext drawingContext)
         {
-            CalculateSections();
-            AddMarkerForDifferences();
-            HighlightLinesBackground();
+            if (!_minusLinesSections.Any())
+            {
+                return;
+            }
+
+            if (!_plusLinesSections.Any())
+            {
+                return;
+            }
+
+            var intersections = HighlighterHelper.GetIntersections(_minusLinesSections, _plusLinesSections);
+
+            foreach (var intersection in intersections)
+            {
+                MarkDifferenceForSection(intersection.Item1, intersection.Item2, textView, drawingContext);
+            }
         }
 
-        public static List<Tuple<Section, Section>> GetIntersections(List<Section> minusSections,
-            List<Section> plusSections)
+        private static void MarkDifferenceForSection(Section minusSection, Section plusSection,
+            TextView textView, DrawingContext drawingContext)
         {
-            var ret = new List<Tuple<Section, Section>>();
-            var preSucceedIndex = 0;
-            foreach (var plus in plusSections)
+            var doc = textView.Document;
+            var minusIter = minusSection.Start + 1; // +1 for '-' sign
+            var plusIter = plusSection.Start + 1;
+
+            while (minusIter < minusSection.End
+                   && plusIter < plusSection.End)
             {
-                var minusIndex = minusSections.FindIndex(preSucceedIndex, r =>
-                   r.End + r.DelimiterLength == plus.Start);
-                if (minusIndex == -1) continue;
-                preSucceedIndex = minusIndex;
-                ret.Add(new Tuple<Section, Section>(minusSections[minusIndex], plus));
+                if (!doc.GetCharAt(minusIter).Equals(
+                    doc.GetCharAt(plusIter)))
+                {
+                    break;
+                }
+                minusIter++;
+                plusIter++;
             }
-            return ret;
+
+            var startPosForPlusSection = plusIter;
+            var startPosForMinusSection = minusIter;
+
+            minusIter = minusSection.End - 1;
+            plusIter = plusSection.End - 1;
+            while (minusIter > minusSection.Start
+                   && plusIter > plusSection.Start)
+            {
+                if (!doc.GetCharAt(minusIter).Equals(
+                    doc.GetCharAt(plusIter)))
+                {
+                    break;
+                }
+                minusIter--;
+                plusIter--;
+            }
+
+            var endPosForPlusSection = plusIter;
+            var endPosForMinusSection = minusIter;
+
+            
+            if (endPosForPlusSection > startPosForPlusSection)
+            {
+                var range = new TextSegment()
+                {
+                    StartOffset = startPosForPlusSection,
+                    EndOffset = endPosForPlusSection,
+                    Length = endPosForPlusSection - startPosForPlusSection + 1,
+                };
+
+                DrawMarker(textView, drawingContext, range, PlusLineMarkerColor);
+            }
+
+            if (endPosForMinusSection > startPosForMinusSection)
+            {
+                var range = new TextSegment()
+                {
+                    StartOffset = startPosForMinusSection,
+                    EndOffset = endPosForMinusSection,
+                    Length = endPosForMinusSection - startPosForMinusSection + 1,
+                };
+                DrawMarker(textView, drawingContext, range, MinusLineMarkerColor);
+            }
+        }
+
+        private static void DrawMarker(TextView textView, DrawingContext drawingContext,
+            ISegment range,
+            Color color)
+        {
+            var geoBuilder = new BackgroundGeometryBuilder {AlignToWholePixels = true, CornerRadius = 3};
+            geoBuilder.AddSegment(textView, range);
+            var geometry = geoBuilder.CreateGeometry();
+            if (geometry == null) return;
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            drawingContext.DrawGeometry(brush, null, geometry);
+        }
+
+        private static void AddToSection(IList<Section> existingSections, VisualLine lineSegment)
+        {
+            var delimiterLen = lineSegment.LastDocumentLine.DelimiterLength;
+            if (!existingSections.Any())
+            {
+                existingSections.Add(new Section(lineSegment.StartOffset, 
+                    lineSegment.StartOffset + lineSegment.VisualLength,
+                    delimiterLen));
+            }
+            else
+            {
+                var lastSection = existingSections.Last();
+                if (lineSegment.StartOffset == lastSection.End + lastSection.DelimiterLength)
+                {
+                    var newEnd = lineSegment.StartOffset + lineSegment.VisualLength;
+                    existingSections.RemoveAt(existingSections.Count - 1);
+                    existingSections.Add(new Section(lastSection.Start, newEnd, delimiterLen));
+                }
+                else
+                {
+                    existingSections.Add(new Section(lineSegment.StartOffset, lineSegment.StartOffset + lineSegment.VisualLength, delimiterLen));
+                }
+            }
+        }
+
+        public KnownLayer Layer
+        {
+            get { return KnownLayer.Background; }
+        }
+
+        private void HighlightLinesBackground(TextView textView, DrawingContext drawingContext)
+        {
+            HighlightSections(_minusLinesSections, textView, drawingContext, MinusLineColor);
+            HighlightSections(_plusLinesSections, textView, drawingContext, PlusLineColor);
+            HighlightSections(_headers, textView, drawingContext, HeaderLineColor);
+        }
+
+        private static void HighlightSections(IEnumerable<Section> sections, TextView textView, 
+            DrawingContext drawingContext, Color color)
+        {
+            foreach (var section in sections)
+            {
+                var range = new TextSegment()
+                {
+                    StartOffset = section.Start,
+                    EndOffset = section.End,
+                    Length = section.End - section.Start + 1,
+                };
+
+                DrawMarker(textView, drawingContext, range, color);
+            }
         }
     }
 }

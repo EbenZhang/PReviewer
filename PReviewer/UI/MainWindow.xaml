@@ -11,7 +11,7 @@
         xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
         xmlns:ui="clr-namespace:PReviewer.UI"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:textEditor="clr-namespace:ICSharpCode.TextEditor;assembly=ICSharpCode.TextEditor">
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
@@ -418,40 +418,13 @@
                     <GridSplitter Grid.Column="1" Background="Gray" Visibility="Visible" Width="5" HorizontalAlignment="Stretch">
                     </GridSplitter>
                     <Grid Grid.Column="2">
-                        <Grid.Visibility>
-                            <Binding Path="IsProcessing">
-                                <Binding.Converter>
-                                    <converter:CompositeConverter>
-                                        <converter:InverseBooleanConverter/>
-                                        <converter:FalseToHiddenConverter/>
-                                    </converter:CompositeConverter>
-                                </Binding.Converter>
-                            </Binding>
-                        </Grid.Visibility>
-                        <Grid>
-                            <Grid.Visibility>
-                                <Binding Path="Visibility" ElementName="MainMenu">
-                                    <Binding.Converter>
-                                        <converter:CompositeConverter>
-                                            <converter:IsVisableConverter/>
-                                            <converter:InverseBooleanConverter/>
-                                            <BooleanToVisibilityConverter/>
-                                        </converter:CompositeConverter>
-                                    </Binding.Converter>
-                                </Binding>
-                            </Grid.Visibility>
-                            <WindowsFormsHost>
-                                <textEditor:TextEditorControl 
-                                    IsReadOnly="True" 
-                                    ShowSpaces="False"
-                                    ShowEOLMarkers="False"
-                                    ShowLineNumbers="True"
-                                    ShowInvalidLines="False"
-                                    ShowTabs="False"
-                                    AutoSize="True" 
-                                    x:Name="DiffViewer"/>
-                            </WindowsFormsHost>
-                        </Grid>
+                        <avalonEdit:TextEditor
+                            VerticalScrollBarVisibility="Auto"
+                            FontFamily="Courier New"
+                            FontSize="14"
+                            ShowLineNumbers="True"
+                            IsReadOnly="True" x:Name="DiffViewer">
+                        </avalonEdit:TextEditor>
                     </Grid>
                 </Grid>
             </GroupBox>
