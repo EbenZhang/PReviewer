@@ -3,10 +3,23 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using ICSharpCode.TextEditor.Document;
-using Section = System.Tuple<int, int>;
 
 namespace PReviewer.UI
 {
+    public struct Section
+    {
+        public int Start;
+        public int End;
+        public int DelimiterLength;
+
+        public Section(int start, int end, int delimiterLength)
+        {
+            Start = start;
+            End = end;
+            DelimiterLength = delimiterLength;
+        }
+    }
+
     public class PatchHighlighter
     {
         private readonly IDocument _document;
@@ -36,8 +49,8 @@ namespace PReviewer.UI
         {
             foreach (var section in sections)
             {
-                _document.MarkerStrategy.AddMarker(new TextMarker(section.Item1,
-                    section.Item2 - section.Item1, TextMarkerType.SolidBlock, color,
+                _document.MarkerStrategy.AddMarker(new TextMarker(section.Start,
+                    section.End - section.Start, TextMarkerType.SolidBlock, color,
                     MarkerForeColor));
             }
         }
@@ -46,20 +59,20 @@ namespace PReviewer.UI
         {
             if (!greens.Any())
             {
-                greens.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length));
+                greens.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
             }
             else
             {
                 var lastGreen = greens.Last();
-                if (lineSegment.Offset == lastGreen.Item2 + 1)
+                if (lineSegment.Offset == lastGreen.End + lastGreen.DelimiterLength)
                 {
                     var newEnd = lineSegment.Offset + lineSegment.Length;
                     greens.RemoveAt(greens.Count - 1);
-                    greens.Add(new Section(lastGreen.Item1, newEnd));
+                    greens.Add(new Section(lastGreen.Start, newEnd, lineSegment.DelimiterLength));
                 }
                 else
                 {
-                    greens.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length));
+                    greens.Add(new Section(lineSegment.Offset, lineSegment.Offset + lineSegment.Length, lineSegment.DelimiterLength));
                 }
             }
         }
@@ -86,11 +99,11 @@ namespace PReviewer.UI
 
         private void MarkDifferenceForSection(Section minusSection, Section plusSection)
         {
-            var minusIter = minusSection.Item1 + 1; // +1 for '-' sign
-            var plusIter = plusSection.Item1 + 1;
+            var minusIter = minusSection.Start + 1; // +1 for '-' sign
+            var plusIter = plusSection.Start + 1;
 
-            while (minusIter <= minusSection.Item2
-                   && plusIter <= plusSection.Item2)
+            while (minusIter < minusSection.End
+                   && plusIter < plusSection.End)
             {
                 if (!_document.GetCharAt(minusIter).Equals(
                     _document.GetCharAt(plusIter)))
@@ -104,10 +117,10 @@ namespace PReviewer.UI
             var startPosForPlusSection = plusIter;
             var startPosForMinusSection = minusIter;
 
-            minusIter = minusSection.Item2;
-            plusIter = plusSection.Item2;
-            while (minusIter >= minusSection.Item1
-                   && plusIter >= plusSection.Item1)
+            minusIter = minusSection.End - 1;
+            plusIter = plusSection.End - 1;
+            while (minusIter > minusSection.Start
+                   && plusIter > plusSection.Start)
             {
                 if (!_document.GetCharAt(minusIter).Equals(
                     _document.GetCharAt(plusIter)))
@@ -181,7 +194,7 @@ namespace PReviewer.UI
             foreach (var plus in plusSections)
             {
                 var minusIndex = minusSections.FindIndex(preSucceedIndex, r =>
-                   r.Item2 + 1 == plus.Item1);
+                   r.End + r.DelimiterLength == plus.Start);
                 if (minusIndex == -1) continue;
                 preSucceedIndex = minusIndex;
                 ret.Add(new Tuple<Section, Section>(minusSections[minusIndex], plus));
