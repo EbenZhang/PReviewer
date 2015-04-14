@@ -65,7 +65,7 @@ My General Comments";
                 _commitFileVm2
             };
 
-            var expectedComments = string.Join("\r\n", ExpectedComment1, ExpectedComment2, ExpectedGeneralComments);
+            var expectedComments = string.Join("\r\n\r\n", ExpectedComment1, ExpectedComment2, ExpectedGeneralComments);
 
             var comments = _builder.Build(files, MyGeneralComments).ToArray();
 
@@ -82,7 +82,7 @@ My General Comments";
                 _commitFileVm2
             };
 
-            var expectedComments = string.Join("\r\n", ExpectedComment1, ExpectedGeneralComments);
+            var expectedComments = string.Join("\r\n\r\n", ExpectedComment1, ExpectedGeneralComments);
 
             var comments = _builder.Build(files, MyGeneralComments).ToArray();
             Assert.That(comments, Is.EqualTo(expectedComments));

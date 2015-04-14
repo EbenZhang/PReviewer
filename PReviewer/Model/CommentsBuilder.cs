@@ -21,7 +21,7 @@ namespace PReviewer.Model
             {
                 ret.Add(FormatComments("General Comments", generalComments));
             }
-            return string.Join("\r\n", ret.ToArray());
+            return string.Join("\r\n\r\n", ret.ToArray());
         }
 
         private static string FormatComments(string header, string comments)
