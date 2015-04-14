@@ -369,6 +369,7 @@ namespace PReviewer.UI
                 return;
             }
 
+            DiffViewer.ScrollToHome();
             DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
         }
 

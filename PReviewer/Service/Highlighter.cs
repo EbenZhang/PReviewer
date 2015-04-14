@@ -8,7 +8,7 @@ using ICSharpCode.AvalonEdit.Rendering;
 
 namespace PReviewer.Service
 {
-    public struct Section
+    public class Section
     {
         public int Start;
         public int End;
@@ -24,6 +24,23 @@ namespace PReviewer.Service
         public override string ToString()
         {
             return string.Format("Start {0}, End {1}, Len {2}, EOL {3}", Start, End, End - Start + 1, DelimiterLength);
+        }
+
+        public class SectionLocator : IComparer<Section> 
+        {
+            public int Compare(Section x, Section y)
+            {
+                if (y.Start >= x.Start && y.Start < x.End)
+                {
+                    return 0;
+                }
+                if (y.Start < x.Start)
+                {
+                    return 1;
+                }
+                // (y.Start >= x.End)
+                return -1;
+            }
         }
     }
 
@@ -148,8 +165,8 @@ namespace PReviewer.Service
 
             minusIter = minusSection.End - 1;
             plusIter = plusSection.End - 1;
-            while (minusIter > minusSection.Start
-                   && plusIter > plusSection.Start)
+            while (minusIter >= startPosForMinusSection
+                   && plusIter >= startPosForPlusSection)
             {
                 if (!doc.GetCharAt(minusIter).Equals(
                     doc.GetCharAt(plusIter)))
@@ -160,17 +177,15 @@ namespace PReviewer.Service
                 plusIter--;
             }
 
-            var endPosForPlusSection = plusIter;
-            var endPosForMinusSection = minusIter;
+            var endPosForPlusSection = plusIter + 1;
+            var endPosForMinusSection = minusIter + 1;
 
-            
             if (endPosForPlusSection > startPosForPlusSection)
             {
                 var range = new TextSegment()
                 {
                     StartOffset = startPosForPlusSection,
-                    EndOffset = endPosForPlusSection,
-                    Length = endPosForPlusSection - startPosForPlusSection + 1,
+                    Length = endPosForPlusSection - startPosForPlusSection,
                 };
 
                 DrawMarker(textView, drawingContext, range, PlusLineMarkerColor);
@@ -181,8 +196,7 @@ namespace PReviewer.Service
                 var range = new TextSegment()
                 {
                     StartOffset = startPosForMinusSection,
-                    EndOffset = endPosForMinusSection,
-                    Length = endPosForMinusSection - startPosForMinusSection + 1,
+                    Length = endPosForMinusSection - startPosForMinusSection,
                 };
                 DrawMarker(textView, drawingContext, range, MinusLineMarkerColor);
             }
@@ -204,28 +218,53 @@ namespace PReviewer.Service
         private static void AddToSection(List<Section> existingSections, VisualLine lineSegment)
         {
             var delimiterLen = lineSegment.LastDocumentLine.DelimiterLength;
-            if (!existingSections.Any())
+
+            var newSection = new Section(lineSegment.StartOffset, lineSegment.StartOffset + lineSegment.VisualLength,
+                delimiterLen);
+
+            var index = existingSections.BinarySearch(newSection, new Section.SectionLocator());
+            
+            if (index >= 0) return;
+
+            var insertPos = ~index;
+            var prePos = insertPos - 1;
+            var nextPos = insertPos;
+            var preItem = prePos >= 0 ? existingSections[prePos] : null;
+            var nextItem = nextPos < existingSections.Count ? existingSections[nextPos] : null;
+
+            if (preItem != null)
             {
-                existingSections.Add(new Section(lineSegment.StartOffset, 
-                    lineSegment.StartOffset + lineSegment.VisualLength,
-                    delimiterLen));
+                if (TryMergeSections(preItem, newSection))
+                {
+                    if (nextItem != null && TryMergeSections(preItem, nextItem))
+                    {
+                        return;
+                    }
+                    return;
+                }
             }
-            else
+
+            if (nextItem != null)
             {
-                var matchedIndex =
-                    existingSections.FindIndex(r => r.End + r.DelimiterLength == lineSegment.StartOffset);
-                if (matchedIndex != -1)
+                if (TryMergeSections(newSection, nextItem))
                 {
-                    var matchedSection = existingSections[matchedIndex];
-                    var newEnd = lineSegment.StartOffset + lineSegment.VisualLength;
-                    existingSections.RemoveAt(existingSections.Count - 1);
-                    existingSections.Add(new Section(matchedSection.Start, newEnd, delimiterLen));
-                }
-                else
-                {
-                    existingSections.Add(new Section(lineSegment.StartOffset, lineSegment.StartOffset + lineSegment.VisualLength, delimiterLen));
+                    return;
                 }
             }
+
+            existingSections.Insert(insertPos, newSection);
+        }
+
+        private static bool TryMergeSections(Section preItem, Section newSection)
+        {
+            if (preItem.End + preItem.DelimiterLength != newSection.Start)
+            {
+                return false;
+            }
+
+            preItem.End = newSection.End;
+            preItem.DelimiterLength = newSection.DelimiterLength;
+            return true;
         }
 
         public KnownLayer Layer
