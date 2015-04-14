@@ -61,6 +61,57 @@ namespace PReviewer.Service
             }
             return ret;
         }
+
+        public static void AddToSection(List<Section> existingSections, Section newSection)
+        {
+            var index = existingSections.BinarySearch(newSection, new Section.SectionLocator());
+
+            if (index >= 0) return;
+
+            var insertPos = ~index;
+            var prePos = insertPos - 1;
+            var nextPos = insertPos;
+            var preItem = prePos >= 0 ? existingSections[prePos] : null;
+            var nextItem = nextPos < existingSections.Count ? existingSections[nextPos] : null;
+
+            if (preItem != null)
+            {
+                if (TryMergeSections(preItem, newSection))
+                {
+                    if (nextItem != null && TryMergeSections(preItem, nextItem))
+                    {
+                        existingSections.RemoveAt(nextPos);
+                        return;
+                    }
+                    return;
+                }
+            }
+
+            if (nextItem != null)
+            {
+                if (TryMergeSections(newSection, nextItem))
+                {
+                    nextItem.Start = newSection.Start;
+                    nextItem.End = newSection.End;
+                    nextItem.DelimiterLength = newSection.DelimiterLength;
+                    return;
+                }
+            }
+
+            existingSections.Insert(insertPos, newSection);
+        }
+
+        private static bool TryMergeSections(Section preItem, Section newSection)
+        {
+            if (preItem.End + preItem.DelimiterLength != newSection.Start)
+            {
+                return false;
+            }
+
+            preItem.End = newSection.End;
+            preItem.DelimiterLength = newSection.DelimiterLength;
+            return true;
+        }
     }
     class Highlighter : IBackgroundRenderer
     {
@@ -104,18 +155,23 @@ namespace PReviewer.Service
             foreach (var lineSegment in visualLines)
             {
                 if (lineSegment.VisualLength == 0) { continue; }
+
+                var section = new Section(lineSegment.StartOffset,     
+                    lineSegment.StartOffset + lineSegment.VisualLength,
+                    lineSegment.LastDocumentLine.DelimiterLength);
+
                 var firstChar = lineSegment.Document.GetCharAt(lineSegment.StartOffset);
                 switch (firstChar)
                 {
                     case '+':
-                        AddToSection(_plusLinesSections, lineSegment);
+                        HighlighterHelper.AddToSection(_plusLinesSections, section);
                         break;
                     case '-':
-                        AddToSection(_minusLinesSections, lineSegment);
+                        HighlighterHelper.AddToSection(_minusLinesSections, section);
                         break;
                     case '@':
                     case '\\':
-                        AddToSection(_headers, lineSegment);
+                        HighlighterHelper.AddToSection(_headers, section);
                         break;
                 }
             }
@@ -214,59 +270,7 @@ namespace PReviewer.Service
             brush.Freeze();
             drawingContext.DrawGeometry(brush, null, geometry);
         }
-
-        private static void AddToSection(List<Section> existingSections, VisualLine lineSegment)
-        {
-            var delimiterLen = lineSegment.LastDocumentLine.DelimiterLength;
-
-            var newSection = new Section(lineSegment.StartOffset, lineSegment.StartOffset + lineSegment.VisualLength,
-                delimiterLen);
-
-            var index = existingSections.BinarySearch(newSection, new Section.SectionLocator());
-            
-            if (index >= 0) return;
-
-            var insertPos = ~index;
-            var prePos = insertPos - 1;
-            var nextPos = insertPos;
-            var preItem = prePos >= 0 ? existingSections[prePos] : null;
-            var nextItem = nextPos < existingSections.Count ? existingSections[nextPos] : null;
-
-            if (preItem != null)
-            {
-                if (TryMergeSections(preItem, newSection))
-                {
-                    if (nextItem != null && TryMergeSections(preItem, nextItem))
-                    {
-                        return;
-                    }
-                    return;
-                }
-            }
-
-            if (nextItem != null)
-            {
-                if (TryMergeSections(newSection, nextItem))
-                {
-                    return;
-                }
-            }
-
-            existingSections.Insert(insertPos, newSection);
-        }
-
-        private static bool TryMergeSections(Section preItem, Section newSection)
-        {
-            if (preItem.End + preItem.DelimiterLength != newSection.Start)
-            {
-                return false;
-            }
-
-            preItem.End = newSection.End;
-            preItem.DelimiterLength = newSection.DelimiterLength;
-            return true;
-        }
-
+        
         public KnownLayer Layer
         {
             get { return KnownLayer.Background; }
