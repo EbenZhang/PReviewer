@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 
@@ -46,15 +47,25 @@ namespace PReviewer.Service
     }
     class Highlighter : IBackgroundRenderer
     {
-        private List<Section> _plusLinesSections;
-        private List<Section> _minusLinesSections;
-        private List<Section> _headers;
+        private readonly List<Section> _plusLinesSections = new List<Section>();
+        private readonly List<Section> _minusLinesSections = new List<Section>();
+        private readonly List<Section> _headers = new List<Section>();
 
         private static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
         private static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
         private static readonly Color HeaderLineColor = Color.FromRgb(230, 230, 230);
         private static readonly Color PlusLineMarkerColor = Color.FromRgb(135, 255, 135);
         private static readonly Color MinusLineMarkerColor = Color.FromRgb(255, 150, 150);
+
+        public Highlighter(ITextEditorComponent textView)
+        {
+            textView.Document.TextChanged += (sender, args) =>
+            {
+                _plusLinesSections.Clear();
+                _minusLinesSections.Clear();
+                _headers.Clear();
+            };
+        }
 
         public void Draw(TextView textView, DrawingContext drawingContext)
         {
@@ -73,9 +84,6 @@ namespace PReviewer.Service
 
         private void CalculateSections(IEnumerable<VisualLine> visualLines)
         {
-            _plusLinesSections = new List<Section>();
-            _minusLinesSections = new List<Section>();
-            _headers = new List<Section>();
             foreach (var lineSegment in visualLines)
             {
                 if (lineSegment.VisualLength == 0) { continue; }
@@ -193,7 +201,7 @@ namespace PReviewer.Service
             drawingContext.DrawGeometry(brush, null, geometry);
         }
 
-        private static void AddToSection(IList<Section> existingSections, VisualLine lineSegment)
+        private static void AddToSection(List<Section> existingSections, VisualLine lineSegment)
         {
             var delimiterLen = lineSegment.LastDocumentLine.DelimiterLength;
             if (!existingSections.Any())
@@ -204,12 +212,14 @@ namespace PReviewer.Service
             }
             else
             {
-                var lastSection = existingSections.Last();
-                if (lineSegment.StartOffset == lastSection.End + lastSection.DelimiterLength)
+                var matchedIndex =
+                    existingSections.FindIndex(r => r.End + r.DelimiterLength == lineSegment.StartOffset);
+                if (matchedIndex != -1)
                 {
+                    var matchedSection = existingSections[matchedIndex];
                     var newEnd = lineSegment.StartOffset + lineSegment.VisualLength;
                     existingSections.RemoveAt(existingSections.Count - 1);
-                    existingSections.Add(new Section(lastSection.Start, newEnd, delimiterLen));
+                    existingSections.Add(new Section(matchedSection.Start, newEnd, delimiterLen));
                 }
                 else
                 {

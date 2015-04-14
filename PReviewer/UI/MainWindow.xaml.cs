@@ -44,7 +44,7 @@ namespace PReviewer.UI
             Loaded += OnLoaded;
             DiffViewer.Options.ColumnRulerPosition = 120;
 
-            DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter());
+            DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
             DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
 
             SetupWindowClosingActions();
