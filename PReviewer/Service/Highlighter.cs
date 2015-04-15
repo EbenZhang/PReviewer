@@ -23,7 +23,7 @@ namespace PReviewer.Service
 
         public override string ToString()
         {
-            return string.Format("Start {0}, End {1}, Len {2}, EOL {3}", Start, End, End - Start + 1, DelimiterLength);
+            return string.Format("Start {0}, End {1}, Len {2}, EOL {3}", Start, End, End - Start, DelimiterLength);
         }
 
         public class SectionLocator : IComparer<Section> 
@@ -44,8 +44,39 @@ namespace PReviewer.Service
         }
     }
 
+    public interface IMarkerRender
+    {
+        void DrawMarker(ISegment range, Color color);
+    }
+
+    class MarkerRender : IMarkerRender
+    {
+        private readonly TextView _textView;
+        private readonly DrawingContext _drawingContext;
+
+        public MarkerRender(TextView textView, DrawingContext drawingContext)
+        {
+            _textView = textView;
+            _drawingContext = drawingContext;
+        }
+
+        public void DrawMarker(ISegment range, Color color)
+        {
+            var geoBuilder = new BackgroundGeometryBuilder { AlignToWholePixels = true, CornerRadius = 3 };
+            geoBuilder.AddSegment(_textView, range);
+            var geometry = geoBuilder.CreateGeometry();
+            if (geometry == null) return;
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            _drawingContext.DrawGeometry(brush, null, geometry);
+        }
+    }
+
     public class HighlighterHelper
     {
+        public static readonly Color PlusLineMarkerColor = Color.FromRgb(135, 255, 135);
+        public static readonly Color MinusLineMarkerColor = Color.FromRgb(255, 150, 150);
+
         public static List<Tuple<Section, Section>> GetIntersections(List<Section> minusSections,
             List<Section> plusSections)
         {
@@ -112,6 +143,68 @@ namespace PReviewer.Service
             preItem.DelimiterLength = newSection.DelimiterLength;
             return true;
         }
+
+        public static void MarkDifferenceForSection(Section minusSection, Section plusSection,
+            IMarkerRender markerRender, ITextSource doc)
+        {
+            var minusIter = minusSection.Start + 1; // +1 for '-' sign
+            var plusIter = plusSection.Start + 1;
+
+            while (minusIter < minusSection.End
+                   && plusIter < plusSection.End)
+            {
+                var minusChar = doc.GetCharAt(minusIter);
+                var plusChar = doc.GetCharAt(plusIter);
+                if (minusChar != plusChar)
+                {
+                    break;
+                }
+                minusIter++;
+                plusIter++;
+            }
+
+            var startPosForPlusSection = plusIter;
+            var startPosForMinusSection = minusIter;
+
+            minusIter = minusSection.End - 1;
+            plusIter = plusSection.End - 1;
+            while (minusIter >= startPosForMinusSection
+                   && plusIter >= startPosForPlusSection)
+            {
+                var minusChar = doc.GetCharAt(minusIter);
+                var plusChar = doc.GetCharAt(plusIter);
+                if (minusChar != plusChar)
+                {
+                    break;
+                }
+                minusIter--;
+                plusIter--;
+            }
+
+            var endPosForPlusSection = plusIter + 1;
+            var endPosForMinusSection = minusIter + 1;
+
+            if (endPosForPlusSection > startPosForPlusSection)
+            {
+                var range = new TextSegment()
+                {
+                    StartOffset = startPosForPlusSection,
+                    Length = endPosForPlusSection - startPosForPlusSection,
+                };
+
+                markerRender.DrawMarker(range, PlusLineMarkerColor);
+            }
+
+            if (endPosForMinusSection > startPosForMinusSection)
+            {
+                var range = new TextSegment()
+                {
+                    StartOffset = startPosForMinusSection,
+                    Length = endPosForMinusSection - startPosForMinusSection,
+                };
+                markerRender.DrawMarker(range, MinusLineMarkerColor);
+            }
+        }
     }
     class Highlighter : IBackgroundRenderer
     {
@@ -122,8 +215,6 @@ namespace PReviewer.Service
         private static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
         private static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
         private static readonly Color HeaderLineColor = Color.FromRgb(230, 230, 230);
-        private static readonly Color PlusLineMarkerColor = Color.FromRgb(135, 255, 135);
-        private static readonly Color MinusLineMarkerColor = Color.FromRgb(255, 150, 150);
 
         public Highlighter(ITextEditorComponent textView)
         {
@@ -143,11 +234,13 @@ namespace PReviewer.Service
                 return;
             }
 
+            var markerRender = new MarkerRender(textView, drawingContext);
+
             CalculateSections(visualLines);
 
-            HighlightLinesBackground(textView, drawingContext);
+            HighlightLinesBackground(markerRender);
 
-            AddMarkerForDifferences(textView, drawingContext);
+            AddMarkerForDifferences(markerRender, textView.Document);
         }
 
         private void CalculateSections(IEnumerable<VisualLine> visualLines)
@@ -177,7 +270,7 @@ namespace PReviewer.Service
             }
         }
 
-        private void AddMarkerForDifferences(TextView textView, DrawingContext drawingContext)
+        private void AddMarkerForDifferences(IMarkerRender markerRender, ITextSource textSource)
         {
             if (!_minusLinesSections.Any())
             {
@@ -193,82 +286,9 @@ namespace PReviewer.Service
 
             foreach (var intersection in intersections)
             {
-                MarkDifferenceForSection(intersection.Item1, intersection.Item2, textView, drawingContext);
+                HighlighterHelper.MarkDifferenceForSection(intersection.Item1,
+                    intersection.Item2, markerRender, textSource);
             }
-        }
-
-        private static void MarkDifferenceForSection(Section minusSection, Section plusSection,
-            TextView textView, DrawingContext drawingContext)
-        {
-            var doc = textView.Document;
-            var minusIter = minusSection.Start + 1; // +1 for '-' sign
-            var plusIter = plusSection.Start + 1;
-
-            while (minusIter < minusSection.End
-                   && plusIter < plusSection.End)
-            {
-                if (!doc.GetCharAt(minusIter).Equals(
-                    doc.GetCharAt(plusIter)))
-                {
-                    break;
-                }
-                minusIter++;
-                plusIter++;
-            }
-
-            var startPosForPlusSection = plusIter;
-            var startPosForMinusSection = minusIter;
-
-            minusIter = minusSection.End - 1;
-            plusIter = plusSection.End - 1;
-            while (minusIter >= startPosForMinusSection
-                   && plusIter >= startPosForPlusSection)
-            {
-                if (!doc.GetCharAt(minusIter).Equals(
-                    doc.GetCharAt(plusIter)))
-                {
-                    break;
-                }
-                minusIter--;
-                plusIter--;
-            }
-
-            var endPosForPlusSection = plusIter + 1;
-            var endPosForMinusSection = minusIter + 1;
-
-            if (endPosForPlusSection > startPosForPlusSection)
-            {
-                var range = new TextSegment()
-                {
-                    StartOffset = startPosForPlusSection,
-                    Length = endPosForPlusSection - startPosForPlusSection,
-                };
-
-                DrawMarker(textView, drawingContext, range, PlusLineMarkerColor);
-            }
-
-            if (endPosForMinusSection > startPosForMinusSection)
-            {
-                var range = new TextSegment()
-                {
-                    StartOffset = startPosForMinusSection,
-                    Length = endPosForMinusSection - startPosForMinusSection,
-                };
-                DrawMarker(textView, drawingContext, range, MinusLineMarkerColor);
-            }
-        }
-
-        private static void DrawMarker(TextView textView, DrawingContext drawingContext,
-            ISegment range,
-            Color color)
-        {
-            var geoBuilder = new BackgroundGeometryBuilder {AlignToWholePixels = true, CornerRadius = 3};
-            geoBuilder.AddSegment(textView, range);
-            var geometry = geoBuilder.CreateGeometry();
-            if (geometry == null) return;
-            var brush = new SolidColorBrush(color);
-            brush.Freeze();
-            drawingContext.DrawGeometry(brush, null, geometry);
         }
         
         public KnownLayer Layer
@@ -276,15 +296,14 @@ namespace PReviewer.Service
             get { return KnownLayer.Background; }
         }
 
-        private void HighlightLinesBackground(TextView textView, DrawingContext drawingContext)
+        private void HighlightLinesBackground(IMarkerRender markerRender)
         {
-            HighlightSections(_minusLinesSections, textView, drawingContext, MinusLineColor);
-            HighlightSections(_plusLinesSections, textView, drawingContext, PlusLineColor);
-            HighlightSections(_headers, textView, drawingContext, HeaderLineColor);
+            HighlightSections(_minusLinesSections, MinusLineColor, markerRender);
+            HighlightSections(_plusLinesSections, PlusLineColor, markerRender);
+            HighlightSections(_headers, HeaderLineColor, markerRender);
         }
 
-        private static void HighlightSections(IEnumerable<Section> sections, TextView textView, 
-            DrawingContext drawingContext, Color color)
+        private static void HighlightSections(IEnumerable<Section> sections, Color color, IMarkerRender markerRender)
         {
             foreach (var section in sections)
             {
@@ -295,7 +314,7 @@ namespace PReviewer.Service
                     Length = section.End - section.Start + 1,
                 };
 
-                DrawMarker(textView, drawingContext, range, color);
+                markerRender.DrawMarker(range, color);
             }
         }
     }
