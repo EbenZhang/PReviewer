@@ -102,6 +102,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Controls.Input.Toolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WPFToolkit.3.5.50211.1\lib\System.Windows.Controls.Input.Toolkit.dll</HintPath>
     </Reference>
@@ -185,8 +186,10 @@
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
     <Compile Include="Model\RepoHistoryPersist.cs" />
+    <Compile Include="Service\DiffMatchPatch.cs" />
     <Compile Include="Service\IBackgroundTaskRunner.cs" />
     <Compile Include="Service\Highlighter.cs" />
+    <Compile Include="Service\IDiffer.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
     <Page Include="UI\CompareToolSettings.xaml">

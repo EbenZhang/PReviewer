@@ -6,7 +6,7 @@ using Shouldly;
 namespace PReviewer.Test
 {
     [TestFixture]
-    public class TestHighlighter
+    public class TestHighlighter_Intersection
     {
         #region Intersection
         [Test]
@@ -113,7 +113,11 @@ namespace PReviewer.Test
             intersections[1].Item2.ShouldBe(plusSections[1]);
         }
         #endregion
+    }
 
+    [TestFixture]
+    public class TestHighlighter_MergeSections
+    {
         #region Add line to section
 
         [Test]
@@ -121,7 +125,7 @@ namespace PReviewer.Test
         {
             var s1 = new Section(10, 20, 2);
             var s3 = new Section(80, 100, 2);
-            var sections = new List<Section>{ s1, s3 };
+            var sections = new List<Section> { s1, s3 };
 
             var s2 = new Section(23, 78, 1);
             HighlighterHelper.AddToSection(sections, s2);

@@ -43,6 +43,10 @@ namespace PReviewer.UI
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
             DiffViewer.Options.ColumnRulerPosition = 120;
+            DiffViewer.Options.ShowSpaces = true;
+            DiffViewer.Options.ShowEndOfLine = true;
+            DiffViewer.Options.ShowTabs = true;
+            DiffViewer.Options.ShowBoxForControlCharacters = true;
 
             DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
             DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
