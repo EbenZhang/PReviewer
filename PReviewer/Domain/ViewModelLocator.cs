@@ -36,7 +36,7 @@ namespace PReviewer.Domain
         {
             get
             {
-                var client = _container.Resolve<IGitHubClientFactory>().GetClient(null, null).Result;
+                var client = _container.Resolve<IGitHubClientFactory>().GetClient();
                 return _container.Resolve<MainWindowVm>(TypedParameter.From(client));
             }
         }

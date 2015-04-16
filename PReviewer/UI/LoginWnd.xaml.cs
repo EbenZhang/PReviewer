@@ -18,6 +18,8 @@ namespace PReviewer
     {
         private readonly LoginWndVm _viewModel;
 
+        public bool IsChangingAccount = false;
+
         public LoginWnd()
         {
             InitializeComponent();
@@ -34,13 +36,16 @@ namespace PReviewer
         private void LoginWnd_Loaded(object sender, RoutedEventArgs e)
         {
             TxtUserName.Focus();
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+            if (!IsChangingAccount)
             {
-                if (!string.IsNullOrWhiteSpace(_viewModel.UserName))
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
                 {
-                    Login();
-                }
-            }));
+                    if (!string.IsNullOrWhiteSpace(_viewModel.UserName))
+                    {
+                        Login();
+                    }
+                }));
+            }
         }
 
         private async void Login()
@@ -56,12 +61,12 @@ namespace PReviewer
 
                 if (client == null) return;
 
-                ViewModelLocator.RegisterInstance<IGitHubClient, IGitHubClient>(client);
-
-                var main = new MainWindow();
-                Application.Current.MainWindow = main;
-                main.Show();
-
+                if (!IsChangingAccount)
+                {
+                    var main = new MainWindow();
+                    Application.Current.MainWindow = main;
+                    main.Show();
+                }
                 Close();
             }
             catch (Exception ex)

@@ -11,7 +11,7 @@
         xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
         xmlns:ui="clr-namespace:PReviewer.UI"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:textEditor="clr-namespace:ICSharpCode.TextEditor;assembly=ICSharpCode.TextEditor">
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit">
     <Window.DataContext>
         <Binding Path="MainWindowVm" Source="{StaticResource ViewModelLocator}"/>
     </Window.DataContext>
@@ -156,59 +156,71 @@
             </GroupBox>
             <!--pull request descriptoin-->
             <Expander Grid.Row="1"
-                      IsExpanded="True"
-                      x:Name="PrDescExpander" 
-                      Header="Pull Request Description">
+                      IsExpanded="False"
+                      x:Name="PrDescExpander">
+                <Expander.Header>
+                    <DockPanel>
+                        <Border CornerRadius="2" Background="LightCoral" Padding="4">
+                            <Border.Visibility>
+                                <Binding Path="IsClosed">
+                                    <Binding.Converter>
+                                        <BooleanToVisibilityConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </Border.Visibility>
+                            <TextBlock Text="Closed"/>
+                        </Border>
+                        <Border CornerRadius="2" Background="LightGreen" Padding="4">
+                            <Border.Visibility>
+                                <Binding Path="IsMerged">
+                                    <Binding.Converter>
+                                        <BooleanToVisibilityConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </Border.Visibility>
+                            <TextBlock Margin="4,0,0,0" Text="Merged"/>
+                        </Border>
+                        <TextBlock 
+                            Margin="4,0,0,0"
+                            Text="{Binding PrTitle}"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                            TextTrimming="CharacterEllipsis"/>
+                    </DockPanel>
+                </Expander.Header>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <GroupBox Margin="0,4,0,0" Header="Pull Request Description">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBox 
-                                IsReadOnly="True"
-                                BorderThickness="0"
-                                BorderBrush="Transparent"
-                                Grid.Row="0" FontSize="14"
-                                Text="{Binding PrTitle}">
-                            </TextBox>
-
-                            <Grid Grid.Row="1">
-                                <Grid.Visibility>
-                                    <Binding Path="IsDragging" ElementName="Splitter">
-                                        <Binding.Converter>
-                                            <converter:CompositeConverter>
-                                                <converter:InverseBooleanConverter/>
-                                                <converter:FalseToHiddenConverter/>
-                                            </converter:CompositeConverter>
-                                        </Binding.Converter>
-                                    </Binding>
-                                </Grid.Visibility>
-                                <WindowsFormsHost>
-                                    <WindowsFormsHost.Visibility>
-                                        <Binding Path="IsProcessing">
-                                            <Binding.Converter>
-                                                <converter:CompositeConverter>
-                                                    <converter:InverseBooleanConverter/>
-                                                    <converter:FalseToHiddenConverter/>
-                                                </converter:CompositeConverter>
-                                            </Binding.Converter>
-                                        </Binding>
-                                    </WindowsFormsHost.Visibility>
-                                    <wf:WebBrowser 
-                                        WebBrowserShortcutsEnabled="False"
-                                        Height="100"
-                                        x:Name="TxtPrDescription">
-                                    </wf:WebBrowser>
-                                </WindowsFormsHost>
-                            </Grid>
-                        </Grid>
-                    </GroupBox>
+                    <Grid>
+                        <Grid.Visibility>
+                            <Binding Path="IsDragging" ElementName="Splitter">
+                                <Binding.Converter>
+                                    <converter:CompositeConverter>
+                                        <converter:InverseBooleanConverter/>
+                                        <converter:FalseToHiddenConverter/>
+                                    </converter:CompositeConverter>
+                                </Binding.Converter>
+                            </Binding>
+                        </Grid.Visibility>
+                        <WindowsFormsHost>
+                            <WindowsFormsHost.Visibility>
+                                <Binding Path="IsProcessing">
+                                    <Binding.Converter>
+                                        <converter:CompositeConverter>
+                                            <converter:InverseBooleanConverter/>
+                                            <converter:FalseToHiddenConverter/>
+                                        </converter:CompositeConverter>
+                                    </Binding.Converter>
+                                </Binding>
+                            </WindowsFormsHost.Visibility>
+                            <wf:WebBrowser 
+                                WebBrowserShortcutsEnabled="False"
+                                Height="100"
+                                x:Name="TxtPrDescription">
+                            </wf:WebBrowser>
+                        </WindowsFormsHost>
+                    </Grid>
                     <GridSplitter
                         ShowsPreview="True"
                         Grid.Row="1" Background="Gray"
@@ -296,21 +308,26 @@
                             SelectedItem="{Binding SelectedDiffFile}">
                             <ListView.Resources>
                                 <ResourceDictionary>
-                                    <ContextMenu x:Key="ItemContextMenu" DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
+                                    <ContextMenu 
+                                        x:Key="ItemContextMenu" 
+                                        KeyDown="FileListContextMenuKeyDown"
+                                        DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem InputGestureText="Enter" Command="{Binding OpenInDiffToolCmd}" Header="_Open in difftool"></MenuItem>
                                         <MenuItem Header="_Flag">
-                                            <MenuItem Header="_Reviewed" Command="{Binding FlagAsReviewedCmd}"></MenuItem>
-                                            <MenuItem Header ="_Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
-                                            <MenuItem Header ="_Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
+                                            <MenuItem InputGestureText="R" Header="Reviewed" Command="{Binding FlagAsReviewedCmd}">
+                                            </MenuItem>
+                                            <MenuItem InputGestureText="Q" Header ="Back Later" Command="{Binding FlagAsBackLaterCmd}"></MenuItem>
+                                            <MenuItem InputGestureText="F" Header ="Fresh File" Command="{Binding FlagAsFreshCmd}"></MenuItem>
                                         </MenuItem>
-                                        <MenuItem Command="{Binding CopyFileNameCmd}" Header="Copy File _Name"></MenuItem>
-                                        <MenuItem Command="{Binding CopyFilePathCmd}" Header="Copy File _Path"></MenuItem>
+                                        <MenuItem InputGestureText="Ctrl+C" Command="{Binding CopyFileNameCmd}" Header="Copy File Name"></MenuItem>
+                                        <MenuItem InputGestureText="Ctrl+P" Command="{Binding CopyFilePathCmd}" Header="Copy File Path"></MenuItem>
                                     </ContextMenu>
                                 </ResourceDictionary>
                             </ListView.Resources>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <EventSetter Event="MouseDoubleClick" Handler="OnFileDoubleClicked"></EventSetter>
+                                    <EventSetter Event="KeyDown" Handler="OnFileKeyDown"></EventSetter>
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
                                     <Setter Property="Tag" Value="{Binding ., ElementName=ThisWnd}"></Setter>
                                 </Style>
@@ -352,16 +369,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="File">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock 
-                                                        TextTrimming="WordEllipsis"
-                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                                                        Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
+
                                         <GridViewColumn Header="Status">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
@@ -380,6 +388,28 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
+
+                                        <GridViewColumn Header="FileName">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock 
+                                                        TextTrimming="WordEllipsis"
+                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                        Text="{Binding FileName}"></TextBlock>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <GridViewColumn Header="FilePath">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock 
+                                                        TextTrimming="CharacterEllipsis"
+                                                        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                                        Text="{Binding GitHubCommitFile.Filename}"></TextBlock>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                     </GridView.Columns>
                                 </controls:AutoSizedGridView>
                             </ListView.View>
@@ -388,27 +418,13 @@
                     <GridSplitter Grid.Column="1" Background="Gray" Visibility="Visible" Width="5" HorizontalAlignment="Stretch">
                     </GridSplitter>
                     <Grid Grid.Column="2">
-                        <Grid.Visibility>
-                            <Binding Path="IsProcessing">
-                                <Binding.Converter>
-                                    <converter:CompositeConverter>
-                                        <converter:InverseBooleanConverter/>
-                                        <converter:FalseToHiddenConverter/>
-                                    </converter:CompositeConverter>
-                                </Binding.Converter>
-                            </Binding>
-                        </Grid.Visibility>
-                        <WindowsFormsHost>
-                            <textEditor:TextEditorControl 
-                                IsReadOnly="True" 
-                                ShowSpaces="False"
-                                ShowEOLMarkers="False"
-                                ShowLineNumbers="True"
-                                ShowInvalidLines="False"
-                                ShowTabs="False"
-                                AutoSize="True" 
-                                x:Name="DiffViewer"/>
-                        </WindowsFormsHost>
+                        <avalonEdit:TextEditor
+                            VerticalScrollBarVisibility="Auto"
+                            FontFamily="Courier New"
+                            FontSize="14"
+                            ShowLineNumbers="True"
+                            IsReadOnly="True" x:Name="DiffViewer">
+                        </avalonEdit:TextEditor>
                     </Grid>
                 </Grid>
             </GroupBox>
@@ -479,6 +495,11 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button
                                 Padding="2,0,2,0"
+                                Command="{Binding PreviewCommentsCmd, ElementName=ThisWnd}"
+                                HorizontalAlignment="Center">Preview Comments</Button>
+                            <Button
+                                Padding="2,0,2,0"
+                                Margin="16,0,0,0"
                                 Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
                                 HorizontalAlignment="Center">Submit Comments</Button>
                             <Button
@@ -533,6 +554,14 @@
                             <DockPanel>
                                 <Image Source="/Images/question.png"></Image>
                                 <Label>About</Label>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem Command="{Binding LogoutCmd, ElementName=ThisWnd}">
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image Source="/Images/logout.png"></Image>
+                                <Label>_Change Account</Label>
                             </DockPanel>
                         </MenuItem.Header>
                     </MenuItem>

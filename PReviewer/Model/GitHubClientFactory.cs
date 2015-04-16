@@ -11,12 +11,9 @@ namespace PReviewer.Model
     public class GitHubClientFactory : IGitHubClientFactory
     {
         private IGitHubClient _client;
-        public async Task<IGitHubClient> GetClient(string userName, string password)
+        private readonly object _lockClient = new object();
+        public async Task<IGitHubClient> Login(string userName, string password)
         {
-            if (_client != null)
-            {
-                return _client;
-            }
             var github = new GitHubClient(new ProductHeaderValue("PReviewer"));
 
             var credential = new Credentials(userName, password);
@@ -36,9 +33,20 @@ namespace PReviewer.Model
 
             github.Connection.Credentials = new Credentials(authorization.Token);
 
-            _client = github;
+            lock (_lockClient)
+            {
+                _client = github;
+            }
 
             return _client;
+        }
+
+        public IGitHubClient GetClient()
+        {
+            lock (_lockClient)
+            {
+                return _client;
+            }
         }
     }
 }

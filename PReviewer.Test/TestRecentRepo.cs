@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using PReviewer.Domain;
+using Shouldly;
 
 namespace PReviewer.Test
 {
@@ -120,10 +121,10 @@ namespace PReviewer.Test
             }
             var repoHistory = new RecentRepo { MaxHistoryItems = maxItems };
             repoHistory.From(container);
-            Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(10));
+            Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(maxItems));
             container.Urls.Add("https://github.com/ebenzhang/ezplayer/pull/21000");
             repoHistory.From(container);
-            Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(6), "Half of the MaxItems are removed.");
+            Assert.That(repoHistory.PullRequests.Count, Is.EqualTo(maxItems/2), "Only half of the MaxItems are kept.");
         }
 
         [Test]
@@ -144,7 +145,27 @@ namespace PReviewer.Test
             prInfo.UpdateWith(container.Urls.First());
             await repoHistory.Save(prInfo, persist);
 
-            persist.Received(1).Save(Arg.Is<RepoHistoryContainer>(x => x.Urls.Last() == prInfo.ToUrl())).IgnoreAsyncWarning();
+            persist.Received(1).Save(Arg.Is<RepoHistoryContainer>(x => x.Urls.First() == prInfo.ToUrl())).IgnoreAsyncWarning();
+        }
+
+        [Test]
+        public async void ShouldInsertMostRecentRepoToTheBegining()
+        {
+            var container = new RepoHistoryContainer();
+            for (var i = 1; i <= 4; ++i)
+            {
+                container.Urls.Add("https://github.com/gitext/gitextensions/pull/" + i);
+            }
+            var repoHistory = new RecentRepo();
+            repoHistory.From(container);
+
+            const string newPrUrl = "https://github.com/ebenzhang/ezplayer/pull/21000";
+            var newPrInfo = PullRequestLocator.FromUrl(newPrUrl);
+            var persist = Substitute.For<IRepoHistoryPersist>();
+            await repoHistory.Save(newPrInfo, persist);
+            repoHistory.PullRequests.First().ShouldBe(newPrInfo);
+            repoHistory.Owners.First().ShouldBe("ebenzhang");
+            repoHistory.Repositories.First().ShouldBe("ezplayer");
         }
     }
 }

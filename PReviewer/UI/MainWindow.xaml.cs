@@ -9,14 +9,18 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
+using MarkdownSharp;
 using Microsoft.Win32;
 using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
+using PReviewer.Service;
+using WpfCommon.Controls;
 using WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
@@ -30,13 +34,23 @@ namespace PReviewer.UI
     public partial class MainWindow : Window
     {
         private readonly MainWindowVm _viewModel;
+        private Window _previewWnd;
+        private MarkdownView _previewBrowser;
 
         public MainWindow()
         {
             InitializeComponent();
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
-            DiffViewer.TextChanged += DiffViewerOnTextChanged;
+            DiffViewer.Options.ColumnRulerPosition = 120;
+            DiffViewer.Options.ShowSpaces = true;
+            DiffViewer.Options.ShowEndOfLine = true;
+            DiffViewer.Options.ShowTabs = true;
+            DiffViewer.Options.ShowBoxForControlCharacters = true;
+
+            DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
+            DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
+
             SetupWindowClosingActions();
             _viewModel.PropertyChanged += OnPrDescriptionChanged;
             TxtPrDescription.Navigating += WebBrowser_OnNavigating;
@@ -74,17 +88,18 @@ namespace PReviewer.UI
             
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
-                var md = new MarkdownSharp.Markdown();
-                // replace \r\n with \r\n\r\n as required by the Transformer to generate <ul><li>
-                var transformed = md.Transform(_viewModel.PrDescription.Replace("\r\n", "\r\n\r\n"));
-                var text = "<html><body>" + transformed.Replace("\n", "") + "</body></html>";
-                TxtPrDescription.DocumentText = StyleMarkdown(text);
+                var html = _viewModel.PrDescription;
+                TxtPrDescription.DocumentText = MarkdownToHtml(html);
             }));
 
         }
 
-        private static string StyleMarkdown(string text)
+        private static string MarkdownToHtml(string mdText)
         {
+            var md = new Markdown();
+            // replace \r\n with \r\n\r\n as required by the Transformer to generate <ul><li>
+            var transformed = md.Transform(mdText.Replace("\r\n", "\r\n\r\n"));
+            var text = "<html><body>" + transformed.Replace("\n", "") + "</body></html>";
             return text.Replace("<p>", "<p style='line-height:15%'>")
                 .Replace("<code>", "<code style='background-color:#e0eaf1'>");
         }
@@ -98,19 +113,16 @@ namespace PReviewer.UI
             }
         }
 
-        private void DiffViewerOnTextChanged(object sender, EventArgs eventArgs)
-        {
-            var markerStrategy = DiffViewer.Document.MarkerStrategy;
-            markerStrategy.RemoveAll(m => true);
-
-            if (DiffViewer.Text == "") return;
-            new PatchHighlighter(DiffViewer.Document).Highlight();
-        }
-
         private void SetupWindowClosingActions()
         {
-            this.Closed += async (sender, arg) => await _viewModel.SaveComments();
-            SystemEvents.SessionEnding += async (sender, arg) => await _viewModel.SaveComments();
+            this.Closed += (s, e) => BeforeClosingWnd();
+            SystemEvents.SessionEnding += (s, e) => BeforeClosingWnd();
+        }
+
+        private async void BeforeClosingWnd()
+        {
+            ViewModelLocator.Resolve<IBackgroundTaskRunner>().Quit();
+            await _viewModel.SaveComments();
         }
 
         public ICommand ShowChangesCmd
@@ -216,7 +228,12 @@ namespace PReviewer.UI
                 MessageBoxHelper.ShowError(this, "You haven't commented on anything yet.");
                 return;
             }
-            var choice = MessageBoxHelper.ShowConfirmation(this, "Are you sure to submit?");
+            var confirmation = "Are you sure to submit?";
+            if (_viewModel.IsMerged || _viewModel.IsClosed)
+            {
+                confirmation = "!!!The Pull Request was merged/closed.!!!" + confirmation;
+            }
+            var choice = MessageBoxHelper.ShowConfirmation(this, confirmation);
             if (choice != MessageBoxResult.Yes)
             {
                 return;
@@ -288,17 +305,7 @@ namespace PReviewer.UI
                 _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
                 return;
             }
-            if (_viewModel.SelectedDiffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
-            {
-                var ballon = new Balloon(sender as Control, "This file has been deleted in the pull request.",
-                    BalloonType.Information)
-                {
-                    ShowCloseButton = true
-                };
-                ballon.Show();
-                _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
-                return;
-            }
+            
             try
             {
                 await _viewModel.PrepareDiffContent();
@@ -310,7 +317,7 @@ namespace PReviewer.UI
             }
             catch (FailedToSaveContent ex)
             {
-                MessageBoxHelper.ShowError(this, "Unable to save content.\r\n\r\n" + ex);
+                MessageBoxHelper.ShowError(this, "Unable to save content. Please try again later.\r\n\r\n" + ex);
             }
             catch (Exception ex)
             {
@@ -363,12 +370,11 @@ namespace PReviewer.UI
                 ||string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
             {
                 DiffViewer.Text = "";
-                DiffViewer.Refresh();
                 return;
             }
 
+            DiffViewer.ScrollToHome();
             DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
-            DiffViewer.Refresh();
         }
 
         public ICommand CopyFileNameCmd
@@ -413,6 +419,102 @@ namespace PReviewer.UI
             get { return new RelayCommand(() => MarkReviewingStatus(ReviewStatus.HasntBeenReviewed)); }
         }
 
+        public ICommand PreviewCommentsCmd
+        {
+            get { return new RelayCommand(PreviewComments); }
+        }
+
+        public ICommand LogoutCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    var login = new LoginWnd {Owner = this, IsChangingAccount = true};
+                    login.ShowDialog();
+                    var factory = ViewModelLocator.Resolve<IGitHubClientFactory>();
+                    var client = factory.GetClient();
+                    if (client != null)
+                    {
+                        _viewModel.UpdateGithubClient(client);
+                    }
+                });
+            }
+        }
+
+        private void PreviewComments()
+        {
+            if (!_viewModel.HasComments())
+            {
+                MessageBoxHelper.ShowError(this, "You haven't commented on anything yet.");
+                return;
+            }
+            var comments = _viewModel.GenerateComments();
+            InitPreviewWnd();
+            
+            var html = MarkdownToHtml(comments);
+
+            _previewBrowser.HtmlContent = html;
+            _previewWnd.Show();
+        }
+
+        private void InitPreviewWnd()
+        {
+            if (_previewWnd != null)
+            {
+                return;
+            }
+            _previewWnd = new Window
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Height = 600,
+                Width = 800,
+                ShowInTaskbar = true,
+                Title = "Previewing"
+            };
+
+            _previewWnd.Closing += (sender, args) =>
+            {
+                _previewWnd.Hide();
+                args.Cancel = true;
+                Activate();
+            };
+
+            _previewBrowser = new MarkdownView();
+            _previewWnd.Content = _previewBrowser;
+            _previewBrowser.OpenLinkInExternalBrowser = true;
+        }
+
+        private void AddToGitExt()
+        {
+            var dialog = new FolderBrowserDialog
+            {
+                Description = "Select the GitExtensions folder",
+                ShowNewFolderButton = false
+            };
+            var result = dialog.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK) return;
+
+            var targetDir = dialog.SelectedPath;
+            if (!targetDir.ToUpperInvariant().EndsWith(@"\PLUGINS"))
+            {
+                targetDir = Path.Combine(targetDir, "plugins");
+            }
+            const string fileName = "PReviewer.gitext.dll";
+            var src = Path.Combine(PathHelper.ProcessDir, fileName);
+            var dst = Path.Combine(targetDir, fileName);
+            try
+            {
+                File.Copy(src, dst, overwrite: true);
+                MessageBoxHelper.ShowInfo(this, "Succeed");
+            }
+            catch (Exception ex)
+            {
+                MessageBoxHelper.ShowError(this, "Unable to install to GitExtensions.\r\n" + ex);
+            }
+        }
+
         private void MarkReviewingStatus(ReviewStatus status)
         {
             foreach (var item in DiffListView.SelectedItems.Cast<CommitFileVm>())
@@ -436,6 +538,44 @@ namespace PReviewer.UI
                 TxtPrDescription.Show();
                 TxtPrDescription.Height += (int)e.VerticalChange;
             }
+        }
+        private async void OnFileKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Enter:
+                    await OpenInDiffTool(sender);
+                    break;
+                case Key.R:
+                    FlagAsReviewedCmd.Execute(null);
+                    break;
+                case Key.Q:
+                    FlagAsBackLaterCmd.Execute(null);
+                    break;
+                case Key.F:
+                    FlagAsFreshCmd.Execute(null);
+                    break;
+                case Key.C:
+                    if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+                    {
+                        CopyFileNameCmd.Execute(null);
+                    }
+                    break;
+                case Key.P:
+                    if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+                    {
+                        CopyFilePathCmd.Execute(null);
+                    }
+                    break;
+            }
+        }
+
+        private void FileListContextMenuKeyDown(object sender, KeyEventArgs e)
+        {
+            OnFileKeyDown(sender, e);
+
+            var menu = sender as System.Windows.Controls.ContextMenu;
+            if (menu != null) menu.IsOpen = false;
         }
     }
 }

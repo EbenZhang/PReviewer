@@ -94,7 +94,7 @@ namespace PReviewer.Domain
             IsProcessing = true;
             try
             {
-                var client = await _gitHubClientFactory.GetClient(this.UserName, this.Password);
+                var client = await _gitHubClientFactory.Login(this.UserName, this.Password);
                 this.SaveCredential();
                 return client;
             }

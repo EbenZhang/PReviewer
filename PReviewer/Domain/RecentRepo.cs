@@ -49,15 +49,15 @@ namespace PReviewer.Domain
             {
                 PullRequests.Remove(prInfo);
             }
-            PullRequests.Add(newPrInfo);
+            PullRequests.Insert(0, newPrInfo);
 
             if (!Owners.Contains(prInfo.Owner))
             {
-                Owners.Add(prInfo.Owner);
+                Owners.Insert(0, prInfo.Owner);
             }
             if (!Repositories.Contains(prInfo.Repository))
             {
-                Repositories.Add(prInfo.Repository);
+                Repositories.Insert(0, prInfo.Repository);
             }
             
             await persist.Save(ToContainer());
@@ -72,7 +72,7 @@ namespace PReviewer.Domain
 
         private IList<T> RemoveIfExceedMax<T>(IList<T> orgList)
         {
-            return orgList.Count > MaxHistoryItems ? orgList.Skip(MaxHistoryItems/2).ToList() : orgList;
+            return orgList.Count > MaxHistoryItems ? orgList.Take(MaxHistoryItems/2).ToList() : orgList;
         }
 
         public RepoHistoryContainer ToContainer()

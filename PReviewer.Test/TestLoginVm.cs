@@ -68,7 +68,7 @@ namespace PReviewer.Test
             var vm = new LoginWndVm(_clientFactory, _credentialPersist) { UserName = "11", Password = "22" };
             await vm.Login();
 
-            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password).IgnoreAsyncWarning();
+            _clientFactory.Received(1).Login(vm.UserName, vm.Password).IgnoreAsyncWarning();
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace PReviewer.Test
             };
             await vm.Login();
 
-            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password).IgnoreAsyncWarning();
+            _clientFactory.Received(1).Login(vm.UserName, vm.Password).IgnoreAsyncWarning();
 
             Assert.That(changeCount, Is.EqualTo(2), "IsProcessing should be changed twice, first it's changed to busy, and then back to false.");
             Assert.False(vm.IsProcessing, "Status should back to non-busy");
@@ -104,14 +104,14 @@ namespace PReviewer.Test
                 }
             };
 
-            _clientFactory.When(x => x.GetClient(Arg.Any<string>(), Arg.Any<string>())).Do(x => { throw new Exception(); });
+            _clientFactory.When(x => x.Login(Arg.Any<string>(), Arg.Any<string>())).Do(x => { throw new Exception(); });
 
             Assert.Throws<Exception>(async () =>
             {
                 await vm.Login();
             });
 
-            _clientFactory.Received(1).GetClient(vm.UserName, vm.Password).IgnoreAsyncWarning();
+            _clientFactory.Received(1).Login(vm.UserName, vm.Password).IgnoreAsyncWarning();
 
             Assert.That(changeCount, Is.EqualTo(2), "IsProcessing should be changed twice, first it's changed to busy, and then back to false.");
             Assert.False(vm.IsProcessing, "Status should back to non-busy");
@@ -121,7 +121,7 @@ namespace PReviewer.Test
         public void GivenAFailedLogin_NoCredentialShouldBeSaved()
         {
             var vm = new LoginWndVm(_clientFactory, _credentialPersist) { UserName = "11", Password = "22" };
-            _clientFactory.When(x => x.GetClient(Arg.Any<string>(), Arg.Any<string>())).Do(x => { throw new Exception(); });
+            _clientFactory.When(x => x.Login(Arg.Any<string>(), Arg.Any<string>())).Do(x => { throw new Exception(); });
             Assert.Throws<Exception>(async () =>
             {
                 await vm.Login();
