@@ -428,6 +428,13 @@
                     </Grid>
                 </Grid>
             </GroupBox>
+            <Grid Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton IsChecked="{Binding OptionsVm.ShowWhiteSpaces, ElementName=ThisWnd}" ToolTip="Show Whitespaces">
+                        <Image Source="/Images/whitespaces.png" Height="16"></Image>
+                    </ToggleButton>
+                </StackPanel>
+            </Grid>
             <GridSplitter Grid.Row="4" Background="Gray" Visibility="Visible" Height="3" HorizontalAlignment="Stretch"/>
             <!--Comments-->
             <GroupBox Grid.Row="5" Margin="0,4,0,0" Header="Comments">

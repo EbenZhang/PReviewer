@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Forms;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
+using ICSharpCode.AvalonEdit;
 using Mantin.Controls.Wpf.Notification;
 using MarkdownSharp;
 using Microsoft.Win32;
@@ -36,17 +37,23 @@ namespace PReviewer.UI
         private readonly MainWindowVm _viewModel;
         private Window _previewWnd;
         private MarkdownView _previewBrowser;
+        private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
 
         public MainWindow()
         {
             InitializeComponent();
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
-            DiffViewer.Options.ColumnRulerPosition = 120;
-            DiffViewer.Options.ShowSpaces = true;
-            DiffViewer.Options.ShowEndOfLine = true;
-            DiffViewer.Options.ShowTabs = true;
-            DiffViewer.Options.ShowBoxForControlCharacters = true;
+
+            var binding = new Binding
+            {
+                Source = OptionsVm,
+                Path = new PropertyPath(PropertyName.Get<TextEditorOptionsVm, TextEditorOptions>((x) => x.Options))
+            };
+            DiffViewer.SetBinding(TextEditor.OptionsProperty, binding);
+
+            OptionsVm.Options.ColumnRulerPosition = 120;
+            OptionsVm.Options.ShowBoxForControlCharacters = true;
 
             DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
             DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
@@ -56,6 +63,11 @@ namespace PReviewer.UI
             TxtPrDescription.Navigating += WebBrowser_OnNavigating;
 
             InputManager.Current.PreNotifyInput += ProcessF5RefreshHotKey;
+        }
+
+        public TextEditorOptionsVm OptionsVm
+        {
+            get { return _optionsVm; }
         }
 
         private void ProcessF5RefreshHotKey(object sender, NotifyInputEventArgs e)
@@ -104,7 +116,8 @@ namespace PReviewer.UI
                 .Replace("<code>", "<code style='background-color:#e0eaf1'>");
         }
 
-        private void WebBrowser_OnNavigating(object sender, WebBrowserNavigatingEventArgs e)
+        private void WebBrowser_OnNavigating(object sender,
+            System.Windows.Forms.WebBrowserNavigatingEventArgs e)
         {
             if (!e.Url.ToString().StartsWith("about:blank"))
             {
@@ -484,35 +497,6 @@ namespace PReviewer.UI
             _previewBrowser = new MarkdownView();
             _previewWnd.Content = _previewBrowser;
             _previewBrowser.OpenLinkInExternalBrowser = true;
-        }
-
-        private void AddToGitExt()
-        {
-            var dialog = new FolderBrowserDialog
-            {
-                Description = "Select the GitExtensions folder",
-                ShowNewFolderButton = false
-            };
-            var result = dialog.ShowDialog();
-            if (result != System.Windows.Forms.DialogResult.OK) return;
-
-            var targetDir = dialog.SelectedPath;
-            if (!targetDir.ToUpperInvariant().EndsWith(@"\PLUGINS"))
-            {
-                targetDir = Path.Combine(targetDir, "plugins");
-            }
-            const string fileName = "PReviewer.gitext.dll";
-            var src = Path.Combine(PathHelper.ProcessDir, fileName);
-            var dst = Path.Combine(targetDir, fileName);
-            try
-            {
-                File.Copy(src, dst, overwrite: true);
-                MessageBoxHelper.ShowInfo(this, "Succeed");
-            }
-            catch (Exception ex)
-            {
-                MessageBoxHelper.ShowError(this, "Unable to install to GitExtensions.\r\n" + ex);
-            }
         }
 
         private void MarkReviewingStatus(ReviewStatus status)
