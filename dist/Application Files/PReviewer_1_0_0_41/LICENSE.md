@@ -24,18 +24,19 @@ If you prefer, you can rather buy me a bottle of coke next time I am in a locati
 
 # Credits:
 
-* [Octokit.net](http://octokit.github.io/). [MIT License](http://en.wikipedia.org/wiki/MIT_License)
+* [Octokit.net](http://octokit.github.io/) for GitHub Api consuming. [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 * [MVVM Light](http://www.mvvmlight.net/) toolkits. [MIT License](https://mvvmlight.codeplex.com/license)
 * [Extended WPFToolkit](http://wpftoolkit.codeplex.com/). [MS-PL License](http://wpftoolkit.codeplex.com/license)
 * [WPFToolkit](http://wpf.codeplex.com/). [MS-PL License](http://wpf.codeplex.com/license)
-* [AutoFac](http://autofac.org/) library for Dependency Injection. [MIT License](http://opensource.org/licenses/mit-license.php)
 * [Notification](https://toastspopuphelpballoon.codeplex.com/) library to popup toasts. [BSD License](https://toastspopuphelpballoon.codeplex.com/license)
-* [Nunit](http://www.nunit.org/) and [NSubstitute](http://nsubstitute.github.io)
+* [AutoFac](http://autofac.org/) library for Dependency Injection. [MIT License](http://opensource.org/licenses/mit-license.php)
+* [Nunit](http://www.nunit.org/) and [NSubstitute](http://nsubstitute.github.io) for testing.
 * [MarkdownSharp](https://code.google.com/p/markdownsharp/) library to convert Markdown to HTML. [MIT License](http://opensource.org/licenses/mit-license.php)
-* Executable patch.exe file from installed git bin dir. Not sure about the license, but should be GPL.
-* The Visual Studio 2013 Community Version.
+* Executable patch.exe file from installed git bin dir to calculate the original content of renamed file. Not sure about the license, but should be GPL.
+* The Visual Studio 2013 Community Version for developing.
 * [GlyphIcon](http://glyphicons.com/). [GLYPHICONS FREE License](http://glyphicons.com/license/)
-* [ICSharpCode.Editor](https://github.com/icsharpcode/SharpDevelop). [LGPL](http://opensource.org/licenses/lgpl-2.1.php)
+* [Avalon Editor](http://avalonedit.net/) for viewing diff in the application. [MIT License](http://opensource.org/licenses/MIT)
+* [Google Diff Match Patch] for marking detailed differences.
 
 # Feedbacks
 
