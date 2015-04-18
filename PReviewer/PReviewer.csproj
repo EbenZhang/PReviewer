@@ -258,6 +258,7 @@
     <Resource Include="Images\glyphicons_158_show_lines.png" />
     <Resource Include="Images\logout.png" />
     <Resource Include="Images\whitespaces.png" />
+    <Resource Include="Images\search.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

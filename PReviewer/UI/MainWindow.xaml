@@ -433,6 +433,9 @@
                     <ToggleButton IsChecked="{Binding OptionsVm.ShowWhiteSpaces, ElementName=ThisWnd}" ToolTip="Show Whitespaces">
                         <Image Source="/Images/whitespaces.png" Height="16"></Image>
                     </ToggleButton>
+                    <Button Margin="2,0,0,0" Command="{Binding ToggleSearchPanelCmd, ElementName=ThisWnd}" ToolTip="Search Text">
+                        <Image Source="/Images/search.png" Height="16"></Image>
+                    </Button>
                 </StackPanel>
             </Grid>
             <GridSplitter Grid.Row="4" Background="Gray" Visibility="Visible" Height="3" HorizontalAlignment="Stretch"/>

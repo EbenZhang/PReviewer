@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Search;
 using Mantin.Controls.Wpf.Notification;
 using MarkdownSharp;
 using Microsoft.Win32;
@@ -23,6 +23,7 @@ using PReviewer.Model;
 using PReviewer.Service;
 using WpfCommon.Controls;
 using WpfCommon.Utils;
+using Binding = System.Windows.Data.Binding;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -38,6 +39,7 @@ namespace PReviewer.UI
         private Window _previewWnd;
         private MarkdownView _previewBrowser;
         private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
+        private SearchPanel _searchPanel;
 
         public MainWindow()
         {
@@ -57,6 +59,8 @@ namespace PReviewer.UI
 
             DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
             DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
+
+            _searchPanel = SearchPanel.Install(DiffViewer);
 
             SetupWindowClosingActions();
             _viewModel.PropertyChanged += OnPrDescriptionChanged;
@@ -452,6 +456,23 @@ namespace PReviewer.UI
                         _viewModel.UpdateGithubClient(client);
                     }
                 });
+            }
+        }
+
+        public ICommand ToggleSearchPanelCmd
+        {
+            get { return new RelayCommand(ToggleSearchPanel, () => _searchPanel != null); }
+        }
+
+        private void ToggleSearchPanel()
+        {
+            if (_searchPanel.IsClosed)
+            {
+                _searchPanel.Open();
+            }
+            else
+            {
+                _searchPanel.Close();
             }
         }
 
