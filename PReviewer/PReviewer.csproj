@@ -188,10 +188,12 @@
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
     <Compile Include="Model\RepoHistoryPersist.cs" />
-    <Compile Include="Service\DiffMatchPatch.cs" />
+    <Compile Include="Service\DiffHelper\DiffMatchPatch.cs" />
+    <Compile Include="Service\DiffHelper\Section.cs" />
     <Compile Include="Service\IBackgroundTaskRunner.cs" />
-    <Compile Include="Service\Highlighter.cs" />
-    <Compile Include="Service\IDiffer.cs" />
+    <Compile Include="Service\DiffHelper\Highlighter.cs" />
+    <Compile Include="Service\DiffHelper\IDiffer.cs" />
+    <Compile Include="Service\DiffHelper\IMarkerRender.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
     <Page Include="UI\CompareToolSettings.xaml">

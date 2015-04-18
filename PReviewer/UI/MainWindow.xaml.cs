@@ -21,6 +21,7 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using PReviewer.Service;
+using PReviewer.Service.DiffHelper;
 using WpfCommon.Controls;
 using WpfCommon.Utils;
 using Binding = System.Windows.Data.Binding;

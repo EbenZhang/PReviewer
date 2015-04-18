@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using PReviewer.Service;
+using PReviewer.Service.DiffHelper;
 using Shouldly;
 namespace PReviewer.Test
 {

@@ -7,90 +7,12 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 
-namespace PReviewer.Service
+namespace PReviewer.Service.DiffHelper
 {
-    public class Section
-    {
-        public int Start;
-        public int End;
-        public int DelimiterLength;
-
-        public Section(int start, int end, int delimiterLength)
-        {
-            Start = start;
-            End = end;
-            DelimiterLength = delimiterLength;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("Start {0}, End {1}, Len {2}, EOL {3}, Total: {4}",
-                Start, End, LenWithoutEol, DelimiterLength, LenWithEol);
-        }
-
-        public int LenWithEol
-        {
-            get { return End - Start + DelimiterLength; }
-        }
-
-        public int LenWithoutEol
-        {
-            get { return End - Start; }
-        }
-
-        public class SectionLocator : IComparer<Section> 
-        {
-            public int Compare(Section x, Section y)
-            {
-                if (y.Start >= x.Start && y.Start < x.End)
-                {
-                    return 0;
-                }
-                if (y.Start < x.Start)
-                {
-                    return 1;
-                }
-                // (y.Start >= x.End)
-                return -1;
-            }
-        }
-    }
-
-    public interface IMarkerRender
-    {
-        void DrawMarker(ISegment range, Color color);
-    }
-
-    class MarkerRender : IMarkerRender
-    {
-        private readonly TextView _textView;
-        private readonly DrawingContext _drawingContext;
-
-        public MarkerRender(TextView textView, DrawingContext drawingContext)
-        {
-            _textView = textView;
-            _drawingContext = drawingContext;
-        }
-
-        public void DrawMarker(ISegment range, Color color)
-        {
-            var geoBuilder = new BackgroundGeometryBuilder { AlignToWholePixels = true, CornerRadius = 3 };
-            geoBuilder.AddSegment(_textView, range);
-            var geometry = geoBuilder.CreateGeometry();
-            if (geometry == null) return;
-            var brush = new SolidColorBrush(color);
-            brush.Freeze();
-            _drawingContext.DrawGeometry(brush, null, geometry);
-        }
-    }
-
     public class HighlighterHelper
     {
         public static readonly Color PlusLineMarkerColor = Color.FromRgb(135, 255, 135);
         public static readonly Color MinusLineMarkerColor = Color.FromRgb(255, 150, 150);
-        private static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
-        private static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
-        private static readonly Color HeaderLineColor = Color.FromRgb(230, 230, 230);
 
         public static List<Tuple<Section, Section>> GetIntersections(List<Section> minusSections,
             List<Section> plusSections)
