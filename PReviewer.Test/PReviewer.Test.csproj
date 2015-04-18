@@ -88,7 +88,7 @@
     <Compile Include="TestCommitVm.cs" />
     <Compile Include="TestCompareToolSettings.cs" />
     <Compile Include="TestCompareToolSettingsVm.cs" />
-    <Compile Include="TestHighlighter.cs" />
+    <Compile Include="Service\DiffHelper\TestHighlighter.cs" />
     <Compile Include="TestDiffToolParamBuilder.cs" />
     <Compile Include="TestLoginVm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

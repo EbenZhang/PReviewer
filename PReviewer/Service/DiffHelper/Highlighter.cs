@@ -137,7 +137,7 @@ namespace PReviewer.Service.DiffHelper
         private readonly List<Section> _minusLinesSections = new List<Section>();
         private readonly List<Section> _headers = new List<Section>();
 
-        private static readonly IDiffer _differ = new GoogleDifferAdp();
+        private static readonly IDiffer Differ = new GoogleDifferAdp();
 
         private static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
         private static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
@@ -175,9 +175,6 @@ namespace PReviewer.Service.DiffHelper
             foreach (var lineSegment in visualLines)
             {
                 if (lineSegment.VisualLength == 0) { continue; }
-
-                var eolDeviation = lineSegment.VisualLength == lineSegment.VisualLengthWithEndOfLineMarker?
-                    0 : lineSegment.VisualLengthWithEndOfLineMarker - lineSegment.VisualLength;
 
                 var section = new Section(lineSegment.StartOffset,
                     lineSegment.LastDocumentLine.EndOffset,
@@ -217,7 +214,7 @@ namespace PReviewer.Service.DiffHelper
             foreach (var intersection in intersections)
             {
                 HighlighterHelper.MarkDifferenceForSection(intersection.Item1,
-                    intersection.Item2, markerRender, textSource, _differ);
+                    intersection.Item2, markerRender, textSource, Differ);
             }
         }
         

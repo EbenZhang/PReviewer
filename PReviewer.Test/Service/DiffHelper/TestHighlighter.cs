@@ -3,7 +3,8 @@ using System.Linq;
 using NUnit.Framework;
 using PReviewer.Service.DiffHelper;
 using Shouldly;
-namespace PReviewer.Test
+
+namespace PReviewer.Test.Service.DiffHelper
 {
     [TestFixture]
     public class TestHighlighter_Intersection
