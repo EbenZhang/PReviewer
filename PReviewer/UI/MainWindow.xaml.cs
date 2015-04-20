@@ -55,9 +55,6 @@ namespace PReviewer.UI
             };
             DiffViewer.SetBinding(TextEditor.OptionsProperty, binding);
 
-            OptionsVm.Options.ColumnRulerPosition = 120;
-            OptionsVm.Options.ShowBoxForControlCharacters = true;
-
             DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
             DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
 

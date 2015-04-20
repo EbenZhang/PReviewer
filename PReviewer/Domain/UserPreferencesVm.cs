@@ -11,6 +11,10 @@ namespace PReviewer.Domain
         public TextEditorOptionsVm()
         {
             _options.ShowEndOfLine = _options.ShowSpaces = _options.ShowTabs = ShowWhiteSpaces;
+
+            _options.ColumnRulerPosition = 120;
+            _options.ShowBoxForControlCharacters = true;
+            _options.ShowColumnRuler = true;
         }
 
         public TextEditorOptions Options
