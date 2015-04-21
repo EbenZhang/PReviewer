@@ -69,6 +69,10 @@ namespace PReviewer
                 }
                 Close();
             }
+            catch (Octokit.AuthorizationException ex)
+            {
+                MessageBoxHelper.ShowError(this, "Login Failed. Please check your credential.");
+            }
             catch (Exception ex)
             {
                 MessageBoxHelper.ShowError(this, ex.ToString());
