@@ -59,6 +59,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Octokit.0.7.1\lib\net45\Octokit.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="Shouldly">
       <HintPath>..\packages\Shouldly.2.4.0\lib\net40\Shouldly.dll</HintPath>
     </Reference>
@@ -81,6 +82,7 @@
     <Compile Include="MockGitHubCommitFile.cs" />
     <Compile Include="MockPullRequest.cs" />
     <Compile Include="MockRepositoryContent.cs" />
+    <Compile Include="Service\DiffHelper\TestDiffLineNumAnalyzer.cs" />
     <Compile Include="TestCommentsContainer.cs" />
     <Compile Include="NSubstituteAsyncHelper.cs" />
     <Compile Include="TestCommentBuilder.cs" />
@@ -99,6 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Service\DiffHelper\Sample.diff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExtendedCL\ExtendedCL\ExtendedCL.csproj">

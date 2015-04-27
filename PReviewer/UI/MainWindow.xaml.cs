@@ -41,6 +41,7 @@ namespace PReviewer.UI
         private MarkdownView _previewBrowser;
         private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
         private readonly SearchPanel _searchPanel;
+        private DiffViewerLineNumberCtrl _lineNumbersControl;
 
         public MainWindow()
         {
@@ -384,12 +385,38 @@ namespace PReviewer.UI
                 ||_viewModel.SelectedDiffFile.GitHubCommitFile == null
                 ||string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
             {
-                DiffViewer.Text = "";
+                UpdateDiffViewerWith("");
                 return;
             }
 
             DiffViewer.ScrollToHome();
-            DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
+            UpdateDiffViewerWith(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch);
+        }
+
+        private async void UpdateDiffViewerWith(string text)
+        {
+            if (text == "")
+            {
+                DiffViewer.Text = text;
+                return;
+            }
+            if (_lineNumbersControl != null)
+            {
+                DiffViewer.TextArea.LeftMargins.Remove(_lineNumbersControl);
+            }
+            _lineNumbersControl = new DiffViewerLineNumberCtrl();
+            await Task.Run(() =>
+            {
+                var diffLineNumAnalyzer = new DiffLineNumAnalyzer();
+                diffLineNumAnalyzer.OnLineNumAnalyzed += line =>
+                {
+                    _lineNumbersControl.AddDiffLineNum(line);
+                };
+                diffLineNumAnalyzer.Start(text);
+            });
+            DiffViewer.TextArea.LeftMargins.Add(_lineNumbersControl);
+
+            DiffViewer.Text = text;
         }
 
         public ICommand CopyFileNameCmd
