@@ -14,6 +14,10 @@ namespace PReviewer.Service.DiffHelper
         public static readonly Color PlusLineMarkerColor = Color.FromRgb(135, 255, 135);
         public static readonly Color MinusLineMarkerColor = Color.FromRgb(255, 150, 150);
 
+        public static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
+        public static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
+        public static readonly Color HeaderLineColor = Color.FromRgb(230, 230, 230);
+
         public static List<Tuple<Section, Section>> GetIntersections(List<Section> minusSections,
             List<Section> plusSections)
         {
@@ -139,10 +143,6 @@ namespace PReviewer.Service.DiffHelper
 
         private static readonly IDiffer Differ = new GoogleDifferAdp();
 
-        private static readonly Color PlusLineColor = Color.FromRgb(200, 255, 200);
-        private static readonly Color MinusLineColor = Color.FromRgb(255, 200, 200);
-        private static readonly Color HeaderLineColor = Color.FromRgb(230, 230, 230);
-
         public Highlighter(ITextEditorComponent textView)
         {
             textView.Document.TextChanged += (sender, args) =>
@@ -225,9 +225,9 @@ namespace PReviewer.Service.DiffHelper
 
         private void HighlightLinesBackground(IMarkerRender markerRender)
         {
-            HighlightSections(_minusLinesSections, MinusLineColor, markerRender);
-            HighlightSections(_plusLinesSections, PlusLineColor, markerRender);
-            HighlightSections(_headers, HeaderLineColor, markerRender);
+            HighlightSections(_minusLinesSections, HighlighterHelper.MinusLineColor, markerRender);
+            HighlightSections(_plusLinesSections, HighlighterHelper.PlusLineColor, markerRender);
+            HighlightSections(_headers, HighlighterHelper.HeaderLineColor, markerRender);
         }
 
         private static void HighlightSections(IEnumerable<Section> sections, Color color, IMarkerRender markerRender)

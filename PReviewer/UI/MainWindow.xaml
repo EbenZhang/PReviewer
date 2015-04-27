@@ -422,7 +422,6 @@
                             VerticalScrollBarVisibility="Auto"
                             FontFamily="Courier New"
                             FontSize="14"
-                            ShowLineNumbers="True"
                             IsReadOnly="True" x:Name="DiffViewer">
                         </avalonEdit:TextEditor>
                     </Grid>

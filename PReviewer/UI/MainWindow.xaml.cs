@@ -384,12 +384,39 @@ namespace PReviewer.UI
                 ||_viewModel.SelectedDiffFile.GitHubCommitFile == null
                 ||string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
             {
-                DiffViewer.Text = "";
+                UpdateDiffViewerWith("");
                 return;
             }
 
             DiffViewer.ScrollToHome();
-            DiffViewer.Text = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
+            UpdateDiffViewerWith(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch);
+        }
+
+        private async void UpdateDiffViewerWith(string text)
+        {
+            if (text == "")
+            {
+                DiffViewer.Text = text;
+                return;
+            }
+            using (new ScopeDisposer(() => _viewModel.IsProcessing = true, 
+                () => _viewModel.IsProcessing = false))
+            {
+                var lineNumbersControl = new DiffViewerLineNumberCtrl();
+                await Task.Run(() =>
+                {
+                    lineNumbersControl.Clear();
+                    var diffLineNumAnalyzer = new DiffLineNumAnalyzer();
+                    diffLineNumAnalyzer.OnLineNumAnalyzed += line =>
+                    {
+                        lineNumbersControl.AddDiffLineNum(line);
+                    };
+                    diffLineNumAnalyzer.Start(text);
+                });
+                DiffViewer.TextArea.LeftMargins.Clear();
+                DiffViewer.TextArea.LeftMargins.Add(lineNumbersControl);
+            }
+            DiffViewer.Text = text;
         }
 
         public ICommand CopyFileNameCmd
