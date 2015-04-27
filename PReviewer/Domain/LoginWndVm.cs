@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
-using ExtendedCL;
+﻿using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
-using Microsoft.SqlServer.Server;
 using Octokit;
-using PReviewer.Model;
 
 namespace PReviewer.Domain
 {

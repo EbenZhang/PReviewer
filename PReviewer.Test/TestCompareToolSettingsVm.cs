@@ -177,7 +177,7 @@ namespace PReviewer.Test
                     x =>
                     {
                         var actual = x.Args()[0] as CompareToolSettingsContainer;
-                        var newTools = actual.GetCompareTools();
+                        var newTools = actual.GetCompareTools().ToList();
                         Assert.That(actual.CurrentActiveIndex, Is.Not.EqualTo(-1));
                         Assert.That(newTools.Count(), Is.EqualTo(orgSize), "Should just update, so no new tool added.");
 

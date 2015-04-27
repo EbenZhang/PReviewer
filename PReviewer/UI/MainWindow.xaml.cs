@@ -40,7 +40,7 @@ namespace PReviewer.UI
         private Window _previewWnd;
         private MarkdownView _previewBrowser;
         private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
-        private SearchPanel _searchPanel;
+        private readonly SearchPanel _searchPanel;
 
         public MainWindow()
         {
@@ -51,7 +51,7 @@ namespace PReviewer.UI
             var binding = new Binding
             {
                 Source = OptionsVm,
-                Path = new PropertyPath(PropertyName.Get<TextEditorOptionsVm, TextEditorOptions>((x) => x.Options))
+                Path = new PropertyPath(PropertyName.Get<TextEditorOptionsVm, TextEditorOptions>(x => x.Options))
             };
             DiffViewer.SetBinding(TextEditor.OptionsProperty, binding);
 
@@ -398,6 +398,8 @@ namespace PReviewer.UI
             {
                 return new RelayCommand(() =>
                 {
+                    if (_viewModel.SelectedDiffFile.GitHubCommitFile == null) return;
+                    if (_viewModel.SelectedDiffFile.GitHubCommitFile.Filename == null) return;
                     Clipboard.SetText(Path.GetFileName(_viewModel.SelectedDiffFile.GitHubCommitFile.Filename));
                 });
             }

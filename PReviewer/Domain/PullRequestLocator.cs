@@ -1,6 +1,5 @@
 using System;
 using System.Text.RegularExpressions;
-using System.Windows.Documents.DocumentStructures;
 using GalaSoft.MvvmLight;
 
 namespace PReviewer.Domain

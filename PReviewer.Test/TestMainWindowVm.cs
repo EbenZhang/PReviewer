@@ -729,6 +729,7 @@ namespace PReviewer.Test
 
             Assert.Throws<ArgumentException>(() =>
             {
+                // ReSharper disable once UnusedVariable
                 var x = new CommitsCombiner(new ObservableCollection<CommitVm>
                 {
                     new CommitVm("BASE","SHA"),
@@ -737,6 +738,7 @@ namespace PReviewer.Test
 
             Assert.DoesNotThrow(() =>
             {
+                // ReSharper disable once UnusedVariable
                 var x = new CommitsCombiner(new ObservableCollection<CommitVm>
                 {
                     new CommitVm("BASE", "SHA"),

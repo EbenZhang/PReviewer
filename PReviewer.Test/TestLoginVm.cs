@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ExtendedCL;
 using NSubstitute;
 using NUnit.Framework;
 using PReviewer.Domain;
-using PReviewer.Model;
 
 namespace PReviewer.Test
 {

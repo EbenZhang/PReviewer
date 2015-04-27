@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ExtendedCL;
 
 namespace PReviewer.Service
 {
@@ -20,7 +16,7 @@ namespace PReviewer.Service
     {
         private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
         readonly BlockingCollection<Func<Task>> _tasks = new BlockingCollection<Func<Task>>();
-        private Task _backgroundTask = null;
+        private Task _backgroundTask;
         public BackgroundTaskRunner()
         {
             RunTasks();

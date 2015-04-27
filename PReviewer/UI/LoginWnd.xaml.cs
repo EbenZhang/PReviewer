@@ -3,13 +3,11 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Command;
-using Octokit;
 using PReviewer.Domain;
-using PReviewer.UI;
 using WpfCommon.Utils;
 using Application = System.Windows.Application;
 
-namespace PReviewer
+namespace PReviewer.UI
 {
     /// <summary>
     ///     Interaction logic for LoginWnd.xaml
@@ -69,7 +67,7 @@ namespace PReviewer
                 }
                 Close();
             }
-            catch (Octokit.AuthorizationException ex)
+            catch (Octokit.AuthorizationException)
             {
                 MessageBoxHelper.ShowError(this, "Login Failed. Please check your credential.");
             }

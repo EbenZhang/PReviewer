@@ -106,7 +106,7 @@ namespace PReviewer.Model
 
         public override string ToString()
         {
-            return (this.Name ?? "" + this.ExePath ?? "" + this.Parameters ?? "");
+            return (Name ?? "") + (ExePath ?? "") + (Parameters ?? "");
         }
 
         public bool IsValidSetting()
