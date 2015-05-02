@@ -419,6 +419,9 @@
                     </GridSplitter>
                     <Grid Grid.Column="2">
                         <avalonEdit:TextEditor
+                            PreviewMouseWheel="DiffViewer_OnPreviewMouseWheel"
+                            PreviewMouseUp="DiffViewer_OnPreviewMouseUp"
+                            PreviewMouseDown="DiffViewer_OnPreviewMouseDown"
                             VerticalScrollBarVisibility="Auto"
                             FontFamily="Courier New"
                             FontSize="14"

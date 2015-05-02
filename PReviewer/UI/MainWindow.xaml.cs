@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -41,6 +42,7 @@ namespace PReviewer.UI
         private MarkdownView _previewBrowser;
         private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
         private readonly SearchPanel _searchPanel;
+        private readonly BtnOpenInGitHub _btnOpenLineInGitHub = new BtnOpenInGitHub();
         private DiffViewerLineNumberCtrl _lineNumbersControl;
 
         public MainWindow()
@@ -608,6 +610,49 @@ namespace PReviewer.UI
 
             var menu = sender as System.Windows.Controls.ContextMenu;
             if (menu != null) menu.IsOpen = false;
+        }
+
+        private void DiffViewer_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_lineNumbersControl == null)
+            {
+                return;
+            }
+
+            if (_viewModel.SelectedDiffFile == null)
+            {
+                return;
+            }
+
+            var textViewer = DiffViewer.TextArea.TextView;
+            var lineDesc = _lineNumbersControl.GetLineDesc(textViewer.HighlightedLine);
+            if (lineDesc == null)
+            {
+                return;
+            }
+            var y = textViewer.GetVisualTopByDocumentLine(textViewer.HighlightedLine) - textViewer.VerticalOffset;
+            var pos = new Point(0, y);
+            pos = textViewer.PointToScreen(pos);
+
+            _btnOpenLineInGitHub.Placement = PlacementMode.AbsolutePoint;
+            _btnOpenLineInGitHub.PlacementRectangle = new Rect(pos, new Size(100,100));
+
+            _btnOpenLineInGitHub.Url = _viewModel.PullRequestUrl 
+                + "/files#diff-"
+                + MD5.Create().GetMd5HashString(_viewModel.SelectedDiffFile.GitHubCommitFile.Filename)
+                + lineDesc;
+
+            _btnOpenLineInGitHub.IsOpen = true;
+        }
+
+        private void DiffViewer_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _btnOpenLineInGitHub.IsOpen = false;
+        }
+
+        private void DiffViewer_OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            _btnOpenLineInGitHub.IsOpen = false;
         }
     }
 }

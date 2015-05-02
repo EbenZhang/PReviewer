@@ -195,9 +195,18 @@
     <Compile Include="Service\DiffHelper\Highlighter.cs" />
     <Compile Include="Service\DiffHelper\IDiffer.cs" />
     <Compile Include="Service\DiffHelper\IMarkerRender.cs" />
+    <Compile Include="Service\Md5Helper.cs">
+    </Compile>
+    <Compile Include="UI\BtnOpenInGitHub.xaml.cs">
+      <DependentUpon>BtnOpenInGitHub.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\DiffViewerLineNumberCtrl.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
+    <Page Include="UI\BtnOpenInGitHub.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\CompareToolSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -263,6 +272,7 @@
     <Resource Include="Images\logout.png" />
     <Resource Include="Images\whitespaces.png" />
     <Resource Include="Images\search.png" />
+    <Resource Include="Images\glyphicons_051_eye_open.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
