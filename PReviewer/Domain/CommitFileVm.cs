@@ -8,7 +8,7 @@ using PReviewer.Model;
 namespace PReviewer.Domain
 {
     public class CommitFileVm : ViewModelBase
-    {
+    { 
         private GitHubCommitFile _gitHubCommitFile;
         private string _comments;
         private ReviewStatus _reviewStatus = ReviewStatus.HasntBeenReviewed;
