@@ -1,9 +1,10 @@
-﻿<Popup 
+﻿<controls:PopupEx 
     x:Class="PReviewer.UI.BtnOpenInGitHub"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:controls="clr-namespace:WpfCommon.Controls;assembly=WpfCommon"
     mc:Ignorable="d"
     AllowsTransparency="True"
     Width="25" Height="20">
@@ -15,4 +16,4 @@
         VerticalAlignment="Center">
         <Image Source="/Images/glyphicons_051_eye_open.png" Stretch="Fill" />
     </Button>
-</Popup>
+</controls:PopupEx>
