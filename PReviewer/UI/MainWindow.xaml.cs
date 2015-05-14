@@ -637,7 +637,7 @@ namespace PReviewer.UI
             _btnOpenLineInGitHub.Placement = PlacementMode.AbsolutePoint;
             _btnOpenLineInGitHub.PlacementRectangle = new Rect(pos, new Size(100,100));
 
-            _btnOpenLineInGitHub.Url = _viewModel.PullRequestUrl 
+            _btnOpenLineInGitHub.Url = _viewModel.PullRequestLocator.ToUrl() 
                 + "/files#diff-"
                 + MD5.Create().GetMd5HashString(_viewModel.SelectedDiffFile.GitHubCommitFile.Filename)
                 + lineDesc;
