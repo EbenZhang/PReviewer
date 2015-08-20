@@ -30,7 +30,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="1.4*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!--Criteria-->
             <GroupBox Grid.Row="0" Header="Pull Request">
@@ -423,16 +423,17 @@
                 </Grid>
             </GroupBox>
             
-            <GridSplitter Grid.Row="4" Background="Gray" Visibility="Visible" Height="3" HorizontalAlignment="Stretch"/>
+            <GridSplitter Grid.Row="4" Background="Gray" Visibility="Collapsed" Height="3"
+                          HorizontalAlignment="Stretch"/>
             <!--Comments-->
-            <GroupBox Grid.Row="5" Margin="0,4,0,0" Header="Comments">
+            <GroupBox Grid.Row="5" Margin="0,4,0,0" Header="Comments" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <!--Comment tab-->
-                    <TabControl Grid.Row="0">
+                    <TabControl Grid.Row="0" Visibility="Collapsed">
                         <TabControl.Resources>
                             <Style TargetType="TextBox">
                                 <Setter Property="FontSize" Value="16"></Setter>
@@ -497,15 +498,16 @@
                                 Margin="16,0,0,0"
                                 Command="{Binding SubmitCommentsCmd, ElementName=ThisWnd}"
                                 HorizontalAlignment="Center">Submit Comments</Button>
-                            <Button
-                                Padding="2,0,2,0"
-                                Margin="16,0,0,0"
-                                Command="{Binding OpenInBrowserCmd, ElementName=ThisWnd}"
-                                HorizontalAlignment="Center">_Open In Browser</Button>
                         </StackPanel>
                     </Grid>
                 </Grid>
             </GroupBox>
+            <Button
+                Grid.Row="5"
+                Padding="2,0,2,0"
+                Margin="16,4,0,0"
+                Command="{Binding OpenInBrowserCmd, ElementName=ThisWnd}"
+                HorizontalAlignment="Center">_Open In Browser</Button>
         </Grid>
         <Grid>
             <Button 
