@@ -315,10 +315,7 @@ namespace PReviewer.UI
                 && _viewModel.SelectedDiffFile.IsTheSameAsOrgFile())
             {
                 var ballon = new Balloon(sender as Control, "No changes found. It's just renamed",
-                    BalloonType.Information)
-                {
-                    ShowCloseButton = true
-                };
+                    BalloonType.Information, placeInCenter: true, showCloseButton: true);
                 ballon.Show();
                 _viewModel.SelectedDiffFile.ReviewStatus = ReviewStatus.Reviewed;
                 return;

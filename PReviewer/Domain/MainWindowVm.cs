@@ -315,7 +315,7 @@ namespace PReviewer.Domain
             {
                 var collectionOfContentOfHead =
                     await
-                        _client.Repository.Content.GetContents(PullRequestLocator.Owner,
+                        _client.Repository.Content.GetAllContents(PullRequestLocator.Owner,
                             PullRequestLocator.Repository,
                             diffFile.GitHubCommitFile.GetFilePath(HeadCommit));
 
@@ -352,7 +352,7 @@ namespace PReviewer.Domain
             {
                 var contentOfBase =
                     await
-                        _client.Repository.Content.GetContents(PullRequestLocator.Owner,
+                        _client.Repository.Content.GetAllContents(PullRequestLocator.Owner,
                             PullRequestLocator.Repository,
                             diffFile.GitHubCommitFile.GetFilePath(BaseCommit));
 
