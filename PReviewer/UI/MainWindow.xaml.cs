@@ -1,20 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
-using ExtendedCL;
+﻿using ExtendedCL;
 using GalaSoft.MvvmLight.CommandWpf;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Search;
 using Mantin.Controls.Wpf.Notification;
 using MarkdownSharp;
 using Microsoft.Win32;
@@ -22,10 +7,19 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using PReviewer.Service;
-using PReviewer.Service.DiffHelper;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Threading;
 using WpfCommon.Controls;
 using WpfCommon.Utils;
-using Binding = System.Windows.Data.Binding;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -40,10 +34,6 @@ namespace PReviewer.UI
         private readonly MainWindowVm _viewModel;
         private Window _previewWnd;
         private MarkdownView _previewBrowser;
-        private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
-        private readonly SearchPanel _searchPanel;
-        private readonly BtnOpenInGitHub _btnOpenLineInGitHub = new BtnOpenInGitHub();
-        private DiffViewerLineNumberCtrl _lineNumbersControl;
 
         public MainWindow()
         {
@@ -51,28 +41,11 @@ namespace PReviewer.UI
             _viewModel = DataContext as MainWindowVm;
             Loaded += OnLoaded;
 
-            var binding = new Binding
-            {
-                Source = OptionsVm,
-                Path = new PropertyPath(PropertyName.Get<TextEditorOptionsVm, TextEditorOptions>(x => x.Options))
-            };
-            DiffViewer.SetBinding(TextEditor.OptionsProperty, binding);
-
-            DiffViewer.TextArea.TextView.BackgroundRenderers.Add(new Highlighter(DiffViewer.TextArea.TextView));
-            DiffViewer.TextArea.TextView.ColumnRulerPen = new Pen(Brushes.Gray, 1);
-
-            _searchPanel = SearchPanel.Install(DiffViewer);
-
             SetupWindowClosingActions();
             _viewModel.PropertyChanged += OnPrDescriptionChanged;
             TxtPrDescription.Navigating += WebBrowser_OnNavigating;
 
             InputManager.Current.PreNotifyInput += ProcessF5RefreshHotKey;
-        }
-
-        public TextEditorOptionsVm OptionsVm
-        {
-            get { return _optionsVm; }
         }
 
         private void ProcessF5RefreshHotKey(object sender, NotifyInputEventArgs e)
@@ -381,41 +354,14 @@ namespace PReviewer.UI
         private void DiffListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_viewModel.SelectedDiffFile == null
-                ||_viewModel.SelectedDiffFile.GitHubCommitFile == null
-                ||string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
+                || _viewModel.SelectedDiffFile.GitHubCommitFile == null
+                || string.IsNullOrWhiteSpace(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch))
             {
-                UpdateDiffViewerWith("");
+                _viewModel.TextForDiffViewer = ""; 
                 return;
             }
 
-            DiffViewer.ScrollToHome();
-            UpdateDiffViewerWith(_viewModel.SelectedDiffFile.GitHubCommitFile.Patch);
-        }
-
-        private async void UpdateDiffViewerWith(string text)
-        {
-            if (text == "")
-            {
-                DiffViewer.Text = text;
-                return;
-            }
-            if (_lineNumbersControl != null)
-            {
-                DiffViewer.TextArea.LeftMargins.Remove(_lineNumbersControl);
-            }
-            _lineNumbersControl = new DiffViewerLineNumberCtrl();
-            await Task.Run(() =>
-            {
-                var diffLineNumAnalyzer = new DiffLineNumAnalyzer();
-                diffLineNumAnalyzer.OnLineNumAnalyzed += line =>
-                {
-                    _lineNumbersControl.AddDiffLineNum(line);
-                };
-                diffLineNumAnalyzer.Start(text);
-            });
-            DiffViewer.TextArea.LeftMargins.Add(_lineNumbersControl);
-
-            DiffViewer.Text = text;
+            _viewModel.TextForDiffViewer = _viewModel.SelectedDiffFile.GitHubCommitFile.Patch;
         }
 
         public ICommand CopyFileNameCmd
@@ -482,23 +428,6 @@ namespace PReviewer.UI
                         _viewModel.UpdateGithubClient(client);
                     }
                 });
-            }
-        }
-
-        public ICommand ToggleSearchPanelCmd
-        {
-            get { return new RelayCommand(ToggleSearchPanel, () => _searchPanel != null); }
-        }
-
-        private void ToggleSearchPanel()
-        {
-            if (_searchPanel.IsClosed)
-            {
-                _searchPanel.Open();
-            }
-            else
-            {
-                _searchPanel.Close();
             }
         }
 
@@ -607,49 +536,6 @@ namespace PReviewer.UI
 
             var menu = sender as System.Windows.Controls.ContextMenu;
             if (menu != null) menu.IsOpen = false;
-        }
-
-        private void DiffViewer_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (_lineNumbersControl == null)
-            {
-                return;
-            }
-
-            if (_viewModel.SelectedDiffFile == null)
-            {
-                return;
-            }
-
-            var textViewer = DiffViewer.TextArea.TextView;
-            var lineDesc = _lineNumbersControl.GetLineDesc(textViewer.HighlightedLine);
-            if (lineDesc == null)
-            {
-                return;
-            }
-            var y = textViewer.GetVisualTopByDocumentLine(textViewer.HighlightedLine) - textViewer.VerticalOffset;
-            var pos = new Point(0, y);
-            pos = textViewer.PointToScreen(pos);
-
-            _btnOpenLineInGitHub.Placement = PlacementMode.AbsolutePoint;
-            _btnOpenLineInGitHub.PlacementRectangle = new Rect(pos, new Size(100,100));
-
-            _btnOpenLineInGitHub.Url = _viewModel.PullRequestLocator.ToUrl() 
-                + "/files#diff-"
-                + MD5.Create().GetMd5HashString(_viewModel.SelectedDiffFile.GitHubCommitFile.Filename)
-                + lineDesc;
-
-            _btnOpenLineInGitHub.IsOpen = true;
-        }
-
-        private void DiffViewer_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            _btnOpenLineInGitHub.IsOpen = false;
-        }
-
-        private void DiffViewer_OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            _btnOpenLineInGitHub.IsOpen = false;
         }
     }
 }

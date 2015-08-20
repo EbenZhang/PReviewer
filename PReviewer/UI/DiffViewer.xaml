@@ -1,0 +1,41 @@
+﻿<UserControl 
+    x:Class="PReviewer.UI.DiffViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+    x:Name="ThisWnd"
+    mc:Ignorable="d" 
+    d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton IsChecked="{Binding OptionsVm.ShowWhiteSpaces, ElementName=ThisWnd}" ToolTip="Show Whitespaces">
+                    <Image Source="/Images/whitespaces.png" Height="16"></Image>
+                </ToggleButton>
+                <Button Margin="2,0,0,0" Command="{Binding ToggleSearchPanelCmd, ElementName=ThisWnd}" ToolTip="Search Text">
+                    <Image Source="/Images/search.png" Height="16"></Image>
+                </Button>
+                <Button x:Name="btnShowDiffInWindow" Margin="2,0,0,0" Command="{Binding ShowDiffInWindowCmd, ElementName=ThisWnd}" ToolTip="Show Diff In Window">
+                    <Image Source="/Images/glyphicons_389_new_window_alt.png" Height="16"></Image>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1">
+            <avalonedit:TextEditor
+                PreviewMouseWheel="DiffViewer_OnPreviewMouseWheel"
+                PreviewMouseUp="DiffViewer_OnPreviewMouseUp"
+                PreviewMouseDown="DiffViewer_OnPreviewMouseDown"
+                VerticalScrollBarVisibility="Auto"
+                FontFamily="Courier New"
+                FontSize="14"
+                IsReadOnly="True" x:Name="_diffViewer">
+            </avalonedit:TextEditor>
+        </Grid>
+    </Grid>
+</UserControl>

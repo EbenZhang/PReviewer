@@ -207,6 +207,9 @@
     <Compile Include="UI\BtnOpenInGitHub.xaml.cs">
       <DependentUpon>BtnOpenInGitHub.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\DiffViewer.xaml.cs">
+      <DependentUpon>DiffViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\DiffViewerLineNumberCtrl.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
@@ -215,6 +218,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\CompareToolSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DiffViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -280,6 +287,7 @@
     <Resource Include="Images\whitespaces.png" />
     <Resource Include="Images\search.png" />
     <Resource Include="Images\glyphicons_051_eye_open.png" />
+    <Resource Include="Images\glyphicons_389_new_window_alt.png" />
     <Content Include="PatchBin\patch.exe.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

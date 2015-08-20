@@ -483,6 +483,20 @@ namespace PReviewer.Domain
             }
         }
 
+        private string _TextForDiffViewer;
+        public string TextForDiffViewer
+        {
+            get { return _TextForDiffViewer; }
+            set
+            {
+                if (_TextForDiffViewer != value)
+                {
+                    _TextForDiffViewer = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<CommitVm> Commits { get; set; }
 
         public ICommand ChangeCommitRangeCmd
