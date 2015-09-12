@@ -4,11 +4,11 @@ namespace PReviewer.Service.DiffHelper
 {
     public class DiffLineNumAnalyzer
     {
-        public delegate void EvOnLineNumAnalyzed(DiffLineNum diffLineNum);
+        public delegate void EvLineNumAnalyzed(DiffLineNum diffLineNum);
 
-        public event EvOnLineNumAnalyzed OnLineNumAnalyzed;
+        public event EvLineNumAnalyzed OnLineNumAnalyzed;
 
-        protected void FireEventLineAnalyzed(DiffLineNum diffline)
+        protected void FireLineAnalyzedEvent(DiffLineNum diffline)
         {
             var handler = OnLineNumAnalyzed;
             if (handler != null) handler(diffline);
@@ -31,7 +31,7 @@ namespace PReviewer.Service.DiffHelper
                 {
                     var meta = new DiffLineNum
                     {
-                        LineNumIfDiff = lineNumInDiff,
+                        LineNumInDiff = lineNumInDiff,
                         LeftLineNum = DiffLineNum.NotApplicableLineNum,
                         RightLineNum = DiffLineNum.NotApplicableLineNum
                     };
@@ -44,17 +44,17 @@ namespace PReviewer.Service.DiffHelper
                     leftLineNum = int.Parse(lineNumbers.Groups["leftStart"].Value);
                     rightLineNum = int.Parse(lineNumbers.Groups["rightStart"].Value);
 
-                    FireEventLineAnalyzed(meta);
+                    FireLineAnalyzedEvent(meta);
                 }
                 else if (line.StartsWith("-"))
                 {
                     var meta = new DiffLineNum
                     {
-                        LineNumIfDiff = lineNumInDiff,
+                        LineNumInDiff = lineNumInDiff,
                         LeftLineNum = leftLineNum,
                         RightLineNum = DiffLineNum.NotApplicableLineNum
                     };
-                    FireEventLineAnalyzed(meta);
+                    FireLineAnalyzedEvent(meta);
 
                     leftLineNum++;
                 }
@@ -62,22 +62,22 @@ namespace PReviewer.Service.DiffHelper
                 {
                     var meta = new DiffLineNum
                     {
-                        LineNumIfDiff = lineNumInDiff,
+                        LineNumInDiff = lineNumInDiff,
                         LeftLineNum = DiffLineNum.NotApplicableLineNum,
                         RightLineNum = rightLineNum
                     };
-                    FireEventLineAnalyzed(meta);
+                    FireLineAnalyzedEvent(meta);
                     rightLineNum++;
                 }
                 else
                 {
                     var meta = new DiffLineNum
                     {
-                        LineNumIfDiff = lineNumInDiff,
+                        LineNumInDiff = lineNumInDiff,
                         LeftLineNum = leftLineNum,
                         RightLineNum = rightLineNum
                     };
-                    FireEventLineAnalyzed(meta);
+                    FireLineAnalyzedEvent(meta);
 
                     leftLineNum++;
                     rightLineNum++;
@@ -97,7 +97,7 @@ namespace PReviewer.Service.DiffHelper
         }
 
         public static readonly int NotApplicableLineNum = -1;
-        public int LineNumIfDiff { get; set; }
+        public int LineNumInDiff { get; set; }
         public int LeftLineNum { get; set; }
         public int RightLineNum { get; set; }
 

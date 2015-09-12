@@ -37,11 +37,11 @@ namespace PReviewer.Test.Service.DiffHelper
         public void CanGetHeaders()
         {
             _lineNumAnalyzer.Start(_sampleDiff);
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 1
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 1
                 && line.LeftLineNum == DiffLineNum.NotApplicableLineNum
                 && line.RightLineNum == DiffLineNum.NotApplicableLineNum));
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 13
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 13
                 && line.LeftLineNum == DiffLineNum.NotApplicableLineNum
                 && line.RightLineNum == DiffLineNum.NotApplicableLineNum));
         }
@@ -52,20 +52,20 @@ namespace PReviewer.Test.Service.DiffHelper
             _lineNumAnalyzer.Start(_sampleDiff);
 
             // header1
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 2
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 2
                 && line.LeftLineNum == 9
                 && line.RightLineNum == 9));
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 10
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 10
                 && line.LeftLineNum == 15
                 && line.RightLineNum == 16));
 
             // header2
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 14
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 14
                 && line.LeftLineNum == 33
                 && line.RightLineNum == 34));
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 21
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 21
                 && line.LeftLineNum == 39
                 && line.RightLineNum == 40));
         }
@@ -75,11 +75,11 @@ namespace PReviewer.Test.Service.DiffHelper
         {
             _lineNumAnalyzer.Start(_sampleDiff);
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 5
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 5
                 && line.LeftLineNum == 12
                 && line.RightLineNum == DiffLineNum.NotApplicableLineNum));
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 17
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 17
                 && line.LeftLineNum == 36
                 && line.RightLineNum == DiffLineNum.NotApplicableLineNum));
         }
@@ -89,15 +89,15 @@ namespace PReviewer.Test.Service.DiffHelper
         {
             _lineNumAnalyzer.Start(_sampleDiff);
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 8
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 8
                 && line.LeftLineNum == DiffLineNum.NotApplicableLineNum
                 && line.RightLineNum == 14));
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 9
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 9
                 && line.LeftLineNum == DiffLineNum.NotApplicableLineNum
                 && line.RightLineNum == 15));
 
-            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumIfDiff == 18
+            _lineNumMetaRecv.Received(1).OnLineNumAnalyzed(Arg.Is<DiffLineNum>(line => line.LineNumInDiff == 18
                 && line.LeftLineNum == DiffLineNum.NotApplicableLineNum
                 && line.RightLineNum == 37));
         }

@@ -137,7 +137,7 @@ namespace PReviewer.UI
 
         public void AddDiffLineNum(DiffLineNum diffLineNum)
         {
-            DiffLines.Add(diffLineNum.LineNumIfDiff, diffLineNum);
+            DiffLines.Add(diffLineNum.LineNumInDiff, diffLineNum);
             _maxValueOfLineNum = Math.Max(diffLineNum.LeftLineNum, diffLineNum.RightLineNum);
         }
 
