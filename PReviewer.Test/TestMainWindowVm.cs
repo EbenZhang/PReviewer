@@ -136,7 +136,7 @@ namespace PReviewer.Test
             var headContent = new MockRepositoryContent { EncodedContent = rawContent };
             IReadOnlyList<RepositoryContent> headContentCollection =
                 new List<RepositoryContent> { headContent }.AsReadOnly();
-            _contentsClient.GetContents(Arg.Any<string>(),
+            _contentsClient.GetAllContents(Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Is<string>(x => x == _compareResults.File1.GetFilePath(sha)))
                 .Returns(Task.FromResult(headContentCollection));
@@ -258,10 +258,10 @@ namespace PReviewer.Test
             var basePath = _compareResults.File1.GetFilePath(_pullRequest.Base.Sha);
             var headPath = _compareResults.File1.GetFilePath(_pullRequest.Head.Sha);
 
-            _contentsClient.Received(1).GetContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
+            _contentsClient.Received(1).GetAllContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
                 basePath).IgnoreAsyncWarning();
 
-            _contentsClient.Received(1).GetContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
+            _contentsClient.Received(1).GetAllContents(_pullRequestLocator.Owner, _pullRequestLocator.Repository,
                 headPath).IgnoreAsyncWarning();
         }
 
@@ -295,7 +295,7 @@ namespace PReviewer.Test
             _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
             await _mainWindowVm.RetrieveDiffs();
 
-            _contentsClient.When(x => x.GetContents(Arg.Any<string>(),
+            _contentsClient.When(x => x.GetAllContents(Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>())).Do(x => { throw new Exception(); });
 
@@ -365,7 +365,7 @@ namespace PReviewer.Test
 
             await _mainWindowVm.PrepareDiffContent();
 
-            _contentsClient.DidNotReceiveWithAnyArgs().GetContents("", "", "").IgnoreAsyncWarning();
+            _contentsClient.DidNotReceiveWithAnyArgs().GetAllContents("", "", "").IgnoreAsyncWarning();
             _fileContentPersist.DidNotReceiveWithAnyArgs().SaveContent(null, "", "").IgnoreAsyncWarning();
             _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, _baseFileName);
             _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, _headFileName);
@@ -394,7 +394,7 @@ namespace PReviewer.Test
 
             await _mainWindowVm.PrepareDiffContent();
 
-            _contentsClient.DidNotReceive().GetContents(_pullRequestLocator.Owner,
+            _contentsClient.DidNotReceive().GetAllContents(_pullRequestLocator.Owner,
                 _pullRequestLocator.Repository, _baseFileName).IgnoreAsyncWarning();
             _diffTool.Received(1).Open(basePath, headPath);
         }
@@ -432,7 +432,7 @@ namespace PReviewer.Test
                 _baseFileName,
                 Arg.Any<string>()).IgnoreAsyncWarning();
 
-            _contentsClient.DidNotReceive().GetContents(_pullRequestLocator.Owner,
+            _contentsClient.DidNotReceive().GetAllContents(_pullRequestLocator.Owner,
                 _pullRequestLocator.Repository, _baseFileName).IgnoreAsyncWarning();
             _diffTool.Received(1).Open(basePath, headPath);
         }

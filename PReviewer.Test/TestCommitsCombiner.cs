@@ -23,9 +23,9 @@ namespace PReviewer.Test
             combiner.Add(new List<PullRequestCommit>
             {
                 new PullRequestCommit(null,
-                    null, new Commit("URL", "Lable", "Ref", "SHA", null, null, "FirstCommit", null, null, null, null, 0),null, null, null, "FirstCommit SHA", null),
+                    null, new Commit("URL", "Lable", "Ref", "SHA", null, null, "FirstCommit", null, null, null, new List<GitReference>(), 0),null, null, new List<GitReference>(), "FirstCommit SHA", null),
                 new PullRequestCommit(null,
-                    null, new Commit("URL", "Lable", "Ref", "SHA", null, null, "SecondCommit", null, null, null, null, 0),null, null, null, "SecondCommit SHA", null),
+                    null, new Commit("URL", "Lable", "Ref", "SHA", null, null, "SecondCommit", null, null, null, new List<GitReference>(), 0),null, null, new List<GitReference>(), "SecondCommit SHA", null),
             });
 
             Assert.That(commits.Count, Is.EqualTo(4));
