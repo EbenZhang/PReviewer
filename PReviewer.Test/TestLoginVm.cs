@@ -6,6 +6,7 @@ using PReviewer.Domain;
 
 namespace PReviewer.Test
 {
+#if false
     [TestFixture]
     public class TestLoginVm
     {
@@ -123,5 +124,5 @@ namespace PReviewer.Test
             _credentialPersist.DidNotReceive().Save(Arg.Any<LoginCredential>());
         }
     }
-
+#endif
 }

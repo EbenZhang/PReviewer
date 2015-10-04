@@ -1,97 +1,65 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Diagnostics;
+using System.Windows.Input;
 using GalaSoft.MvvmLight;
-using Octokit;
+using GalaSoft.MvvmLight.Command;
+using PReviewer.User;
 
 namespace PReviewer.Domain
 {
     public class LoginWndVm : ViewModelBase
     {
-        private readonly IGitHubClientFactory _gitHubClientFactory;
-        private readonly ICredentialPersisit _credentialPersisit;
+        public readonly IGitHubClientFactory GitHubClientFactory;
+        public IUserManager UserManager { get; }
+        private readonly GitHubUserProvider _userProvider;
 
-        public LoginWndVm(IGitHubClientFactory gitHubClientFactory, ICredentialPersisit credentialPersisit)
+        public LoginWndVm(IGitHubClientFactory gitHubClientFactory,
+            IUserManager userManager, GitHubUserProvider userProvider)
         {
-            _gitHubClientFactory = gitHubClientFactory;
-            _credentialPersisit = credentialPersisit;
-        }
-
-        private string _UserName;
-
-        private string _Password;
-        private bool _IsProcessing;
-
-        public string UserName
-        {
-            get { return _UserName; }
-            set
-            {
-                _UserName = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public string Password
-        {
-            get { return _Password; }
-            set
-            {
-                _Password = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public bool IsProcessing
-        {
-            get { return _IsProcessing; }
-            set
-            {
-                _IsProcessing = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private LoginCredential GetCredential()
-        {
-            return new LoginCredential()
-            {
-                UserName = this.UserName,
-                Password = this.Password
-            };
+            GitHubClientFactory = gitHubClientFactory;
+            UserManager = userManager;
+            _userProvider = userProvider;
         }
 
         public void LoadCredential()
         {
-            var credential = _credentialPersisit.Load();
-            if (string.IsNullOrWhiteSpace(credential.UserName))
-            {
-                return;
-            }
-            UserName = credential.UserName;
-            Password = credential.Password;
+            UserManager.LoadUsers(_userProvider);
         }
 
-        public void SaveCredential()
+        public void Login()
         {
-            if (string.IsNullOrWhiteSpace(UserName))
-            {
-                return;
-            }
-            _credentialPersisit.Save(this.GetCredential());
+            UserManager.CurrentUser?.Login();
         }
 
-        public async Task<IGitHubClient> Login()
+        public bool HasActiveUser => UserManager?.CurrentUser != null;
+
+        public ICommand AddNewUserCmd
         {
-            IsProcessing = true;
-            try
+            get
             {
-                var client = await _gitHubClientFactory.Login(this.UserName, this.Password);
-                this.SaveCredential();
-                return client;
+                return new RelayCommand(() =>
+                {
+                    UserManager.CurrentUser.IsActiveUser = false;
+                    // restart the program, otherwise the webbrowser remembers the cookie even if deleted.
+                    Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                    Environment.Exit(0);
+                });
             }
-            finally
-            {
-                IsProcessing = false;
-            }
+        }
+
+        public ICommand ConfirmSelection
+        {
+            get { throw new System.NotImplementedException(); }
+        }
+
+        public bool AddNewUser()
+        {
+            return UserManager.AddNewUser(_userProvider);
+        }
+
+        public void CreateGitHubClientWhenTokenAlreadyGot()
+        {
+            GitHubClientFactory.CreateClient(UserManager.CurrentUser.Token);
         }
     }
 }

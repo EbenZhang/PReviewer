@@ -15,6 +15,8 @@
 using Autofac;
 using PReviewer.Model;
 using PReviewer.Service;
+using PReviewer.UI;
+using PReviewer.User;
 
 namespace PReviewer.Domain
 {
@@ -59,7 +61,6 @@ namespace PReviewer.Domain
             _builder.RegisterType<MainWindowVm>().AsSelf();
             _builder.RegisterType<CompareToolSettingsVm>().AsSelf();
             _builder.RegisterInstance(new GitHubClientFactory()).As<IGitHubClientFactory>();
-            _builder.RegisterInstance(new CredentialPersisit()).As<ICredentialPersisit>();
             var compareToolSettingsPersist = new CompareToolSettingsPersist();
             _builder.RegisterInstance(compareToolSettingsPersist).As<ICompareToolSettingsPersist>();
             _builder.RegisterInstance(new FileContentPersist()).As<IFileContentPersist>();
@@ -75,6 +76,19 @@ namespace PReviewer.Domain
             _builder.RegisterInstance(new RepoHistoryPersist()).As<IRepoHistoryPersist>();
 
             _builder.RegisterInstance(new BackgroundTaskRunner()).As<IBackgroundTaskRunner>();
+
+            _builder.RegisterType<GitHubOAuthView>().AsSelf();
+
+            _builder.RegisterType<GitHubOAuth>().As<IGitHubOAuth>();
+
+            _builder.RegisterType<GitHubUserProvider>().AsSelf();
+
+            _builder.RegisterType<GitHubOAuth>().As<IGitHubOAuth>();
+
+            _builder.RegisterType<GitHubUserPersister>().As<IGitHubUserPersister>();
+
+            _builder.RegisterType<UserManager>().As<IUserManager>();
+
             _container = _builder.Build();
         }
 

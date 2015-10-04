@@ -103,6 +103,10 @@
       <HintPath>..\packages\Octokit.0.14.0\lib\net45\Octokit.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -183,6 +187,11 @@
     <Compile Include="Domain\RecentRepo.cs" />
     <Compile Include="Domain\ReviewStatus.cs" />
     <Compile Include="Domain\UserPreferencesVm.cs" />
+    <Compile Include="InternetExplorerBrowserEmulation.cs" />
+    <Compile Include="User\GitHubUser.cs" />
+    <Compile Include="User\IGitHubOAuth.cs" />
+    <Compile Include="User\IUserProvider.cs" />
+    <Compile Include="User\IUser.cs" />
     <Compile Include="Model\UserPreferences.cs" />
     <Compile Include="Model\CommentsBuilder.cs" />
     <Compile Include="Model\CommentsContainer.cs" />
@@ -199,6 +208,9 @@
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
     <Compile Include="Model\RepoHistoryPersist.cs" />
+    <Compile Include="UI\GitHubOAuthView.xaml.cs">
+      <DependentUpon>GitHubOAuthView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Service\DiffHelper\DiffLineNumAnalyzer.cs" />
     <Compile Include="Service\DiffHelper\DiffMatchPatch.cs" />
     <Compile Include="Service\DiffHelper\Section.cs" />
@@ -217,6 +229,11 @@
     <Compile Include="UI\DiffViewerLineNumberCtrl.cs" />
     <Compile Include="UI\ReviewStatusToIconConverter.cs" />
     <Compile Include="UI\ReviewStatusToStringConverter.cs" />
+    <Compile Include="User\UserManager.cs" />
+    <Page Include="UI\GitHubOAuthView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\BtnOpenInGitHub.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -427,6 +444,7 @@
       <FileType>Satellite</FileType>
     </PublishFile>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

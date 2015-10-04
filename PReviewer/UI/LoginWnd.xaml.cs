@@ -26,55 +26,59 @@ namespace PReviewer.UI
             Loaded += LoginWnd_Loaded;
         }
 
-        public ICommand LoginCmd
-        {
-            get { return new RelayCommand(Login); }
-        }
-
         private void LoginWnd_Loaded(object sender, RoutedEventArgs e)
         {
-            TxtUserName.Focus();
             if (!IsChangingAccount)
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
-                {
-                    if (!string.IsNullOrWhiteSpace(_viewModel.UserName))
-                    {
-                        Login();
-                    }
-                }));
+                // winforms browser is not able to show in loaded event.
+                Dispatcher.CurrentDispatcher.InvokeAsync(TryLogin);
             }
         }
 
-        private async void Login()
+        private void TryLogin()
         {
-            if (!this.ValidateTextBoxes())
+            if (!_viewModel.HasActiveUser)
             {
-                return;
-            }
-
-            try
-            {
-                var client = await _viewModel.Login();
-
-                if (client == null) return;
-
-                if (!IsChangingAccount)
+                if (!_viewModel.AddNewUser())
                 {
-                    var main = new MainWindow();
-                    Application.Current.MainWindow = main;
-                    main.Show();
+                    MessageBoxHelper.ShowError(this, "Failed to authenticate.");
+                    return;
                 }
-                Close();
             }
-            catch (Octokit.AuthorizationException)
+            else
             {
-                MessageBoxHelper.ShowError(this, "Login Failed. Please check your credential.");
+                _viewModel.CreateGitHubClientWhenTokenAlreadyGot();
             }
-            catch (Exception ex)
+
+            if (!IsChangingAccount)
             {
-                MessageBoxHelper.ShowError(this, ex.ToString());
+                var main = new MainWindow();
+
+                Application.Current.MainWindow = main;
+
+                main.Show();
             }
+            Close();
+        }
+
+        private void CreateGitHubClient()
+        {
+            _viewModel.CreateGitHubClientWhenTokenAlreadyGot();
+        }
+
+        private void OnAccountSelected(object sender, MouseButtonEventArgs e)
+        {
+            Close();
+        }
+
+        private void OnSelectAccountBtnClicked(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void LoginWnd_OnClosed(object sender, EventArgs e)
+        {
+            CreateGitHubClient();
         }
     }
 }

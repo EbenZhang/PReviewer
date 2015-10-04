@@ -3,14 +3,14 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using ExtendedCL;
-
+#if false
 namespace PReviewer.Domain
 {
     [Serializable]
     public struct LoginCredential
     {
-        public string Password;
         public string UserName;
+        public string Token;
     }
 
     public interface ICredentialPersisit
@@ -36,7 +36,7 @@ namespace PReviewer.Domain
                 {
                     var fmt = new BinaryFormatter();
                     var credential = (LoginCredential) fmt.Deserialize(stream);
-                    credential.Password = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(credential.Password));
+                    credential.Token = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(credential.Token));
                     return credential;
                 }
             }
@@ -59,9 +59,10 @@ namespace PReviewer.Domain
             var formatter = new BinaryFormatter();
             using (var stream = File.OpenWrite(LoginCredentialFile))
             {
-                credential.Password = Convert.ToBase64String(Encoding.UTF8.GetBytes(credential.Password));
+                credential.Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(credential.Token));
                 formatter.Serialize(stream, credential);
             }
         }
     }
 }
+#endif

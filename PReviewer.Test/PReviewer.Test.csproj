@@ -98,6 +98,8 @@
     <Compile Include="TestPullRequestUrlConverter.cs" />
     <Compile Include="TestCommitFileVm.cs" />
     <Compile Include="TestRecentRepo.cs" />
+    <Compile Include="User\TestGitHubUser.cs" />
+    <Compile Include="User\TestUserManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
