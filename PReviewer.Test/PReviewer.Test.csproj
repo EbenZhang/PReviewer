@@ -112,6 +112,10 @@
       <Project>{E4142C9C-2AFD-4579-97E2-767F3196AC4E}</Project>
       <Name>ExtendedCL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PReviewer.Core\PReviewer.Core.csproj">
+      <Project>{02c5d035-15ee-4d3b-8dee-ddce4cfcf492}</Project>
+      <Name>PReviewer.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PReviewer\PReviewer.csproj">
       <Project>{299cb64f-1aa9-4b9f-88e8-c540dfe5e69e}</Project>
       <Name>PReviewer</Name>

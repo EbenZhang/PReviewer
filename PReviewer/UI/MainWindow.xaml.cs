@@ -18,6 +18,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using PReviewer.Core;
 using WpfCommon.Controls;
 using WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;

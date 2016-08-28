@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PReviewer", "PReviewer\PReviewer.csproj", "{299CB64F-1AA9-4B9F-88E8-C540DFE5E69E}"
 EndProject
@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E288F2
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PReviewer.Core", "PReviewer.Core\PReviewer.Core.csproj", "{02C5D035-15EE-4D3B-8DEE-DDCE4CFCF492}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,10 @@ Global
 		{0BD73C97-DA5F-4826-92B6-20FBC1EE0D5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BD73C97-DA5F-4826-92B6-20FBC1EE0D5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BD73C97-DA5F-4826-92B6-20FBC1EE0D5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02C5D035-15EE-4D3B-8DEE-DDCE4CFCF492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02C5D035-15EE-4D3B-8DEE-DDCE4CFCF492}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02C5D035-15EE-4D3B-8DEE-DDCE4CFCF492}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02C5D035-15EE-4D3B-8DEE-DDCE4CFCF492}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

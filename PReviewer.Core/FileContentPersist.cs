@@ -2,9 +2,8 @@
 using System.IO;
 using System.Threading.Tasks;
 using ExtendedCL;
-using PReviewer.Domain;
 
-namespace PReviewer.Model
+namespace PReviewer.Core
 {
     public class FailedToSaveContent : Exception
     {

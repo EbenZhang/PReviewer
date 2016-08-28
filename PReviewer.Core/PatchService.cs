@@ -2,9 +2,8 @@
 using System.IO;
 using System.Threading.Tasks;
 using ExtendedCL;
-using PReviewer.Domain;
 
-namespace PReviewer.Model
+namespace PReviewer.Core
 {
     public class PatchService: IPatchService
     {
@@ -23,7 +22,7 @@ namespace PReviewer.Model
             var tmpPatchFile = Path.Combine(dir, Path.GetRandomFileName() + ".patch");
             using (var stream = File.OpenWrite(tmpPatchFile))
             {
-                var headOfPatch = string.Format("--- a/{0}\r\n+++ b/{1}\r\n", name, name);
+                var headOfPatch = $"--- a/{name}\r\n+++ b/{name}\r\n";
                 using (var sw = new StreamWriter(stream))
                 {
                     await sw.WriteLineAsync(headOfPatch);

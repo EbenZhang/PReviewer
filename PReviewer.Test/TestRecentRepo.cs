@@ -2,6 +2,7 @@
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
+using PReviewer.Core;
 using PReviewer.Domain;
 using Shouldly;
 

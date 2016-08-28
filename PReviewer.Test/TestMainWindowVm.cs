@@ -7,6 +7,7 @@ using ExtendedCL;
 using NSubstitute;
 using NUnit.Framework;
 using Octokit;
+using PReviewer.Core;
 using PReviewer.Domain;
 using PReviewer.Model;
 using PReviewer.Service;

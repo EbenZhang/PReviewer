@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ExtendedCL;
 using GalaSoft.MvvmLight;
+using PReviewer.Core;
 
 namespace PReviewer.Domain
 {

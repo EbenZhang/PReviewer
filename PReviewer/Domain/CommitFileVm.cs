@@ -70,11 +70,6 @@ namespace PReviewer.Domain
                    && GitHubCommitFile.Deletions == 0;
         }
 
-        public string GetFilePath(string commitSha)
-        {
-            return GitHubCommitFile.GetFilePath(commitSha);
-        }
-
         public ICommand ChangeReviewStatusCmd
         {
             get

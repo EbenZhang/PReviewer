@@ -8,6 +8,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Threading;
 using Octokit;
+using PReviewer.Core;
 using PReviewer.Model;
 using PReviewer.Service;
 
@@ -102,7 +103,7 @@ namespace PReviewer.Domain
             }
         }
 
-        private PullRequestLocator _prePullRequestLocator = Domain.PullRequestLocator.Empty;
+        private PullRequestLocator _prePullRequestLocator = PullRequestLocator.Empty;
         public PullRequestLocator PullRequestLocator
         {
             get { return _PullRequestLocator; }
@@ -290,7 +291,7 @@ namespace PReviewer.Domain
             {
                 var diffFile = SelectedDiffFile;
 
-                var pathes = await FetchDiffContent(diffFile);
+                var pathes = await FetchDiffContent(diffFile.GitHubCommitFile);
 
                 _diffTool.Open(pathes.Item1, pathes.Item2);
             }
@@ -301,64 +302,10 @@ namespace PReviewer.Domain
         /// </summary>
         /// <param name="diffFile"></param>
         /// <returns>basePath and headPath</returns>
-        private async Task<Tuple<string, string>> FetchDiffContent(CommitFileVm diffFile)
+        private async Task<Tuple<string, string>> FetchDiffContent(GitHubCommitFile diffFile)
         {
-            var headFileName = BuildHeadFileName(HeadCommit, diffFile.GitHubCommitFile.Filename);
-            var headPath = "";
-            string contentOfHead = null;
-
-            if (diffFile.GitHubCommitFile.Status == GitFileStatus.Removed)
-            {
-                headPath = await SaveToFile(headFileName, "");
-            }
-            else if (!_fileContentPersist.ExistsInCached(_PullRequestLocator, headFileName))
-            {
-                var collectionOfContentOfHead =
-                    await
-                        _client.Repository.Content.GetAllContents(PullRequestLocator.Owner,
-                            PullRequestLocator.Repository,
-                            diffFile.GitHubCommitFile.GetFilePath(HeadCommit));
-
-                contentOfHead = collectionOfContentOfHead.First().Content;
-                headPath = await SaveToFile(headFileName, contentOfHead);
-            }
-            else
-            {
-                headPath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, headFileName);
-            }
-
-            var baseFileName = BuildBaseFileName(BaseCommit, diffFile.GitHubCommitFile.Filename);
-            var basePath = "";
-            if (_fileContentPersist.ExistsInCached(_PullRequestLocator, baseFileName))
-            {
-                basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
-            }
-            else if (diffFile.GitHubCommitFile.Status == GitFileStatus.Renamed)
-            {
-                if (contentOfHead == null)
-                {
-                    contentOfHead = await _fileContentPersist.ReadContent(headPath);
-                }
-
-                basePath = _fileContentPersist.GetCachedFilePath(_PullRequestLocator, baseFileName);
-
-                await _patchService.RevertViaPatch(contentOfHead, diffFile.GitHubCommitFile.Patch, basePath);
-            }
-            else if (diffFile.GitHubCommitFile.Status == GitFileStatus.New)
-            {
-                basePath = await SaveToFile(baseFileName, "");
-            }
-            else
-            {
-                var contentOfBase =
-                    await
-                        _client.Repository.Content.GetAllContents(PullRequestLocator.Owner,
-                            PullRequestLocator.Repository,
-                            diffFile.GitHubCommitFile.GetFilePath(BaseCommit));
-
-                basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
-            }
-            return new Tuple<string, string>(basePath, headPath);
+            var fetcher = new DiffContentFetcher(PullRequestLocator, _fileContentPersist, _client, _patchService);
+            return await fetcher.FetchDiffContent(diffFile, HeadCommit, BaseCommit);
         }
 
         public static string BuildHeadFileName(string headCommit, string orgFileName)
@@ -533,7 +480,7 @@ namespace PReviewer.Domain
             {
                 Diffs.Add(new CommitFileVm(file));
                 var commitFile = Diffs.Last();
-                _backgroundTaskRunner.AddToQueue(async() => await FetchDiffContent(commitFile));
+                _backgroundTaskRunner.AddToQueue(async() => await FetchDiffContent(commitFile.GitHubCommitFile));
             }
         }
 

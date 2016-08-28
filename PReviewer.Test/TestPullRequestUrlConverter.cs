@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using PReviewer.Domain;
+using PReviewer.Core;
 
 namespace PReviewer.Test
 {

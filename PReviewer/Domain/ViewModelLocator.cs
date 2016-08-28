@@ -13,6 +13,7 @@
 */
 
 using Autofac;
+using PReviewer.Core;
 using PReviewer.Model;
 using PReviewer.Service;
 using PReviewer.UI;

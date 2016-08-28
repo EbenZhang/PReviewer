@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
-using PReviewer.Model;
+using PReviewer.Core;
 
 namespace PReviewer.UI
 {

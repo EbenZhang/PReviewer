@@ -178,12 +178,9 @@
     <Compile Include="Domain\ICredentialPersisit.cs" />
     <Compile Include="Domain\IDiffToolParamBuilder.cs" />
     <Compile Include="Domain\IDiffToolLauncher.cs" />
-    <Compile Include="Domain\IFileContentPersist.cs" />
     <Compile Include="Domain\IGitHubClientFactory.cs" />
-    <Compile Include="Domain\IPatchService.cs" />
     <Compile Include="Domain\IRepoHistoryPersist.cs" />
     <Compile Include="Domain\MainWindowVm.cs" />
-    <Compile Include="Domain\PullRequestLocator.cs" />
     <Compile Include="Domain\RecentRepo.cs" />
     <Compile Include="Domain\ReviewStatus.cs" />
     <Compile Include="Domain\UserPreferencesVm.cs" />
@@ -202,8 +199,6 @@
     <Compile Include="Model\DiffToolParamBuilder.cs" />
     <Compile Include="Model\DiffToolLauncher.cs" />
     <Compile Include="Model\FileComment.cs" />
-    <Compile Include="Model\FileContentPersist.cs" />
-    <Compile Include="Model\GitFileStatus.cs" />
     <Compile Include="Model\GitHubClientFactory.cs" />
     <Compile Include="Domain\ViewModelLocator.cs" />
     <Compile Include="Domain\LoginWndVm.cs" />
@@ -258,8 +253,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\GitHubCommitFileEx.cs" />
-    <Compile Include="Model\PatchService.cs" />
     <Compile Include="Model\SerializableCompareToolSettings.cs" />
     <Compile Include="UI\CompareToolSettings.xaml.cs">
       <DependentUpon>CompareToolSettings.xaml</DependentUpon>
@@ -309,9 +302,6 @@
     <Resource Include="Images\search.png" />
     <Resource Include="Images\glyphicons_051_eye_open.png" />
     <Resource Include="Images\glyphicons_389_new_window_alt.png" />
-    <Content Include="PatchBin\patch.exe.manifest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -325,6 +315,10 @@
     <ProjectReference Include="..\ExtendedCL\ExtendedCL\ExtendedCL.csproj">
       <Project>{e4142c9c-2afd-4579-97e2-767f3196ac4e}</Project>
       <Name>ExtendedCL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PReviewer.Core\PReviewer.Core.csproj">
+      <Project>{02c5d035-15ee-4d3b-8dee-ddce4cfcf492}</Project>
+      <Name>PReviewer.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfCommon\WpfCommon.csproj">
       <Project>{c66b81d7-c73e-41bf-8494-5cec64b21efe}</Project>
@@ -365,82 +359,82 @@
   <ItemGroup>
     <PublishFile Include="de\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="es\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="fr\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="pt-BR\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="ro\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="ru\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="sv\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
     <PublishFile Include="zh-Hans\Xceed.Wpf.AvalonDock.resources">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Satellite</FileType>
     </PublishFile>
   </ItemGroup>

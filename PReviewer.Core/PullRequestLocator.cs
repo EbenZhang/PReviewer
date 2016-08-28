@@ -1,19 +1,16 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using GalaSoft.MvvmLight;
+using PropertyChanged;
 
-namespace PReviewer.Domain
+namespace PReviewer.Core
 {
-    public class PullRequestLocator : ViewModelBase, IEquatable<PullRequestLocator>
+    [ImplementPropertyChanged]
+    public class PullRequestLocator :  IEquatable<PullRequestLocator>
     {
         public static readonly PullRequestLocator Empty = new PullRequestLocator();
-        private string _Repository;
-        private string _Owner;
-        private int _PullRequestNumber;
-
         public PullRequestLocator()
         {
-            
         }
 
         public PullRequestLocator(PullRequestLocator copyFrom)
@@ -23,35 +20,11 @@ namespace PReviewer.Domain
             this.PullRequestNumber = copyFrom.PullRequestNumber;
         }
 
-        public string Repository
-        {
-            get { return _Repository; }
-            set
-            {
-                _Repository = value;
-                RaisePropertyChanged();
-            }
-        }
+        public string Repository { get; set; }
 
-        public string Owner
-        {
-            get { return _Owner; }
-            set
-            {
-                _Owner = value;
-                RaisePropertyChanged();
-            }
-        }
+        public string Owner { get; set; }
 
-        public int PullRequestNumber
-        {
-            get { return _PullRequestNumber; }
-            set
-            {
-                _PullRequestNumber = value;
-                RaisePropertyChanged();
-            }
-        }
+        public int PullRequestNumber { get; set; }
 
         public static PullRequestLocator FromUrl(string url)
         {
@@ -80,8 +53,7 @@ namespace PReviewer.Domain
 
         public string ToUrl()
         {
-            return string.Format("https://github.com/{0}/{1}/pull/{2}",
-                Owner, Repository, PullRequestNumber);
+            return $"https://github.com/{Owner}/{Repository}/pull/{PullRequestNumber}";
         }
 
         public bool Equals(PullRequestLocator other)
@@ -91,11 +63,12 @@ namespace PReviewer.Domain
                 return true;
             }
 
-            return String.Compare(Owner, other.Owner, StringComparison.InvariantCultureIgnoreCase) == 0
-                   &&String.Compare(Repository, other.Repository, StringComparison.InvariantCultureIgnoreCase) == 0
-                   && this.PullRequestNumber == other.PullRequestNumber;
+            return string.Compare(Owner, other.Owner, StringComparison.InvariantCultureIgnoreCase) == 0
+                   &&string.Compare(Repository, other.Repository, StringComparison.InvariantCultureIgnoreCase) == 0
+                   && PullRequestNumber == other.PullRequestNumber;
         }
 
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
         public override int GetHashCode()
         {
             return (Owner ?? "" + (Repository ?? "") + PullRequestNumber).GetHashCode();

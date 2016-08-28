@@ -1,4 +1,4 @@
-﻿namespace PReviewer.Model
+﻿namespace PReviewer.Core
 {
     public static class GitFileStatus
     {
