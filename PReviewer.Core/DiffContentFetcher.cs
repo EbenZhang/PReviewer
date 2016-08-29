@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Octokit;
@@ -84,12 +85,12 @@ namespace PReviewer.Core
 
         public static string BuildHeadFileName(string headCommit, string orgFileName)
         {
-            return headCommit + "/Head/" + orgFileName;
+            return "Head/" + Path.GetFileName(orgFileName);
         }
 
         public static string BuildBaseFileName(string baseCommit, string orgFileName)
         {
-            return baseCommit + "/Base/" + orgFileName;
+            return "Base/" + Path.GetFileName(orgFileName);
         }
 
         public async Task<string> SaveToFile(string fileName, string content)

@@ -47,14 +47,12 @@ namespace PReviewer.Core
 
         public bool ExistsInCached(PullRequestLocator prInfo, string fileName)
         {
-            var filePath = GetFilePath(prInfo, fileName);
-            return File.Exists(filePath);
+            return false;
         }
 
         public string GetCachedFilePath(PullRequestLocator prInfo, string fileName)
         {
-            var filePath = GetFilePath(prInfo, fileName);
-            return filePath;
+            var filePath = GetFilePath(prInfo, fileName);            return filePath;
         }
 
         public async Task<string> ReadContent(string headPath)
@@ -82,7 +80,7 @@ namespace PReviewer.Core
 
         public static string GetPullRequestDir(PullRequestLocator prInfo)
         {
-            var prDir = Path.Combine(GetRootDir(), prInfo.Owner, prInfo.Repository, "PR" + prInfo.PullRequestNumber);
+            var prDir = Path.Combine(Path.GetTempPath(), "PR" + prInfo.PullRequestNumber);
             if (!Directory.Exists(prDir))
             {
                 Directory.CreateDirectory(prDir);
