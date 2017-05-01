@@ -88,7 +88,7 @@ namespace PReviewer.Domain
 
             _builder.RegisterType<GitHubUserPersister>().As<IGitHubUserPersister>();
 
-            _builder.RegisterType<UserManager>().As<IUserManager>();
+            _builder.RegisterType<UserManager>().As<IUserManager>().SingleInstance();
 
             _container = _builder.Build();
         }
