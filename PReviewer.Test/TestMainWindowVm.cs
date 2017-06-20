@@ -134,7 +134,8 @@ namespace PReviewer.Test
 
         private MockRepositoryContent MockFile1PersistFor(string rawContent, string sha)
         {
-            var headContent = new MockRepositoryContent { EncodedContent = rawContent };
+            var encodedContent = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(rawContent));
+            var headContent = new MockRepositoryContent(encodedContent);
             IReadOnlyList<RepositoryContent> headContentCollection =
                 new List<RepositoryContent> { headContent }.AsReadOnly();
             _contentsClient.GetAllContents(Arg.Any<string>(),
@@ -319,10 +320,10 @@ namespace PReviewer.Test
             await _mainWindowVm.PrepareDiffContent();
 
             _fileContentPersist.Received(1).SaveContent(_pullRequestLocator,
-                _headFileName,
+                DiffContentFetcher.BuildHeadFileName(_pullRequest.Head.Sha, _headFileName),
                 headContent.Content).IgnoreAsyncWarning();
             _fileContentPersist.Received(1).SaveContent(_pullRequestLocator,
-                _baseFileName,
+                DiffContentFetcher.BuildBaseFileName(_pullRequest.Base.Sha, _baseFileName),
                 baseContent.Content).IgnoreAsyncWarning();
         }
 
@@ -348,29 +349,6 @@ namespace PReviewer.Test
             await _mainWindowVm.PrepareDiffContent();
 
             _diffTool.Received(1).Open(basePath, headPath);
-        }
-
-        [Test]
-        public async void AbleToCachedFiles()
-        {
-            _fileContentPersist.ExistsInCached(Arg.Any<PullRequestLocator>(),
-                _baseFileName).Returns(true);
-            _fileContentPersist.ExistsInCached(Arg.Any<PullRequestLocator>(),
-                _headFileName).Returns(true);
-            const string cachedPath = "DummyPath";
-            _fileContentPersist.GetCachedFilePath(Arg.Any<PullRequestLocator>(), Arg.Any<string>()).Returns(cachedPath);
-
-            _mainWindowVm.SelectedDiffFile = new CommitFileVm(_compareResults.File1);
-
-            await _mainWindowVm.RetrieveDiffs();
-
-            await _mainWindowVm.PrepareDiffContent();
-
-            _contentsClient.DidNotReceiveWithAnyArgs().GetAllContents("", "", "").IgnoreAsyncWarning();
-            _fileContentPersist.DidNotReceiveWithAnyArgs().SaveContent(null, "", "").IgnoreAsyncWarning();
-            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, _baseFileName);
-            _fileContentPersist.Received(1).GetCachedFilePath(_pullRequestLocator, _headFileName);
-            _diffTool.Received(1).Open(cachedPath, cachedPath);
         }
 
         [Test]
@@ -409,7 +387,8 @@ namespace PReviewer.Test
             var headContent = MockFile1PersistFor("headContent", _pullRequest.Head.Sha);
 
             const string basePath = "basePath";
-            _fileContentPersist.GetCachedFilePath(_pullRequestLocator, _baseFileName).Returns(basePath);
+            _fileContentPersist.GetCachedFilePath(_pullRequestLocator, 
+                DiffContentFetcher.BuildBaseFileName(_pullRequest.Base.Sha, _baseFileName)).Returns(basePath);
 
             const string headPath = "headpath";
             _fileContentPersist.SaveContent(Arg.Any<PullRequestLocator>(),
