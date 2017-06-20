@@ -70,7 +70,7 @@ namespace PReviewer.Test
             _backgroundTaskRunner = Substitute.For<IBackgroundTaskRunner>();
 
             _gitHubClient.Repository.Returns(_repoClient);
-            _repoClient.Commits.Returns(_commitsClient);
+            _repoClient.Commit.Returns(_commitsClient);
             _repoClient.PullRequest.Returns(_prClient);
             _repoClient.Content.Returns(_contentsClient);
             _gitHubClient.Issue.Comment.Returns(_reviewClient);

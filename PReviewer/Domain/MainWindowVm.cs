@@ -223,7 +223,7 @@ namespace PReviewer.Domain
 
         private async Task<CompareResult> FetchCompareResult(IRepositoriesClient repo, PullRequest pr)
         {
-            var commitsClient = repo.Commits;
+            var commitsClient = repo.Commit;
             var compareResult =
                 await
                     commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, pr.Base.Sha,
@@ -461,7 +461,7 @@ namespace PReviewer.Domain
                 await SaveCommentsWithoutChangeBusyStatus(PullRequestLocator);
 
                 var repo = _client.Repository;
-                var commitsClient = repo.Commits;
+                var commitsClient = repo.Commit;
                 var compareResult =
                     await
                         commitsClient.Compare(PullRequestLocator.Owner, PullRequestLocator.Repository, BaseCommit,

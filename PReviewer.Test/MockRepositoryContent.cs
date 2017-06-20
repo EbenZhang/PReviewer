@@ -5,9 +5,9 @@ namespace PReviewer.Test
 {
     internal class MockRepositoryContent : RepositoryContent
     {
-        public new string EncodedContent
+        public MockRepositoryContent(string encodedContent) : base(null, null, null, 0, ContentType.File, null, null,
+            null, null, "", encodedContent, null, null)
         {
-            set { base.EncodedContent = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((value))); }
         }
     }
 }

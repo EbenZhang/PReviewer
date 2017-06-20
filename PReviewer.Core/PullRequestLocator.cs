@@ -5,7 +5,7 @@ using PropertyChanged;
 
 namespace PReviewer.Core
 {
-    [ImplementPropertyChanged]
+    [AddINotifyPropertyChangedInterface]
     public class PullRequestLocator :  IEquatable<PullRequestLocator>
     {
         public static readonly PullRequestLocator Empty = new PullRequestLocator();
