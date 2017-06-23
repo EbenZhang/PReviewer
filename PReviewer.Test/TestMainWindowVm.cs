@@ -12,6 +12,7 @@ using PReviewer.Domain;
 using PReviewer.Model;
 using PReviewer.Service;
 using Shouldly;
+using PReviewer.User;
 
 namespace PReviewer.Test
 {
@@ -68,6 +69,7 @@ namespace PReviewer.Test
             _commentsPersist = Substitute.For<ICommentsPersist>();
             _repoHistoryPersist = Substitute.For<IRepoHistoryPersist>();
             _backgroundTaskRunner = Substitute.For<IBackgroundTaskRunner>();
+            var userManager = Substitute.For<IUserManager>();
 
             _gitHubClient.Repository.Returns(_repoClient);
             _repoClient.Commit.Returns(_commitsClient);
@@ -83,7 +85,7 @@ namespace PReviewer.Test
 
             _mainWindowVm = new MainWindowVm(_gitHubClient, _fileContentPersist,
                 _diffTool, _patchService, _commentsBuilder,
-                _commentsPersist, _repoHistoryPersist, _backgroundTaskRunner)
+                _commentsPersist, _repoHistoryPersist, _backgroundTaskRunner, userManager)
             {
                 PullRequestLocator = _pullRequestLocator,
                 IsUrlMode = false
@@ -196,7 +198,7 @@ namespace PReviewer.Test
         {
             Assert.True(new MainWindowVm(_gitHubClient, _fileContentPersist,
                 _diffTool, _patchService, _commentsBuilder,
-                _commentsPersist, _repoHistoryPersist, _backgroundTaskRunner).IsUrlMode);
+                _commentsPersist, _repoHistoryPersist, _backgroundTaskRunner, Substitute.For<IUserManager>()).IsUrlMode);
         }
 
         [Test]

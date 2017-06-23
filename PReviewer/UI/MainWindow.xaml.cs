@@ -538,5 +538,10 @@ namespace PReviewer.UI
             var menu = sender as System.Windows.Controls.ContextMenu;
             if (menu != null) menu.IsOpen = false;
         }
+
+        private void GitHubBuddyHyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://github.com/Nicologies/GitHubBuddy/blob/master/README.md");
+        }
     }
 }

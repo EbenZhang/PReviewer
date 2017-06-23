@@ -31,6 +31,7 @@
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!--Criteria-->
             <GroupBox Grid.Row="0" Header="Pull Request">
@@ -508,6 +509,34 @@
                 Margin="16,4,0,0"
                 Command="{Binding OpenInBrowserCmd, ElementName=ThisWnd}"
                 HorizontalAlignment="Center">_Open In Browser</Button>
+            <Border Grid.Row="6" Background="Wheat" CornerRadius="5" BorderBrush="AliceBlue" BorderThickness="1,1,1,1" Margin="0,10,0,0">
+                <Border.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="20"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="FontSize" Value="20"/>
+                    </Style>
+                </Border.Resources>
+                <Grid Margin="2,2,2,2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <TextBlock>This application has been deprecated in favor of</TextBlock>
+                        <TextBlock>
+                            <Hyperlink Click="GitHubBuddyHyperlink_Click">GitHubBuddy</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock VerticalAlignment="Center">Your personal GitHub token is also valid for it:</TextBlock>
+                        <TextBox BorderBrush="Transparent" BorderThickness="0,0,0,0"
+                                 VerticalAlignment="Center" VerticalContentAlignment="Center"
+                                 Background="Ivory" IsReadOnly="true" Text="{Binding PersonalToken}"></TextBox>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
         <Grid>
             <Button 

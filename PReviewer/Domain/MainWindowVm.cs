@@ -11,6 +11,7 @@ using Octokit;
 using PReviewer.Core;
 using PReviewer.Model;
 using PReviewer.Service;
+using PReviewer.User;
 
 namespace PReviewer.Domain
 {
@@ -55,6 +56,17 @@ namespace PReviewer.Domain
             }
         }
 
+        private string _PersonalToken;
+        public string PersonalToken
+        {
+            get { return _PersonalToken; }
+            set
+            {
+                _PersonalToken = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _prTitle;
         private string _prDescription;
         private string _baseCommit;
@@ -66,11 +78,12 @@ namespace PReviewer.Domain
             ICommentsBuilder commentsBuilder,
             ICommentsPersist commentsPersist,
             IRepoHistoryPersist repoHistoryPersist,
-            IBackgroundTaskRunner backgroundTaskRunner)
+            IBackgroundTaskRunner backgroundTaskRunner, IUserManager userManager)
         {
             Diffs = new ObservableCollection<CommitFileVm>();
             Commits = new ObservableCollection<CommitVm>();
             _client = client;
+            PersonalToken = userManager.CurrentUser.Token;
             _fileContentPersist = fileContentPersist;
             _diffTool = diffTool;
             _patchService = patchService;
