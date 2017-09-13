@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using GalaSoft.MvvmLight;
-using WpfCommon.Utils;
+using Nicologies.WpfCommon.Utils;
 
 namespace PReviewer.User
 {

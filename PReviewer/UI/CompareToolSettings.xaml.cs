@@ -4,7 +4,7 @@ using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using Microsoft.Win32;
 using PReviewer.Domain;
-using WpfCommon.Utils;
+using Nicologies.WpfCommon.Utils;
 
 namespace PReviewer.UI
 {

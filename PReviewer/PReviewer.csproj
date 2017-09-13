@@ -106,6 +106,9 @@
     <Reference Include="Nicologies.ScopeGuard, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nicologies.ScopeGuard.1.0.0.1\lib\netstandard1.4\Nicologies.ScopeGuard.dll</HintPath>
     </Reference>
+    <Reference Include="Nicologies.WpfCommon, Version=1.0.0.20463, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nicologies.WpfCommon.1.0.0.20463\lib\net40\Nicologies.WpfCommon.dll</HintPath>
+    </Reference>
     <Reference Include="Octokit, Version=0.24.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.24.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
@@ -395,10 +398,6 @@
     <ProjectReference Include="..\PReviewer.Core\PReviewer.Core.csproj">
       <Project>{02c5d035-15ee-4d3b-8dee-ddce4cfcf492}</Project>
       <Name>PReviewer.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WpfCommon\WpfCommon.csproj">
-      <Project>{c66b81d7-c73e-41bf-8494-5cec64b21efe}</Project>
-      <Name>WpfCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

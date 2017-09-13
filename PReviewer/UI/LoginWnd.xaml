@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PReviewer.UI.LoginWnd"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon"
+        xmlns:converter="clr-namespace:Nicologies.WpfCommon.Converter;assembly=Nicologies.WpfCommon"
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWnd"
         Closed="LoginWnd_OnClosed"

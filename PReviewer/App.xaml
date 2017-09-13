@@ -6,11 +6,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" d1p1:Ignorable="d"
     xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:domain="clr-namespace:PReviewer.Domain"
-    xmlns:converter="clr-namespace:WpfCommon.Converter;assembly=WpfCommon">
+    xmlns:converter="clr-namespace:Nicologies.WpfCommon.Converter;assembly=Nicologies.WpfCommon">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/WpfCommon;Component/Xaml/Fixes.xaml" />
+                <ResourceDictionary Source="/Nicologies.WpfCommon;Component/Xaml/Fixes.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <domain:ViewModelLocator x:Key="ViewModelLocator" d:IsDataSource="True" />
             <converter:InverseBooleanConverter x:Key="InverseBooleanConverter"/>

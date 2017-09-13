@@ -19,8 +19,8 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using PReviewer.Core;
-using WpfCommon.Controls;
-using WpfCommon.Utils;
+using Nicologies.WpfCommon.Controls;
+using Nicologies.WpfCommon.Utils;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -141,7 +141,7 @@ namespace PReviewer.UI
                     var licMarkdown = File.ReadAllText(Path.Combine(PathHelper.ProcessDir, "LICENSE.md"));
                     var markdown = new MarkdownSharp.Markdown();
                     var html = "<html><body>" + markdown.Transform(licMarkdown) + "</body></html>";
-                    var dlg = new WpfCommon.Controls.AboutDialog
+                    var dlg = new Nicologies.WpfCommon.Controls.AboutDialog
                     {
                         Owner = this,
                         HtmlDescription = html,

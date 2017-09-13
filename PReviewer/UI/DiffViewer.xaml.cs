@@ -13,7 +13,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using WpfCommon.Utils;
+using Nicologies.WpfCommon.Utils;
 
 namespace PReviewer.UI
 {
