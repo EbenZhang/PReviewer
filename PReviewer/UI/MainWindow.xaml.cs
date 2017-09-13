@@ -1,4 +1,4 @@
-﻿using ExtendedCL;
+﻿using Nicologies;
 using GalaSoft.MvvmLight.CommandWpf;
 using Mantin.Controls.Wpf.Notification;
 using MarkdownSharp;

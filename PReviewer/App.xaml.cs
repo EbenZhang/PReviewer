@@ -1,11 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Navigation;
-using ExtendedCL;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Win32;
 using NBug.Core.Submission.Custom;
@@ -14,6 +11,7 @@ using Octokit;
 using PReviewer.Domain;
 using PReviewer.Model;
 using Application = System.Windows.Application;
+using Nicologies;
 
 namespace PReviewer
 {

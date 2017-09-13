@@ -103,6 +103,9 @@
       <HintPath>..\packages\NBug.1.2.2\lib\net40-client\NBug.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Nicologies.PathHelper, Version=1.0.0.40666, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nicologies.PathHelper.1.0.0.40666\lib\net462\Nicologies.PathHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Nicologies.ScopeGuard, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nicologies.ScopeGuard.1.0.0.1\lib\netstandard1.4\Nicologies.ScopeGuard.dll</HintPath>
     </Reference>

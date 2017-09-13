@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using ExtendedCL;
+using Nicologies;
 using PReviewer.Domain;
 
 namespace PReviewer.Model

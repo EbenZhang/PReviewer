@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
-using ExtendedCL;
+using Nicologies;
 using PReviewer.Domain;
 
 namespace PReviewer.Model

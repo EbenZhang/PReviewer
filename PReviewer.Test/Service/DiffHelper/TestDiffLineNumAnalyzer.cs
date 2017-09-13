@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using ExtendedCL;
+using Nicologies;
 using NSubstitute;
 using NUnit.Framework;
 using PReviewer.Service.DiffHelper;
