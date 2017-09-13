@@ -47,7 +47,7 @@ namespace PReviewer.Test
             var count = 0;
             _viewModel.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == PropertyName.Get((CompareToolSettingsVm x) => x.IsProcessing))
+                if (args.PropertyName == nameof(CompareToolSettingsVm.IsProcessing))
                 {
                     count++;
                 }
@@ -102,7 +102,7 @@ namespace PReviewer.Test
             var count = 0;
             _viewModel.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == PropertyName.Get((CompareToolSettingsVm x) => x.IsProcessing))
+                if (args.PropertyName == nameof(CompareToolSettingsVm.IsProcessing))
                 {
                     count++;
                 }

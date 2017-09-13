@@ -72,7 +72,7 @@ namespace PReviewer.UI
 
         void OnPrDescriptionChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != PropertyName.Get((MainWindowVm x) => x.PrDescription))
+            if (e.PropertyName != nameof(MainWindowVm.PrDescription))
             {
                 return;
             }

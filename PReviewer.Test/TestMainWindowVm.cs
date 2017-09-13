@@ -169,7 +169,7 @@ namespace PReviewer.Test
             var updateCount = 0;
             _mainWindowVm.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == PropertyName.Get((MainWindowVm x) => x.IsProcessing))
+                if (args.PropertyName == nameof(MainWindowVm.IsProcessing))
                 {
                     updateCount++;
                 }
@@ -281,7 +281,7 @@ namespace PReviewer.Test
             var updateCount = 0;
             _mainWindowVm.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == PropertyName.Get((MainWindowVm x) => x.IsProcessing))
+                if (args.PropertyName == nameof(MainWindowVm.IsProcessing))
                 {
                     updateCount++;
                 }
@@ -488,7 +488,7 @@ namespace PReviewer.Test
             var updateCount = 0;
             _mainWindowVm.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == PropertyName.Get((MainWindowVm x) => x.IsProcessing))
+                if (args.PropertyName == nameof(MainWindowVm.IsProcessing))
                 {
                     updateCount++;
                 }

@@ -28,7 +28,7 @@ namespace PReviewer.UI
         private readonly TextEditorOptionsVm _optionsVm = new TextEditorOptionsVm();
 
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register(PropertyName.Get<DiffViewer, string>(x => x.Text), 
+            DependencyProperty.Register(nameof(Text), 
                 typeof(string), typeof(DiffViewer),
                 new PropertyMetadata(default(string), TextPropertyChangedCallback));
 
@@ -68,7 +68,7 @@ namespace PReviewer.UI
             var binding = new Binding
             {
                 Source = OptionsVm,
-                Path = new PropertyPath(PropertyName.Get<TextEditorOptionsVm, TextEditorOptions>(x => x.Options))
+                Path = new PropertyPath(nameof(TextEditorOptionsVm.Options))
             };
 
             _diffViewer.SetBinding(TextEditor.OptionsProperty, binding);
@@ -192,7 +192,7 @@ namespace PReviewer.UI
                     args.Cancel = true;
                 };
                 var diffViewer = new DiffViewer {DataContext = this.DataContext};
-                var binding = new Binding(PropertyName.Get((MainWindowVm x) => x.TextForDiffViewer))
+                var binding = new Binding(nameof(MainWindowVm.TextForDiffViewer))
                 {
                     Source = this.DataContext
                 };

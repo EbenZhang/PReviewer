@@ -12,6 +12,7 @@ using PReviewer.Core;
 using PReviewer.Model;
 using PReviewer.Service;
 using PReviewer.User;
+using Nicologies.ScopeGuard;
 
 namespace PReviewer.Domain
 {
@@ -196,7 +197,7 @@ namespace PReviewer.Domain
 
         public async Task RetrieveDiffs()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus(_prePullRequestLocator);
 
@@ -300,7 +301,7 @@ namespace PReviewer.Domain
 
         public async Task PrepareDiffContent()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 var diffFile = SelectedDiffFile;
 
@@ -348,7 +349,7 @@ namespace PReviewer.Domain
 
         public async Task SubmitComments()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 var comments = GenerateComments();
                 await _reviewClient.Create(_PullRequestLocator.Owner,
@@ -364,7 +365,7 @@ namespace PReviewer.Domain
 
         public async Task SaveComments()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus(PullRequestLocator);
             }
@@ -390,7 +391,7 @@ namespace PReviewer.Domain
 
         public async Task LoadRepoHistory()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 var historyContainer = await _repoHistoryPersist.Load();
                 RecentRepoes.From(historyContainer);
@@ -409,7 +410,7 @@ namespace PReviewer.Domain
 
         public async Task ClearComments()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await _commentsPersist.Delete(PullRequestLocator);
                 foreach (var diff in Diffs)
@@ -469,7 +470,7 @@ namespace PReviewer.Domain
 
         private async void ChangeCommitRange()
         {
-            using (new ScopeDisposer(() => IsProcessing = true, () => IsProcessing = false))
+            using (new ScopeGuard(() => IsProcessing = true, () => IsProcessing = false))
             {
                 await SaveCommentsWithoutChangeBusyStatus(PullRequestLocator);
 
