@@ -1,20 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PReviewer", "PReviewer\PReviewer.csproj", "{299CB64F-1AA9-4B9F-88E8-C540DFE5E69E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedCL", "ExtendedCL\ExtendedCL\ExtendedCL.csproj", "{E4142C9C-2AFD-4579-97E2-767F3196AC4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PReviewer.Test", "PReviewer.Test\PReviewer.Test.csproj", "{0BD73C97-DA5F-4826-92B6-20FBC1EE0D5F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E288F27B-4562-43FC-B65F-C5389A1D309F}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PReviewer.Core", "PReviewer.Core\PReviewer.Core.csproj", "{02C5D035-15EE-4D3B-8DEE-DDCE4CFCF492}"
 EndProject
