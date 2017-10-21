@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using ExtendedCL;
 using NSubstitute;
 using NUnit.Framework;
 using Octokit;
@@ -13,6 +12,7 @@ using PReviewer.Model;
 using PReviewer.Service;
 using Shouldly;
 using PReviewer.User;
+using PReviewer.Core.VcsAbstraction.GitHub;
 
 namespace PReviewer.Test
 {

@@ -13,6 +13,8 @@ using PReviewer.Model;
 using PReviewer.Service;
 using PReviewer.User;
 using Nicologies.ScopeGuard;
+using PReviewer.Core.VcsAbstraction;
+using PReviewer.Core.VcsAbstraction.GitHub;
 
 namespace PReviewer.Domain
 {
@@ -305,7 +307,7 @@ namespace PReviewer.Domain
             {
                 var diffFile = SelectedDiffFile;
 
-                var pathes = await FetchDiffContent(diffFile.GitHubCommitFile);
+                var pathes = await FetchDiffContent(new CommitFile(diffFile.GitHubCommitFile));
 
                 _diffTool.Open(pathes.Item1, pathes.Item2);
             }
@@ -316,9 +318,10 @@ namespace PReviewer.Domain
         /// </summary>
         /// <param name="diffFile"></param>
         /// <returns>basePath and headPath</returns>
-        private async Task<Tuple<string, string>> FetchDiffContent(GitHubCommitFile diffFile)
+        private async Task<Tuple<string, string>> FetchDiffContent(ICommitFile diffFile)
         {
-            var fetcher = new DiffContentFetcher(PullRequestLocator, _fileContentPersist, _client, _patchService);
+            var fetcher = new DiffContentFetcher(PullRequestLocator, _fileContentPersist,
+				_patchService, new FileContentRetriever(_client));
             return await fetcher.FetchDiffContent(diffFile, HeadCommit, BaseCommit);
         }
 
@@ -494,7 +497,7 @@ namespace PReviewer.Domain
             {
                 Diffs.Add(new CommitFileVm(file));
                 var commitFile = Diffs.Last();
-                _backgroundTaskRunner.AddToQueue(async() => await FetchDiffContent(commitFile.GitHubCommitFile));
+                _backgroundTaskRunner.AddToQueue(async() => await FetchDiffContent(new CommitFile(commitFile.GitHubCommitFile)));
             }
         }
 

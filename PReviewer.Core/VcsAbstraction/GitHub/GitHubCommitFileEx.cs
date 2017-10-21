@@ -1,6 +1,6 @@
 ﻿using Octokit;
 
-namespace PReviewer.Core
+namespace PReviewer.Core.VcsAbstraction.GitHub
 {
     public static class GitHubCommitFileEx
     {

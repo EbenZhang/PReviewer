@@ -46,12 +46,16 @@
     <Compile Include="DiffContentFetcher.cs" />
     <Compile Include="FileContentPersist.cs" />
     <Compile Include="GitFileStatus.cs" />
-    <Compile Include="GitHubCommitFileEx.cs" />
+    <Compile Include="VcsAbstraction\GitHub\GitHubCommitFileEx.cs" />
     <Compile Include="IFileContentPersist.cs" />
     <Compile Include="IPatchService.cs" />
     <Compile Include="PatchService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PullRequestLocator.cs" />
+    <Compile Include="VcsAbstraction\GitHub\CommitFile.cs" />
+    <Compile Include="VcsAbstraction\GitHub\FileContentRetriever.cs" />
+    <Compile Include="VcsAbstraction\ICommitFile.cs" />
+    <Compile Include="VcsAbstraction\IFileContentRetriever.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />

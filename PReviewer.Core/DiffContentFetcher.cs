@@ -1,47 +1,41 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Octokit;
+using PReviewer.Core.VcsAbstraction;
 
 namespace PReviewer.Core
 {
-    public class DiffContentFetcher
+	public class DiffContentFetcher
     {
         private readonly PullRequestLocator _pullRequestLocator;
         private readonly IFileContentPersist _fileContentPersist;
-        private readonly IGitHubClient _client;
         private readonly IPatchService _patchService;
+		private readonly IFileContentRetriever _fileContentRetriever;
 
         public DiffContentFetcher(PullRequestLocator pullRequestLocator,
-            IFileContentPersist fileContentPersist, IGitHubClient client, IPatchService patchService)
+            IFileContentPersist fileContentPersist,
+			IPatchService patchService, IFileContentRetriever fileContentRetriever)
         {
             _pullRequestLocator = pullRequestLocator;
             _fileContentPersist = fileContentPersist;
-            _client = client;
             _patchService = patchService;
-        }
+			_fileContentRetriever = fileContentRetriever;
+		}
 
-        public async Task<Tuple<string, string>> FetchDiffContent(GitHubCommitFile diffFile, 
+        public async Task<Tuple<string, string>> FetchDiffContent(ICommitFile diffFile, 
             string headCommit, string baseCommit)
         {
             var headFileName = BuildHeadFileName(headCommit, diffFile.Filename);
             var headPath = "";
             string contentOfHead = null;
 
-            if (diffFile.Status == GitFileStatus.Removed)
+            if (diffFile.Status == FileStatus.Removed)
             {
                 headPath = await SaveToFile(headFileName, "");
             }
             else if (!_fileContentPersist.ExistsInCached(_pullRequestLocator, headFileName))
             {
-                var collectionOfContentOfHead =
-                    await
-                        _client.Repository.Content.GetAllContents(_pullRequestLocator.Owner,
-                            _pullRequestLocator.Repository,
-                            diffFile.GetFilePath(headCommit));
-
-                contentOfHead = collectionOfContentOfHead.First().Content;
+                contentOfHead = await _fileContentRetriever.GetContent(_pullRequestLocator, diffFile.GetFilePath(headCommit));
                 headPath = await SaveToFile(headFileName, contentOfHead);
             }
             else
@@ -55,7 +49,7 @@ namespace PReviewer.Core
             {
                 basePath = _fileContentPersist.GetCachedFilePath(_pullRequestLocator, baseFileName);
             }
-            else if (diffFile.Status == GitFileStatus.Renamed)
+            else if (diffFile.Status == FileStatus.Renamed)
             {
                 if (contentOfHead == null)
                 {
@@ -66,19 +60,14 @@ namespace PReviewer.Core
 
                 await _patchService.RevertViaPatch(contentOfHead, diffFile.Patch, basePath);
             }
-            else if (diffFile.Status == GitFileStatus.New)
+            else if (diffFile.Status == FileStatus.New)
             {
                 basePath = await SaveToFile(baseFileName, "");
             }
             else
             {
-                var contentOfBase =
-                    await
-                        _client.Repository.Content.GetAllContents(_pullRequestLocator.Owner,
-                            _pullRequestLocator.Repository,
-                            diffFile.GetFilePath(baseCommit));
-
-                basePath = await SaveToFile(baseFileName, contentOfBase.First().Content);
+				var contentOfBase = await _fileContentRetriever.GetContent(_pullRequestLocator, diffFile.GetFilePath(baseCommit));
+                basePath = await SaveToFile(baseFileName, contentOfBase);
             }
             return new Tuple<string, string>(basePath, headPath);
         }
